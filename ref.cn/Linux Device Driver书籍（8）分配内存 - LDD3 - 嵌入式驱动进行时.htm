@@ -1,0 +1,1219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270112 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时" name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（8）分配内存</B></FONT> 
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>第&nbsp;8&nbsp;章&nbsp;分配内存</DIV>
+                        <DIV>
+                        <P>至此, 我们已经使用 kmalloc 和 kfree 来分配和释放内存. Linux 
+                        内核提供了更丰富的一套内存分配原语, 但是. 在本章, 
+                        我们查看在设备驱动中使用内存的其他方法和如何优化你的系统的内存资源. 我们不涉及不同的体系实际上如何管理内存. 
+                        模块不牵扯在分段, 分页等问题中, 因为内核提供一个统一的内存管理驱动接口. 另外, 
+                        我们不会在本章描述内存管理的内部细节, 但是推迟在 15 章.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=TheRealStoryofkmalloc.sect></A>8.1.&nbsp;kmalloc 
+                        的真实故事</H2></DIV></DIV></DIV>
+                        <P>kmalloc 分配引擎是一个有力的工具并且容易学习因为它对 malloc 的相似性. 
+                        这个函数快(除非它阻塞)并且不清零它获得的内存; 分配的区仍然持有它原来的内容.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch08.html#ftn.id450180" 
+                        name=id450180><FONT color=#0000ff>28</FONT></A>]</SUP> 
+                        分配的区也是在物理内存中连续. 在下面几节, 我们详细讨论 kmalloc, 
+                        因此你能比较它和我们后来要讨论的内存分配技术.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheFlagsArgument.sect></A>8.1.1.&nbsp;flags 
+                        参数</H3></DIV></DIV></DIV>
+                        <P>记住 kmalloc 原型是:</P><PRE class=programlisting>#include &lt;linux/slab.h&gt; 
+void *kmalloc(size_t size, int flags); 
+</PRE>
+                        <P>给 kmalloc 的第一个参数是要分配的块的大小. 第 2 个参数, 分配标志, 非常有趣, 
+                        因为它以几个方式控制 kmalloc 的行为.</P>
+                        <P>最一般使用的标志, GFP_KERNEL, 意思是这个分配((内部最终通过调用 
+                        __get_free_pages 来进行, 它是 GFP_ 前缀的来源) 代表运行在内核空间的进程而进行的. 
+                        换句话说, 这意味着调用函数是代表一个进程在执行一个系统调用. 使用 GFP_KENRL 意味着 kmalloc 
+                        能够使当前进程在少内存的情况下睡眠来等待一页. 一个使用 GFP_KERNEL 来分配内存的函数必须, 因此, 
+                        是可重入的并且不能在原子上下文中运行. 当当前进程睡眠, 内核采取正确的动作来定位一些空闲内存, 
+                        或者通过刷新缓存到磁盘或者交换出去一个用户进程的内存.</P>
+                        <P>GFP_KERNEL 不一直是使用的正确分配标志; 有时 kmalloc 从一个进程的上下文的外部调用. 
+                        例如, 这类的调用可能发生在中断处理, tasklet, 和内核定时器中. 在这个情况下, 
+                        当前进程不应当被置为睡眠, 并且驱动应当使用一个 GFP_ATOMIC 标志来代替. 
+                        内核正常地试图保持一些空闲页以便来满足原子的分配. 当使用 GFP_ATOMIC 时, kmalloc 
+                        能够使用甚至最后一个空闲页. 如果这最后一个空闲页不存在, 但是, 分配失败.</P>
+                        <P>其他用来代替或者增添 GFP_KERNEL 和 GFP_ATOMIC 的标志, 尽管它们 2 
+                        个涵盖大部分设备驱动的需要. 所有的标志定义在 &lt;linux/gfp.h&gt;, 
+                        并且每个标志用一个双下划线做前缀, 例如 __GFP_DMA. 另外, 有符号代表常常使用的标志组合; 
+                        这些缺乏前缀并且有时被称为分配优先级. 后者包括:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term>GFP_ATOMIC <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>用来从中断处理和进程上下文之外的其他代码中分配内存. 从不睡眠.</P>
+                          <DT><SPAN class=term>GFP_KERNEL <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>内核内存的正常分配. 可能睡眠.</P>
+                          <DT><SPAN class=term>GFP_USER <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>用来为用户空间页来分配内存; 它可能睡眠.</P>
+                          <DT><SPAN class=term>GFP_HIGHUSER <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>如同 GFP_USER, 但是从高端内存分配, 如果有. 高端内存在下一个子节描述.</P>
+                          <DT><SPAN class=term>GFP_NOIO <SPAN></SPAN></SPAN>
+                          <DD>
+                          <DT><SPAN class=term>GFP_NOFS <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>这个标志功能如同 GFP_KERNEL, 但是它们增加限制到内核能做的来满足请求. 一个 
+                          GFP_NOFS 分配不允许进行任何文件系统调用, 而 GFP_NOIO 根本不允许任何 I/O 初始化. 
+                          它们主要地用在文件系统和虚拟内存代码, 那里允许一个分配睡眠, 
+                          但是递归的文件系统调用会是一个坏注意.</P></DD></DL></DIV>
+                        <P>上面列出的这些分配标志可以是下列标志的相或来作为参数, 这些标志改变这些分配如何进行:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term>__GFP_DMA <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>这个标志要求分配在能够 DMA 的内存区. 确切的含义是平台依赖的并且在下面章节来解释.</P>
+                          <DT><SPAN class=term>__GFP_HIGHMEM 
+<SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>这个标志指示分配的内存可以位于高端内存.</P>
+                          <DT><SPAN class=term>__GFP_COLD <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>正常地, 内存分配器尽力返回"缓冲热"的页 -- 可能在处理器缓冲中找到的页. 相反, 
+                          这个标志请求一个"冷"页, 它在一段时间没被使用. 它对分配页作 DMA 读是有用的, 
+                          此时在处理器缓冲中出现是无用的. 一个完整的对如何分配 DMA 缓存的讨论看"直接内存存取"一节在第 1 
+                          章.</P>
+                          <DT><SPAN class=term>__GFP_NOWARN <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>这个很少用到的标志阻止内核来发出警告(使用 printk ), 当一个分配无法满足.</P>
+                          <DT><SPAN class=term>__GFP_HIGH <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>这个标志标识了一个高优先级请求, 它被允许来消耗甚至被内核保留给紧急状况的最后的内存页.</P>
+                          <DT><SPAN class=term>__GFP_REPEAT<SPAN></SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>__GFP_NOFAIL<SPAN></SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>__GFP_NORETRY 
+<SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>这些标志修改分配器如何动作, 当它有困难满足一个分配. __GFP_REPEAT 意思是" 
+                          更尽力些尝试" 通过重复尝试 -- 但是分配可能仍然失败. __GFP_NOFAIL 
+                          标志告诉分配器不要失败; 它尽最大努力来满足要求. 使用 __GFP_NOFAIL 是强烈不推荐的; 
+                          可能从不会有有效的理由在一个设备驱动中使用它. 最后, __GFP_NORETRY 
+                          告知分配器立即放弃如果得不到请求的内存.</P></DD></DL></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Memoryzones.sect></A>8.1.1.1.&nbsp;内存区</H4></DIV></DIV></DIV>
+                        <P>__GFP_DMA 和 __GFP_HIGHMEM 都有一个平台相关的角色, 
+                        尽管对所有平台它们的使用都有效.</P>
+                        <P>Linux 内核知道最少 3 个内存区: DMA-能够 内存, 普通内存, 和高端内存. 
+                        尽管通常地分配都发生于普通区, 设置这些刚刚提及的位的任一个请求从不同的区来分配内存. 这个想法是, 
+                        每个必须知道特殊内存范围(不是认为所有的 RAM 等同)的计算机平台将落入这个抽象中.</P>
+                        <P>DMA-能够 的内存是位于一个优先的地址范围, 外设可以在这里进行 DMA 存取. 在大部分的健全的平台, 
+                        所有的内存都在这个区. 在 x86, DMA 区用在 RAM 的前 16 MB, 这里传统的 ISA 
+                        设备可以进行 DMA; PCI 设备没有这个限制.</P>
+                        <P>高端内存是一个机制用来允许在 32-位 平台存取(相对地)大量内存. 
+                        如果没有首先设置一个特殊的映射这个内存无法直接从内核存取并且通常更难使用. 如果你的驱动使用大量内存, 但是, 
+                        如果它能够使用高端内存它将在大系统中工作的更好. 高端内存如何工作以及如何使用它的详情见第 1 
+                        章的"高端和低端内存"一节.</P>
+                        <P>无论何时分配一个新页来满足一个内存分配请求, 内核都建立一个能够在搜索中使用的内存区的列表. 如果 
+                        __GFP_DMA 指定了, 只有 DMA 区被搜索: 如果在低端没有内存可用, 分配失败. 
+                        如果没有特别的标志存取, 普通和 DMA 内存都被搜索; 如果 __GFP_HIGHMEM 设置了, 所有的 3 
+                        个区都用来搜索一个空闲的页. (注意, 但是, kmalloc 不能分配高端内存.)</P>
+                        <P>情况在非统一内存存取(NUMA)系统上更加复杂. 作为一个通用的规则, 
+                        分配器试图定位进行分配的处理器的本地的内存, 尽管有几个方法来改变这个行为.</P>
+                        <P>内存区后面的机制在 mm/page_alloc.c 中实现, 而内存区的初始化在平台特定的文件中, 常常在 
+                        arch 目录树的 mm/init.c. 我们将在第 15 章再次讨论这些主题.</P></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheSizeArgument.sect></A>8.1.2.&nbsp; size 
+                        参数</H3></DIV></DIV></DIV>
+                        <P>内核管理系统的物理内存, 这些物理内存只是以页大小的块来使用. 结果是, kmalloc 
+                        看来非常不同于一个典型的用户空间 malloc 实现. 一个简单的, 面向堆的分配技术可能很快有麻烦; 
+                        它可能在解决页边界时有困难. 因而, 内核使用一个特殊的面向页的分配技术来最好地利用系统 RAM.</P>
+                        <P>Linux 处理内存分配通过创建一套固定大小的内存对象池. 分配请求被这样来处理, 
+                        进入一个持有足够大的对象的池子并且将整个内存块递交给请求者. 内存管理方案是非常复杂, 
+                        并且细节通常不是全部设备驱动编写者都感兴趣的.</P>
+                        <P>然而, 驱动开发者应当记住的一件事情是, 内核只能分配某些预定义的, 固定大小的字节数组. 
+                        如果你请求一个任意数量内存, 你可能得到稍微多于你请求的, 至多是 2 倍数量. 同样, 程序员应当记住 
+                        kmalloc 能够处理的最小分配是 32 或者 64 字节, 依赖系统的体系所使用的页大小.</P>
+                        <P>kmalloc 能够分配的内存块的大小有一个上限. 这个限制随着体系和内核配置选项而变化. 
+                        如果你的代码是要完全可移植, 它不能指望可以分配任何大于 128 KB. 如果你需要多于几个 KB, 但是, 
+                        有个比 kmalloc 更好的方法来获得内存, 我们在本章后面描述.</P></DIV></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch08.html#id450180" 
+                        name=ftn.id450180><FONT color=#0000ff>28</FONT></A>] 
+                        </SUP>在其他的之中, 这暗含着你应当明确地清零可能暴露给用户空间或者写入设备的内存; 否则, 
+                        你可能冒险将应当保密的信息透露出去.</P>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=LookasideCaches.sect></A>8.2.&nbsp;后备缓存</H2></DIV></DIV></DIV>
+                        <P>一个设备驱动常常以反复分配许多相同大小的对象而结束. 如果内核已经维护了一套相同大小对象的内存池, 
+                        为什么不增加一些特殊的内存池给这些高容量的对象? 实际上, 内核确实实现了一个设施来创建这类内存池, 
+                        它常常被称为一个后备缓存. 设备驱动常常不展示这类的内存行为, 它们证明使用一个后备缓存是对的, 但是, 
+                        有例外; 在 Linux 2.6 中 USB 和 SCSI 驱动使用缓存.</P>
+                        <P>Linux 内核的缓存管理者有时称为" slab 分配器". 因此, 它的功能和类型在 
+                        &lt;linux/slab.h&gt; 中声明. slab 分配器实现有一个 kmem_cache_t 
+                        类型的缓存; 使用一个对 kmem_cache_create 的调用来创建它们:</P><PRE class=programlisting>kmem_cache_t *kmem_cache_create(const char *name, size_t size,
+ size_t offset,
+ unsigned long flags,
+ void (*constructor)(void *, kmem_cache_t *,
+ unsigned long flags), void (*destructor)(void *, kmem_cache_t *, unsigned long flags)); 
+</PRE>
+                        <P>这个函数创建一个新的可以驻留任意数目全部同样大小的内存区的缓存对象, 大小由 size 参数指定. 
+                        name 参数和这个缓存关联并且作为一个在追踪问题时有用的管理信息; 通常, 它被设置为被缓存的结构类型的名子. 
+                        这个缓存保留一个指向 name 的指针, 而不是拷贝它, 
+                        因此驱动应当传递一个指向在静态存储中的名子的指针(常常这个名子只是一个文字字串). 
+这个名子不能包含空格.</P>
+                        <P>offset 是页内的第一个对象的偏移; 它可被用来确保一个对被分配的对象的特殊对齐, 但是你最可能会使用 
+                        0 来请求缺省值. flags 控制如何进行分配并且是下列标志的一个位掩码:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>SLAB_NO_REAP </SPAN></SPAN>
+                          <DD>
+                          <P>设置这个标志保护缓存在系统查找内存时被削减. 设置这个标志通常是个坏主意; 
+                          重要的是避免不必要地限制内存分配器的行动自由.</P>
+                          <DT><SPAN class=term><SPAN>SLAB_HWCACHE_ALIGN 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个标志需要每个数据对象被对齐到一个缓存行; 实际对齐依赖主机平台的缓存分布. 
+                          这个选项可以是一个好的选择, 如果在 SMP 机器上你的缓存包含频繁存取的项. 但是, 
+                          用来获得缓存行对齐的填充可以浪费可观的内存量.</P>
+                          <DT><SPAN class=term><SPAN>SLAB_CACHE_DMA 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个标志要求每个数据对象在 DMA 内存区分配.</P></DD></DL></DIV>
+                        <P>还有一套标志用来调试缓存分配; 详情见 mm/slab.c. 但是, 常常地, 在用来开发的系统中, 
+                        这些标志通过一个内核配置选项被全局性地设置</P>
+                        <P>函数的 constructor 和 destructor 参数是可选函数( 但是可能没有 
+                        destructor, 如果没有 constructor ); 前者可以用来初始化新分配的对象, 
+                        后者可以用来"清理"对象在它们的内存被作为一个整体释放回给系统之前.</P>
+                        <P>构造函数和析构函数会有用, 但是有几个限制你必须记住. 一个构造函数在分配一系列对象的内存时被调用; 
+                        因为内存可能持有几个对象, 构造函数可能被多次调用. 
+                        你不能假设构造函数作为分配一个对象的一个立即的结果而被调用. 同样地, 析构函数可能在以后某个未知的时间中调用, 
+                        不是立刻在一个对象被释放后. 析构函数和构造函数可能或不可能被允许睡眠, 根据它们是否被传递 
+                        SLAB_CTOR_ATOMIC 标志(这里 CTOR 是 constructor 的缩写).</P>
+                        <P>为方便, 一个程序员可以使用相同的函数给析构函数和构造函数; slab 分配器常常传递 
+                        SLAB_CTOR_CONSTRUCTOR 标志当被调用者是一个构造函数.</P>
+                        <P>一旦一个对象的缓存被创建, 你可以通过调用 kmem_cache_alloc 从它分配对象.</P><PRE class=programlisting>void *kmem_cache_alloc(kmem_cache_t *cache, int flags);
+</PRE>
+                        <P>这里, cache 参数是你之前已经创建的缓存; flags 是你会传递给 kmalloc 的相同, 
+                        并且被参考如果 kmem_cache_alloc 需要出去并分配更多内存.</P>
+                        <P>为释放一个对象, 使用 kmem_cache_free:</P><PRE class=programlisting> void kmem_cache_free(kmem_cache_t *cache, const void *obj); 
+</PRE>
+                        <P>当驱动代码用完这个缓存, 典型地当模块被卸载, 它应当如下释放它的缓存:</P><PRE class=programlisting> int kmem_cache_destroy(kmem_cache_t *cache); 
+</PRE>
+                        <P>这个销毁操作只在从这个缓存中分配的所有的对象都已返回给它时才成功. 因此, 一个模块应当检查从 
+                        kmem_cache_destroy 的返回值; 
+                        一个失败指示某类在模块中的内存泄漏(因为某些对象已被丢失.)</P>
+                        <P>使用后备缓存的一方面益处是内核维护缓冲使用的统计. 这些统计可从 /proc/slabinfo 
+                        获得.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AscullBasedontheSlabCachesscullc.sect></A>8.2.1.&nbsp;一个基于 
+                        Slab 缓存的 scull: scullc</H3></DIV></DIV></DIV>
+                        <P>是时候给个例子了. scullc 是一个简化的 scull 模块的版本, 它只实现空设备 -- 
+                        永久的内存区. 不象 scull, 它使用 kmalloc, scullc 使用内存缓存. 
+                        量子的大小可在编译时和加载时修改, 但是不是在运行时 -- 这可能需要创建一个新内存区, 
+                        并且我们不想处理这些不必要的细节.</P>
+                        <P>scullc 使用一个完整的例子, 可用来试验 slab 分配器. 它区别于 scull 只在几行代码. 
+                        首先, 我们必须声明我们自己的 slab 缓存:</P><PRE class=programlisting>/* declare one cache pointer: use it for all devices */
+kmem_cache_t *scullc_cache;
+</PRE>
+                        <P>slab 缓存的创建以这样的方式处理( 在模块加载时 ):</P><PRE class=programlisting>/* scullc_init: create a cache for our quanta */
+scullc_cache = kmem_cache_create("scullc", scullc_quantum,
+                                 0, SLAB_HWCACHE_ALIGN, NULL, NULL); /* no ctor/dtor */
+
+if (!scullc_cache)
+{
+        scullc_cleanup();
+        return -ENOMEM;
+
+}
+</PRE>
+                        <P>这是它如何分配内存量子:</P><PRE class=programlisting>/* Allocate a quantum using the memory cache */
+if (!dptr-&gt;data[s_pos])
+{
+        dptr-&gt;data[s_pos] = kmem_cache_alloc(scullc_cache, GFP_KERNEL);
+        if (!dptr-&gt;data[s_pos])
+
+                goto nomem;
+        memset(dptr-&gt;data[s_pos], 0, scullc_quantum);
+}
+</PRE>
+                        <P>还有这些代码行释放内存:</P><PRE class=programlisting>for (i = 0; i &lt; qset; i++)
+        if (dptr-&gt;data[i])
+                kmem_cache_free(scullc_cache, dptr-&gt;data[i]);
+</PRE>
+                        <P>最后, 在模块卸载时, 我们不得不返回缓存给系统:</P><PRE class=programlisting>/* scullc_cleanup: release the cache of our quanta */
+if (scullc_cache)
+        kmem_cache_destroy(scullc_cache);
+</PRE>
+                        <P>从 scull 到 scullc 的主要不同是稍稍的速度提升以及更好的内存使用. 
+                        因为量子从一个恰好是合适大小的内存片的池中分配, 它们在内存中的排列是尽可能的密集, 与 scull 
+                        量子的相反, 它带来一个不可预测的内存碎片.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=MemoryPools.sect></A>8.2.2.&nbsp;内存池</H3></DIV></DIV></DIV>
+                        <P>在内核中有不少地方内存分配不允许失败. 作为一个在这些情况下确保分配的方式, 
+                        内核开发者创建了一个已知为内存池(或者是 "mempool" )的抽象. 一个内存池真实地只是一类后备缓存, 
+                        它尽力一直保持一个空闲内存列表给紧急时使用.</P>
+                        <P>一个内存池有一个类型 mempool_t ( 在 &lt;linux/mempool.h&gt; 
+                        中定义); 你可以使用 mempool_create 创建一个:</P><PRE class=programlisting>mempool_t *mempool_create(int min_nr,
+ mempool_alloc_t *alloc_fn,
+ mempool_free_t *free_fn,
+ void *pool_data); 
+</PRE>
+                        <P>min_nr 参数是内存池应当一直保留的最小数量的分配的对象. 实际的分配和释放对象由 alloc_fn 
+                        和 free_fn 处理, 它们有这些原型:</P><PRE class=programlisting>typedef void *(mempool_alloc_t)(int gfp_mask, void *pool_data);
+typedef void (mempool_free_t)(void *element, void *pool_data);
+</PRE>
+                        <P>给 mempool_create 最后的参数 ( pool_data ) 被传递给 alloc_fn 和 
+                        free_fn.</P>
+                        <P>如果需要, 你可编写特殊用途的函数来处理 mempool 的内存分配. 常常, 但是, 你只需要使内核 
+                        slab 分配器为你处理这个任务. 有 2 个函数 ( mempool_alloc_slab 和 
+                        mempool_free_slab) 来进行在内存池分配原型和 kmem_cache_alloc 和 
+                        kmem_cache_free 之间的感应淬火. 因此, 设置内存池的代码常常看来如此:</P><PRE class=programlisting>cache = kmem_cache_create(. . .); 
+pool = mempool_create(MY_POOL_MINIMUM,mempool_alloc_slab, mempool_free_slab, cache); 
+</PRE>
+                        <P>一旦已创建了内存池, 可以分配和释放对象,使用:</P><PRE class=programlisting>void *mempool_alloc(mempool_t *pool, int gfp_mask);
+void mempool_free(void *element, mempool_t *pool);
+</PRE>
+                        <P>当内存池创建了, 分配函数将被调用足够的次数来创建一个预先分配的对象池. 因此, 对 
+                        mempool_alloc 的调用试图从分配函数请求额外的对象; 如果那个分配失败, 
+                        一个预先分配的对象(如果有剩下的)被返回. 当一个对象被用 mempool_free 释放, 它保留在池中, 
+                        如果对齐预分配的对象数目小于最小量; 否则, 它将被返回给系统.</P>
+                        <P>一个 mempool 可被重新定大小, 使用:</P><PRE class=programlisting>int mempool_resize(mempool_t *pool, int new_min_nr, int gfp_mask);
+</PRE>
+                        <P>这个调用, 如果成功, 调整内存池的大小至少有 new_min_nr 个对象. 如果你不再需要一个内存池, 
+                        返回给系统使用:</P><PRE class=programlisting>void mempool_destroy(mempool_t *pool); 
+</PRE>
+                        <P>你编写返回所有的分配的对象, 在销毁 mempool 之前, 否则会产生一个内核 oops.</P>
+                        <P>如果你考虑在你的驱动中使用一个 mempool, 请记住一件事: mempools 
+                        分配一块内存在一个链表中, 对任何真实的使用是空闲和无用的. 容易使用 mempools 消耗大量的内存. 
+                        在几乎每个情况下, 首选的可选项是不使用 mempool 并且代替以简单处理分配失败的可能性. 
+                        如果你的驱动有任何方法以不危害到系统完整性的方式来响应一个分配失败, 就这样做. 驱动代码中的 mempools 
+                        的使用应当少.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=getfreepageandFriends.sect></A>8.3.&nbsp;get_free_page 
+                        和其友</H2></DIV></DIV></DIV>
+                        <P>如果一个模块需要分配大块的内存, 它常常最好是使用一个面向页的技术. 请求整个页也有其他的优点, 这个在 
+                        15 章介绍.</P>
+                        <P>为分配页, 下列函数可用:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>get_zeroed_page(unsigned 
+                          int flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回一个指向新页的指针并且用零填充了该页.</P>
+                          <DT><SPAN class=term><SPAN>__get_free_page(unsigned 
+                          int flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>类似于 get_zeroed_page, 但是没有清零该页.</P>
+                          <DT><SPAN class=term><SPAN>__get_free_pages(unsigned 
+                          int flags, unsigned int order);</SPAN></SPAN> 
+                          <DD>
+                          <P>分配并返回一个指向一个内存区第一个字节的指针, 
+                          内存区可能是几个(物理上连续)页长但是没有清零.</P></DD></DL></DIV>
+                        <P>flags 参数同 kmalloc 的用法相同; 常常使用 GFP_KERNEL 或者 
+                        GFP_ATOMIC, 可能带有 __GFP_DMA 标志( 给可能用在 ISA DMA 操作的内存 ) 或者 
+                        __GFP_HIGHMEM 当可能使用高端内存时. <SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch08s03.html#ftn.id451239" 
+                        name=id451239><FONT 
+                        color=#0000ff>29</FONT></A>]</SUP>order 是你在请求的或释放的页数的以 2 
+                        为底的对数(即, log2N). 例如, 如果你要一个页 order 为 0, 如果你请求 8 页就是 3. 
+                        如果 order 太大(没有那个大小的连续区可用), 页分配失败. get_order 函数, 
+                        它使用一个整数参数, 可以用来从一个 size 中提取 order(它必须是 2 的幂)给主机平台. order 
+                        允许的最大值是 10 或者 11 (对应于 1024 或者 2048 页), 依赖于体系. 但是, 一个 
+                        order-10 的分配在除了一个刚刚启动的有很多内存的系统中成功的机会是小的.</P>
+                        <P>如果你好奇, /proc/buddyinfo 告诉你系统中每个内存区中的每个 order 
+                        有多少块可用.</P>
+                        <P>当一个程序用完这些页, 它可以使用下列函数之一来释放它们. 第一个函数是一个落回第二个函数的宏:</P><PRE class=programlisting>void free_page(unsigned long addr);
+void free_pages(unsigned long addr, unsigned long order);
+</PRE>
+                        <P>如果你试图释放和你分配的页数不同的页数, 内存图变乱, 系统在后面时间中有麻烦.</P>
+                        <P>值得强调一下, __get_free_pages 和其他的函数可以在任何时候调用, 遵循我们看到的 
+                        kmalloc 的相同规则. 这些函数不能在某些情况下分配内存, 特别当使用 GFP_ATOMIC 时. 因此, 
+                        调用这些分配函数的程序必须准备处理分配失败.</P>
+                        <P>尽管 kmalloc( GFP_KERNEL )有时失败当没有可用内存时, 内核尽力满足分配请求. 因此, 
+                        容易通过分配太多的内存降低系统的响应. 例如, 你可以通过塞入一个 scull 设备大量数据使计算机关机; 
+                        系统开始爬行当它试图换出尽可能多的内存来满足 kmalloc 的请求. 因为每个资源在被增长的设备所吞食, 
+                        计算机很快就被说无法用; 在这点上, 你甚至不能启动一个新进程来试图处理这个问题. 我们在 scull 
+                        不解释这个问题, 因为它只是一个例子模块并且不是一个真正的放入多用户系统的工具. 作为一个程序员, 你必须小心, 
+                        因为一个模块是特权代码并且可能在系统中开启新的安全漏洞(最可能是一个服务拒绝漏洞好像刚刚描述过的.)</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AscullUsingWholePagesscullp.sect></A>8.3.1.&nbsp;一个使用整页的 
+                        scull: scullp</H3></DIV></DIV></DIV>
+                        <P>为了真实地测试页分配, 我们已随其他例子代码发布了 scullp 模块. 它是一个简化的 scull, 
+                        就像前面介绍过的 scullc.</P>
+                        <P>scullp 分配的内存量子是整页或者页集合: scullp_order 变量缺省是 0, 
+                        但是可以在编译或加载时改变.</P>
+                        <P>下列代码行显示了它如何分配内存:</P><PRE class=programlisting>/* Here's the allocation of a single quantum */
+if (!dptr-&gt;data[s_pos])
+{
+        dptr-&gt;data[s_pos] =
+                (void *)__get_free_pages(GFP_KERNEL, dptr-&gt;order);
+        if (!dptr-&gt;data[s_pos])
+                goto nomem;
+        memset(dptr-&gt;data[s_pos], 0, PAGE_SIZE &lt;&lt; dptr-&gt;order);
+}
+</PRE>
+                        <P>scullp 中释放内存的代码看来如此:</P><PRE class=programlisting>/* This code frees a whole quantum-set */
+for (i = 0; i &lt; qset; i++)
+        if (dptr-&gt;data[i])
+                free_pages((unsigned long)(dptr-&gt;data[i]), dptr-&gt;order);
+</PRE>
+                        <P>在用户级别, 被感觉到的区别主要是一个速度提高和更好的内存使用, 因为没有内部的内存碎片. 
+                        我们运行一些测试从 scull0 拷贝 4 MB 到 scull1, 并且接着从 scullp0 到 
+                        scullp1; 结果显示了在内核空间处理器使用率有轻微上升.</P>
+                        <P>性能的提高不是激动人心的, 因为 kmalloc 被设计为快的. 页级别分配的主要优势实际上不是速度, 
+                        而是更有效的内存使用. 按页分配不浪费内存, 而使用 kmalloc 
+                        由于分配的粒度会浪费无法预测数量的内存.</P>
+                        <P>但是 __get_free_page 函数的最大优势是获得的页完全是你的, 并且你可以, 理论上, 
+                        可以通过适当的设置页表来组合这些页为一个线性的区域. 例如, 你可以允许一个用户进程 mmap 
+                        作为单个不联系的页而获得的内存区. 我们在 15 章讨论这种操作, 那里我们展示 scullp 
+                        如何提供内存映射, 一些 scull 无法提供的东西.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheallocpagesInterface.sect></A>8.3.2.&nbsp;alloc_pages 
+                        接口</H3></DIV></DIV></DIV>
+                        <P>为完整起见, 我们介绍另一个内存分配的接口, 尽管我们不会准备使用它直到 15 章. 现在, 能够说 
+                        struct page 是一个描述一个内存页的内部内核结构. 如同我们将见到的, 
+                        在内核中有许多地方有必要使用页结构; 它们是特别有用的, 在任何你可能处理高端内存的情况下, 
+                        高端内存在内核空间中没有一个常量地址.</P>
+                        <P>Linux 页分配器的真正核心是一个称为 alloc_pages_node 的函数:</P><PRE class=programlisting>struct page *alloc_pages_node(int nid, unsigned int flags,
+ unsigned int order);
+</PRE>
+                        <P>这个函数页有 2 个变体(是简单的宏); 它们是你最可能用到的版本:</P><PRE class=programlisting>struct page *alloc_pages(unsigned int flags, unsigned int order);
+struct page *alloc_page(unsigned int flags);
+</PRE>
+                        <P>核心函数, alloc_pages_node, 使用 3 个参数, nid 是要分配内存的 NUMA 节点 
+                        ID<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch08s03.html#ftn.id451473" 
+                        name=id451473><FONT color=#0000ff>30</FONT></A>]</SUP>, 
+                        flags 是通常的 GFP_ 分配标志, 以及 order 是分配的大小. 
+                        返回值是一个指向描述分配的内存的第一个(可能许多)页结构的指针, 或者, 如常, NULL 在失败时.</P>
+                        <P>alloc_pages 简化了情况, 通过在当前 NUMA 节点分配内存( 它使用 
+                        numa_node_id 的返回值作为 nid 参数调用 alloc_pages_node). 并且, 当然, 
+                        alloc_pages 省略了 order 参数并且分配一个单个页. </P>
+                        <P>为释放这种方式分配的页, 你应当使用下列一个:</P><PRE class=programlisting>void __free_page(struct page *page);
+void __free_pages(struct page *page, unsigned int order);
+void free_hot_page(struct page *page);
+void free_cold_page(struct page *page);
+</PRE>
+                        <P>如果你对一个单个页的内容是否可能驻留在处理器缓存中有特殊的认识, 你应当使用 free_hot_page 
+                        (对于缓存驻留的页) 或者 free_cold_page 通知内核. 
+                        这个信息帮助内存分配器在系统中优化它的内存使用.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=vallocandFriends.sect></A>8.3.3.&nbsp;vmalloc 和 
+                        其友</H3></DIV></DIV></DIV>
+                        <P>我们展示给你的下一个内存分配函数是 vmlloc, 它在虚拟内存空间分配一块连续的内存区. 
+                        尽管这些页在物理内存中不连续 (使用一个单独的对 alloc_page 的调用来获得每个页), 
+                        内核看它们作为一个一个连续的地址范围. vmalloc 返回 0 ( NULL 地址 ) 如果发生一个错误, 
+                        否则, 它返回一个指向一个大小至少为 size 的连续内存区.</P>
+                        <P>我们这里描述 vmalloc 因为它是一个基本的 Linux 内存分配机制. 我们应当注意, 但是, 
+                        vmalloc 的使用在大部分情况下不鼓励. 从 vmalloc 获得的内存用起来稍微低效些, 并且, 
+                        在某些体系上, 留给 vmalloc 的地址空间的数量相对小. 使用 vmalloc 
+                        的代码如果被提交来包含到内核中可能会受到冷遇. 如果可能, 你应当直接使用单个页而不是试图使用 vmalloc 
+                        来掩饰事情.</P>
+                        <P>让我们看看 vmalloc 如何工作的. 这个函数的原型和它相关的东西(ioremap, 
+                        严格地不是一个分配函数, 在本节后面讨论)是下列:</P><PRE class=programlisting>#include &lt;linux/vmalloc.h&gt; 
+void *vmalloc(unsigned long size);
+void vfree(void * addr);
+void *ioremap(unsigned long offset, unsigned long size);
+void iounmap(void * addr);
+</PRE>
+                        <P>值得强调的是 kmalloc 和 _get_free_pages 返回的内存地址也是虚拟地址. 
+                        它们的实际值在它用在寻址物理地址前仍然由 MMU (内存管理单元, 常常是 CPU 
+                        的一部分)管理.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch08s03.html#ftn.id451605" 
+                        name=id451605><FONT color=#0000ff>31</FONT></A>]</SUP> 
+                        vmalloc 在它如何使用硬件上没有不同, 不同是在内核如何进行分配任务上.</P>
+                        <P>kmalloc 和 __get_free_pages 使用的(虚拟)地址范围特有一个一对一映射到物理内存, 
+                        可能移位一个常量 PAGE_OFFSET 值; 这些函数不需要给这个地址范围修改页表. vmalloc 和 
+                        ioremap 使用的地址范围, 另一方面, 是完全地合成的, 并且每个分配建立(虚拟)内存区域, 
+                        通过适当地设置页表.</P>
+                        <P>这个区别可以通过比较分配函数返回的指针来获知. 在一些平台(例如, x86), vmalloc 
+                        返回的地址只是远离 kmalloc 使用的地址. 在其他平台上(例如, MIPS, IA-64, 以及 
+                        x86_64 ), 它们属于一个完全不同的地址范围. 对 vmalloc 可用的地址在从 
+                        VMALLOC_START 到 VAMLLOC_END 的范围中. 2 个符号都定义在 
+                        &lt;asm/patable.h&gt; 中.</P>
+                        <P>vmalloc 分配的地址不能用于微处理器之外, 因为它们只在处理器的 MMU 之上才有意义. 
+                        当一个驱动需要一个真正的物理地址(例如一个 DMA 地址, 被外设硬件用来驱动系统的总线), 你无法轻易使用 
+                        vmalloc. 调用 vmalloc 的正确时机是当你在为一个大的只存在于软件中的顺序缓冲分配内存时. 
+                        重要的是注意 vamlloc 比 __get_free_pages 有更多开销, 
+                        因为它必须获取内存并且建立页表. 因此, 调用 vmalloc 来分配仅仅一页是无意义的.</P>
+                        <P>在内核中使用 vmalloc 的一个例子函数是 create_module 系统调用, 它使用 
+                        vmalloc 为在创建的模块获得空间. 模块的代码和数据之后被拷贝到分配的空间中, 使用 
+                        copy_from_user. 在这个方式中, 模块看来是加载到连续的内存. 你可以验证, 同过看 
+                        /proc/kallsyms, 模块输出的内核符号位于一个不同于内核自身输出的符号的内存范围.</P>
+                        <P>使用 vmalloc 分配的内存由 vfree 释放, 采用和 kfree 释放由 kmalloc 
+                        分配的内存的相同方式.</P>
+                        <P>如同 vmalloc, ioremap 建立新页表; 不同于 vmalloc, 但是, 
+                        它实际上不分配任何内存. ioremap 的返回值是一个特殊的虚拟地址可用来存取特定的物理地址范围; 
+                        获得的虚拟地址应当最终通过调用 iounmap 来释放.</P>
+                        <P>ioremap 对于映射一个 PCI 缓冲的(物理)地址到(虚拟)内核空间是非常有用的. 例如, 
+                        它可用来存取一个 PCI 视频设备的帧缓冲; 这样的缓冲常常被映射在高端物理地址, 
+                        在内核启动时建立的页表的地址范围之外. PCI 问题在 12 章有详细解释.</P>
+                        <P>由于可移植性, 值得注意的是你不应当直接存取由 ioremap 返回的地址好像是内存指针.你应当一直使用 
+                        readb 和 其他的在第 9 章介绍的 I/O 函数. 这个要求适用因为一些平台, 例如 Alpha, 
+                        无法直接映射 PCI 内存区到处理器地址空间, 由于在 PCI 规格和 Alpha 
+                        处理器之间的在数据如何传送方面的不同.</P>
+                        <P>ioremap 和 vmalloc 是面向页的(它通过修改页表来工作); 结果, 
+                        重分配的或者分配的大小被调整到最近的页边界. ioremap 
+                        模拟一个非对齐的映射通过"向下调整"被重映射的地址以及通过返回第一个被重映射页内的偏移.</P>
+                        <P>vmalloc 的一个小的缺点在于它无法在原子上下文中使用, 因为, 内部地, 它使用 
+                        kmalloc(GFP_KERNEL) 来获取页表的存储, 并且因此可能睡眠. 这不应当是一个问题 -- 如果 
+                        __get_free_page 的使用对于一个中断处理不足够好, 软件设计需要一些清理.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AscullUsingVirtualAddressesscullv.sect></A>8.3.4.&nbsp;一个使用虚拟地址的 
+                        scull : scullv</H3></DIV></DIV></DIV>
+                        <P>使用 vmalloc 的例子代码在 scullv 模块中提供. 如同 scullp, 这个模块是一个 
+                        scull 的简化版本, 它使用一个不同的分配函数来为设备存储数据获得空间.</P>
+                        <P>这个模块分配内存一次 16 页. 分配以大块方式进行来获得比 scullp 更好的性能, 
+                        并且来展示一些使用其他分配技术要花很长时间的东西是可行的. 使用 __get_free_pages 
+                        来分配多于一页是易于失败的, 并且就算它成功了, 它可能是慢的. 如同我们前面见到的, vmalloc 
+                        在分配几个页时比其他函数更快, 但是当获取单个页时有些慢, 因为页表建立的开销. scullv 被设计象 
+                        scullp 一样. order 指定每个分配的"级数"并且缺省为 4. scullv 和 scullp 
+                        之间的位于不同是在分配管理上. 这些代码行使用 vmalloc 来获得新内存:</P><PRE class=programlisting>/* Allocate a quantum using virtual addresses */
+if (!dptr-&gt;data[s_pos])
+{
+        dptr-&gt;data[s_pos] =
+                (void *)vmalloc(PAGE_SIZE &lt;&lt; dptr-&gt;order);
+        if (!dptr-&gt;data[s_pos])
+                goto nomem;
+        memset(dptr-&gt;data[s_pos], 0, PAGE_SIZE &lt;&lt; dptr-&gt;order);
+}
+</PRE>
+                        <P>以及这些代码行释放内存:</P><PRE class=programlisting>/* Release the quantum-set */
+for (i = 0; i &lt; qset; i++)
+        if (dptr-&gt;data[i])
+                vfree(dptr-&gt;data[i]);
+</PRE>
+                        <P>如果你在使能调试的情况下编译 2 个模块, 你能看到它们的数据分配通过读取它们在 /proc 创建的文件. 
+                        这个快照从一套 x86_64 系统上获得:</P><PRE class=screen>salma% cat /tmp/bigfile &gt; /dev/scullp0; head -5 /proc/scullpmem
+Device 0: qset 500, order 0, sz 1535135
+
+item at 000001001847da58, qset at 000001001db4c000
+0:1001db56000
+1:1003d1c7000
+salma% cat /tmp/bigfile &gt; /dev/scullv0; head -5 /proc/scullvmem
+Device 0: qset 500, order 4, sz 1535135
+item at 000001001847da58, qset at 0000010013dea000
+0:ffffff0001177000
+1:ffffff0001188000
+</PRE>
+                        <P>下面的输出, 相反, 来自 x86 系统:</P><PRE class=screen>rudo% cat /tmp/bigfile &gt; /dev/scullp0; head -5 /proc/scullpmem
+Device 0: qset 500, order 0, sz 1535135
+item at ccf80e00, qset at cf7b9800
+0:ccc58000
+1:cccdd000
+rudo% cat /tmp/bigfile &gt; /dev/scullv0; head -5 /proc/scullvmem
+Device 0: qset 500, order 4, sz 1535135
+item at cfab4800, qset at cf8e4000
+0:d087a000
+1:d08d2000
+</PRE>
+                        <P>这些值显示了 2 个不同的行为. 在 x86_64, 物理地址和虚拟地址是完全映射到不同的地址范围( 
+                        0x100 和 0xffffff00), 而在 x86 计算机上, vmalloc 
+                        ；虚拟地址只在物理地址使用的映射之上.</P></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch08s03.html#id451239" 
+                        name=ftn.id451239><FONT color=#0000ff>29</FONT></A>] 
+                        </SUP>尽管 alloc_pages (稍后描述)应当真正地用作分配高端内存页, 由于某些理由我们直到 15 
+                        章才真正涉及.</P></DIV>
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch08s03.html#id451473" 
+                        name=ftn.id451473><FONT color=#0000ff>30</FONT></A>] 
+                        </SUP>NUMA (非统一内存存取) 计算机是多处理器系统, 
+                        这里内存对于特定的处理器组("节点")是"局部的". 对局部内存的存取比存取非局部内存更快. 在这样的系统, 
+                        在当前节点分配内存是重要的. 驱动作者通常不必担心 NUMA 问题, 但是.</P></DIV>
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch08s03.html#id451605" 
+                        name=ftn.id451605><FONT color=#0000ff>31</FONT></A>] 
+                        </SUP>实际上, 一些体系结构定义"虚拟"地址为保留给寻址物理内存. 当这个发生了, Linux 
+                        内核利用这个特性, 并且 kernel 和 __get_free_pages 地址都位于这些地址范围中的一个. 
+                        这个区别对设备驱动和其他的不直接包含到内存管理内核子系统中的代码是透明的</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=PerCPUVariables.sect></A>8.4.&nbsp;每-CPU 
+                        的变量</H2></DIV></DIV></DIV>
+                        <P>每-CPU 变量是一个有趣的 2.6 内核的特性. 当你创建一个每-CPU变量, 
+                        系统中每个处理器获得它自己的这个变量拷贝. 这个可能象一个想做的奇怪的事情, 但是它有自己的优点. 
+                        存取每-CPU变量不需要(几乎)加锁, 因为每个处理器使用它自己的拷贝. 每-CPU 
+                        变量也可存在于它们各自的处理器缓存中, 这样对于频繁更新的量子带来了显著的更好性能.</P>
+                        <P>一个每-CPU变量的好的使用例子可在网络子系统中找到. 
+                        内核维护无结尾的计数器来跟踪有每种报文类型有多少被接收; 这些计数器可能每秒几千次地被更新. 
+                        不去处理缓存和加锁问题, 网络开发者将统计计数器放进每-CPU变量. 现在更新是无锁并且快的. 
+                        在很少的机会用户空间请求看到计数器的值, 相加每个处理器的版本并且返回总数是一个简单的事情.</P>
+                        <P>每-CPU变量的声明可在 &lt;linux/percpu.h&gt; 中找到. 
+                        为在编译时间创建一个每-CPU变量, 使用这个宏定义:</P><PRE class=programlisting>DEFINE_PER_CPU(type, name);
+</PRE>
+                        <P>如果这个变量(称为 name 的)是一个数组, 包含这个类型的维数信息. 因此, 一个有 3 
+                        个整数的每-CPU 数组应当被创建使用:</P><PRE class=programlisting>DEFINE_PER_CPU(int[3], my_percpu_array); 
+</PRE>
+                        <P>每-CPU变量几乎不必使用明确的加锁来操作. 记住 2.6 内核是可抢占的; 对于一个处理器, 
+                        在修改一个每-CPU变量的临界区中不应当被抢占. 并且如果你的进程在对一个每-CPU变量存取时将, 
+                        要被移动到另一个处理器上, 也不好. 因为这个原因, 你必须显式使用 get_cpu_var 
+                        宏来存取当前处理器的给定变量拷贝, 并且当你完成时调用 put_cpu_var. 对 get_cpu_var 
+                        的调用返回一个 lvalue 给当前处理器的变量版本并且禁止抢占. 因为一个 lvalue 被返回, 
+                        它可被赋值给或者直接操作. 例如, 一个网络代码中的计数器时使用这 2 个语句来递增的:</P><PRE class=programlisting>get_cpu_var(sockets_in_use)++;
+put_cpu_var(sockets_in_use);
+</PRE>
+                        <P>你可以存取另一个处理器的变量拷贝, 使用:</P><PRE class=programlisting>per_cpu(variable, int cpu_id); 
+</PRE>
+                        <P>如果你编写使处理器涉及到对方的每-CPU变量的代码, 你, 当然, 
+                        一定要实现一个加锁机制来使存取安全.</P>
+                        <P>动态分配每-CPU变量也是可能的. 这些变量可被分配, 使用:</P><PRE class=programlisting>void *alloc_percpu(type);
+void *__alloc_percpu(size_t size, size_t align);
+</PRE>
+                        <P>在大部分情况, alloc_percpu 做的不错; 你可以调用 __alloc_percpu 
+                        在需要一个特别的对齐的情况下. 在任一情况下, 一个 每-CPU 变量可以使用 free_percpu 
+                        被返回给系统. 存取一个动态分配的每-CPU变量通过 per_cpu_ptr 来完成:</P><PRE class=programlisting>per_cpu_ptr(void *per_cpu_var, int cpu_id);
+</PRE>
+                        <P>这个宏返回一个指针指向 per_cpu_var 对应于给定 cpu_id 的版本. 如果你在简单地读另一个 
+                        CPU 的这个变量的版本, 你可以解引用这个指针并且用它来完成. 如果, 但是, 你在操作当前处理器的版本, 
+                        你可能需要首先保证你不能被移出那个处理器. 如果你存取这个每-CPU变量的全部都持有一个自旋锁, 万事大吉. 
+                        常常, 但是, 你需要使用 get_cpu 来阻止在使用变量时的抢占. 因此, 
+                        使用动态每-CPU变量的代码会看来如此:</P><PRE class=programlisting>int cpu; 
+cpu = get_cpu()
+ptr = per_cpu_ptr(per_cpu_var, cpu);
+/* work with ptr */
+put_cpu();
+</PRE>
+                        <P>当使用编译时每-CPU 变量时, get_cpu_var 和 put_cpu_var 宏来照看这些细节. 
+                        动态每-CPU变量需要更多的显式的保护.</P>
+                        <P>每-CPU变量能够输出给每个模块, 但是你必须使用一个特殊的宏版本:</P><PRE class=programlisting>EXPORT_PER_CPU_SYMBOL(per_cpu_var);
+EXPORT_PER_CPU_SYMBOL_GPL(per_cpu_var);
+</PRE>
+                        <P>为在一个模块内存取这样一个变量, 声明它, 使用:</P><PRE class=programlisting>DECLARE_PER_CPU(type, name); 
+</PRE>
+                        <P>DECLARE_PER_CPU 的使用(不是 
+                        DEFINE_PER_CPU)告知编译器进行一个外部引用.</P>
+                        <P>如果你想使用每-CPU变量来创建一个简单的整数计数器, 看一下在 
+                        &lt;linux/percpu_counter.h&gt; 中的现成的实现. 最后, 
+                        注意一些体系有有限数量的地址空间变量给每-CPU变量. 如果你创建每-CPU变量在你自己的代码, 
+                        你应当尽量使它们小.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=ObtainingLargeBuffers.sect></A>8.5.&nbsp;获得大量缓冲</H2></DIV></DIV></DIV>
+                        <P>我们我们已经在前面章节中注意到的, 大量连续内存缓冲的分配是容易失败的. 系统内存长时间会碎片化, 
+                        并且常常出现一个真正的大内存区会完全不可得. 因为常常有办法不使用大缓冲来完成工作, 
+                        内核开发者没有优先考虑使大分配能工作. 在你试图获得一个大内存区之前, 你应当真正考虑一下其他的选择. 
+                        到目前止最好的进行大 I/O 操作的方法是通过发散/汇聚操作, 我们在第 1 章的"发散-汇聚 
+                        映射"一节中讨论了.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AcquiringaDedicatedBufferatBootTime.sect></A>8.5.1.&nbsp;在启动时获得专用的缓冲</H3></DIV></DIV></DIV>
+                        <P>如果你真的需要一个大的物理上连续的缓冲, 最好的方法是在启动时请求内存来分配它. 
+                        在启动时分配是获得连续内存页而避开 __get_free_pages 施加的对缓冲大小限制的唯一方法, 
+                        不但最大允许大小还有限制的大小选择. 在启动时分配内存是一个"脏"技术, 
+                        因为它绕开了所有的内存管理策略通过保留一个私有的内存池. 这个技术是不优雅和不灵活的, 但是它也是最不易失败的. 
+                        不必说, 一个模块无法在启动时分配内存; 只有直接连接到内核的驱动可以这样做. </P>
+                        <P>启动时分配的一个明显问题是对通常的用户它不是一个灵活的选择, 因为这个机制只对连接到内核映象中的代码可用. 
+                        一个设备驱动使用这种分配方法可以被安装或者替换只能通过重新建立内核并且重启计算机.</P>
+                        <P>当内核被启动, 它赢得对系统种所有可用物理内存的存取. 它接着初始化每个子系统通过调用子系统的初始化函数, 
+                        允许初始化代码通过减少留给正常系统操作使用的 RAM 数量, 来分配一个内存缓冲给自己用.</P>
+                        <P>启动时内存分配通过调用下面一个函数进行:</P><PRE class=programlisting>#include &lt;linux/bootmem.h&gt;
+void *alloc_bootmem(unsigned long size);
+void *alloc_bootmem_low(unsigned long size);
+void *alloc_bootmem_pages(unsigned long size);
+void *alloc_bootmem_low_pages(unsigned long size);
+</PRE>
+                        <P>这些函数分配或者整个页(如果它们以 _pages 结尾)或者非页对齐的内存区. 
+                        分配的内存可能是高端内存除非使用一个 _low 版本. 如果你在为一个设备驱动分配这个缓冲, 你可能想用它做 
+                        DMA 操作, 并且这对于高端内存不是一直可能的; 因此, 你可能想使用一个 _low 变体.</P>
+                        <P>很少在启动时释放分配的内存; 你会几乎肯定不能之后取回它, 如果你需要它. 但是, 
+                        有一个接口释放这个内存:</P><PRE class=programlisting>void free_bootmem(unsigned long addr, unsigned long size); 
+</PRE>
+                        <P>注意以这个方式释放的部分页不返回给系统 -- 但是, 如果你在使用这个技术, 
+                        你已可能分配了不少数量的整页来用.</P>
+                        <P>如果你必须使用启动时分配, 你需要直接连接你的驱动到内核. 应当如何完成的更多信息看在内核源码中 
+                        Documentation/kbuild 下的文件.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=AllocatingMemoryqr.sect></A>8.6.&nbsp;快速参考</H2></DIV></DIV></DIV>
+                        <P>相关于内存分配的函数和符号是:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/slab.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void *kmalloc(size_t size, 
+                          int flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void kfree(void 
+                          *obj);</SPAN></SPAN> 
+                          <DD>
+                          <P>内存分配的最常用接口.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/mm.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>GFP_USER<SPAN></SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>GFP_KERNEL<SPAN></SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>GFP_NOFS<SPAN></SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>GFP_NOIO<SPAN></SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>GFP_ATOMIC <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>控制内存分配如何进行的标志, 从最少限制的到最多的. GFP_USER 和 GFP_KERNEL 
+                          优先级允许当前进程被置为睡眠来满足请求. GFP_NOFS 和 GFP_NOIO 禁止文件系统操作和所有的 
+                          I/O 操作, 分别地, 而 GFP_ATOMIC 分配根本不能睡眠.</P>
+                          <DT><SPAN class=term>__GFP_DMA<SPAN></SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>__GFP_HIGHMEM<SPAN></SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN class=term>__GFP_COLD<SPAN></SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>__GFP_NOWARN</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>__GFP_HIGH</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>__GFP_REPEAT</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>__GFP_NOFAIL</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>__GFP_NORETRY 
+</SPAN></SPAN>
+                          <DD>
+                          <P>这些标志修改内核的行为, 当分配内存时.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/malloc.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>kmem_cache_t 
+                          *kmem_cache_create(char *name, size_t size, size_t 
+                          offset, unsigned long flags, constructor(), 
+                          destructor( ));</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          kmem_cache_destroy(kmem_cache_t *cache);</SPAN></SPAN> 
+
+                          <DD>
+                          <P>创建和销毁一个 slab 缓存. 这个缓存可被用来分配几个相同大小的对象.</P>
+                          <DT><SPAN class=term><SPAN>SLAB_NO_REAP</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>SLAB_HWCACHE_ALIGN</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>SLAB_CACHE_DMA 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>在创建一个缓存时可指定的标志.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>SLAB_CTOR_ATOMIC</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>SLAB_CTOR_CONSTRUCTOR 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>分配器可用传递给构造函数和析构函数的标志.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          *kmem_cache_alloc(kmem_cache_t *cache, int 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          kmem_cache_free(kmem_cache_t *cache, const void 
+                          *obj);</SPAN></SPAN> 
+                          <DD>
+                          <P>从缓存中分配和释放一个单个对象. /proc/slabinfo 一个包含对 slab 
+                          缓存使用情况统计的虚拟文件.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/mempool.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>mempool_t 
+                          *mempool_create(int min_nr, mempool_alloc_t *alloc_fn, 
+                          mempool_free_t *free_fn, void *data);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          mempool_destroy(mempool_t *pool);</SPAN></SPAN> 
+                          <DD>
+                          <P>创建内存池的函数, 它试图避免内存分配设备, 通过保持一个已分配项的"紧急列表".</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          *mempool_alloc(mempool_t *pool, int 
+                          gfp_mask);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void mempool_free(void 
+                          *element, mempool_t *pool);</SPAN></SPAN> 
+                          <DD>
+                          <P>从(并且返回它们给)内存池分配项的函数.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          get_zeroed_page(int flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          __get_free_page(int flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          __get_free_pages(int flags, unsigned long 
+                          order);</SPAN></SPAN> 
+                          <DD>
+                          <P>面向页的分配函数. get_zeroed_page 返回一个单个的, 零填充的页. 
+                          这个调用的所有的其他版本不初始化返回页的内容.</P>
+                          <DT><SPAN class=term><SPAN>int get_order(unsigned long 
+                          size);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回关联在当前平台的大小的分配级别, 根据 PAGE_SIZE. 这个参数必须是 2 的幂, 
+                          并且返回值至少是 0.</P>
+                          <DT><SPAN class=term><SPAN>void free_page(unsigned 
+                          long addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void free_pages(unsigned 
+                          long addr, unsigned long order);</SPAN></SPAN> 
+                          <DD>
+                          <P>释放面向页分配的函数.</P>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *alloc_pages_node(int nid, unsigned int flags, 
+                          unsigned int order);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *alloc_pages(unsigned int flags, unsigned int 
+                          order);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *alloc_page(unsigned int flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>Linux 内核中最底层页分配器的所有变体.</P>
+                          <DT><SPAN class=term><SPAN>void __free_page(struct 
+                          page *page);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void __free_pages(struct 
+                          page *page, unsigned int order);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void free_hot_page(struct 
+                          page *page);</SPAN></SPAN> 
+                          <DD>
+                          <P>使用一个 alloc_page 形式分配的页的各种释放方法.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/vmalloc.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void * vmalloc(unsigned 
+                          long size);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void vfree(void * 
+                          addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/io.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void * ioremap(unsigned 
+                          long offset, unsigned long size);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void iounmap(void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>分配或释放一个连续虚拟地址空间的函数. iormap 存取物理内存通过虚拟地址, 而 vmalloc 
+                          分配空闲页. 使用 ioreamp 映射的区是 iounmap 释放, 而从 vmalloc 获得的页使用 
+                          vfree 来释放.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/percpu.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>DEFINE_PER_CPU(type, 
+                          name);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>DECLARE_PER_CPU(type, 
+                          name);</SPAN></SPAN> 
+                          <DD>
+                          <P>定义和声明每-CPU变量的宏.</P>
+                          <DT><SPAN class=term><SPAN>per_cpu(variable, int 
+                          cpu_id)</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>get_cpu_var(variable)</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>put_cpu_var(variable)</SPAN></SPAN> 
+                          <DD>
+                          <P>提供对静态声明的每-CPU变量存取的宏.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          *alloc_percpu(type);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void *__alloc_percpu(size_t 
+                          size, size_t align);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void free_percpu(void 
+                          *variable);</SPAN></SPAN> 
+                          <DD>
+                          <P>进行运行时分配和释放每-CPU变量的函数.</P>
+                          <DT><SPAN class=term><SPAN>int get_cpu( 
+                          );</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void put_cpu( 
+                          );</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>per_cpu_ptr(void *variable, 
+                          int cpu_id)</SPAN></SPAN> 
+                          <DD>
+                          <P>get_cpu 获得对当前处理器的引用(因此, 阻止抢占和移动到另一个处理器)并且返回处理器的ID; 
+                          put_cpu 返回这个引用. 为存取一个动态分配的每-CPU变量, 用应当被存取版本所在的 CPU 的 
+                          ID 来使用 per_cpu_ptr. 对一个动态的每-CPU 变量当前 CPU 版本的操作, 应当用对 
+                          get_cpu 和 put_cpu 的调用来包围. </P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/bootmem.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          *alloc_bootmem(unsigned long size);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          *alloc_bootmem_low(unsigned long size);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          *alloc_bootmem_pages(unsigned long 
+                          size);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          *alloc_bootmem_low_pages(unsigned long 
+                          size);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void free_bootmem(unsigned 
+                          long addr, unsigned long size);</SPAN></SPAN> 
+                          <DD>
+                          <P>在系统启动时进行分配和释放内存的函数(只能被直接连接到内核中去的驱动使用)</P></DD></DL></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:34，已浏览45次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270112">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270112">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（8）分配内存 - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>

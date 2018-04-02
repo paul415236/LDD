@@ -1,0 +1,1256 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270127 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时" name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（9）内存管理</B></FONT> 
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>
+                        <P>内存管理</P>
+                        <P>尽管摆弄 scull 和类似的玩具是对于 Linux 设备驱动的软件接口一个很好的入门, 
+                        但是实现一个真正的设备需要硬件. 驱动是软件概念和硬件电路之间的抽象层; 如同这样, 需要与两者沟通. 
+                        直到现在, 我们已经检查了软件概念的内部; 本章完成这个图像通过向你展示一个驱动如何存取 I/O 端口和 I/O 
+                        内存, 同时在各种 Linux 平台是可移植的.</P>
+                        <P>本章继续尽可能保持独立于特殊的硬件的传统. 但是, 在需要一个特殊例子的地方, 我们使用简单的数字 I/O 
+                        端口(例如标准的 PC 并口)来展示 I/O 指令如何工作, 
+                        以及正常的帧缓存视频内存来展示内存映射的I/O.</P>
+                        <P>我们选择简单的数字 I/O, 因为它是一个输入/输出打开的最简单形式. 同样, 并口实现原始 I/O 
+                        并且在大部分计算机都有: 写到设备的数据位出现在输出管脚上, 并且处理器可直接存取到输入管脚上的电平. 实际上, 
+                        你不得不连接 LED 或者一个打印机到端口上来真正地看到一个数组 I/O 操作的结果, 
+                        但是底层硬件非常易于使用.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=IOPortsandIOMemor.sect></A>9.1.&nbsp;I/O 端口和 I/O 
+                        内存</H2></DIV></DIV></DIV>
+                        <P>每个外设都是通过读写它的寄存器来控制. 大部分时间一个设备有几个寄存器, 并且在连续地址存取它们, 
+                        或者在内存地址空间或者在 I/O 地址空间.</P>
+                        <P>在硬件级别上, 内存区和 I/O 区域没有概念上的区别: 
+                        它们都是通过在地址总线和控制总线上发出电信号来存取(即, 读写信号)<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch09.html#ftn.id455522" 
+                        name=id455522><FONT 
+                        color=#0000ff>32</FONT></A>]</SUP>并且读自或者写到数据总线.</P>
+                        <P>但是一些 CPU 制造商在他们的芯片上实现了一个单个地址空间, 有人认为外设不同于内存, 因此, 
+                        应该有一个分开的地址空间. 一些处理器(最有名的是 x86 家族)有分开的读和写电线给 I/O 端口和特殊的 
+                        CPU 指令来存取端口.</P>
+                        <P>因为外设被建立来适合一个外设总线, 并且大部分流行的 I/O 总线成型在个人计算机上, 
+                        即便那些没有单独地址空间给 I/O 端口的处理器, 也必须在存取一些特殊设备时伪装读写端口, 
+                        常常利用外部的芯片组或者 CPU 核的额外电路. 后一个方法在用在嵌入式应用的小处理器中常见.</P>
+                        <P>由于同样的理由, Linux 在所有它运行的计算机平台上实现了 I/O 端口的概念, 甚至在那些 CPU 
+                        实现一个单个地址空间的平台上. 端口存取的实现有时依赖特殊的主机制造和型号( 
+                        因为不同的型号使用不同的芯片组来映射总线传送到内存地址空间).</P>
+                        <P>即便外设总线有一个单独的地址空间给 I/O 端口, 不是所有的设备映射它们的寄存器到 I/O 端口. 
+                        虽然对于 ISA 外设板使用 I/O 端口是普遍的, 大部分 PCI 设备映射寄存器到一个内存地址区. 这种 
+                        I/O 内存方法通常是首选的, 因为它不需要使用特殊目的处理器指令; CPU 核存取内存更加有效, 
+                        并且编译器当存取内存时有更多自由在寄存器分配和寻址模式的选择上.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=IORegistersandConventionalMemory.sect></A>9.1.1.&nbsp;I/O 
+                        寄存器和常规内存</H3></DIV></DIV></DIV>
+                        <P>不管硬件寄存器和内存之间的强相似性, 存取 I/O 寄存器的程序员必须小心避免被 
+                        CPU(或者编译器)优化所戏弄, 它可能修改希望的 I/O 行为.</P>
+                        <P>I/O 寄存器和 RAM 的主要不同是 I/O 操作有边际效果, 而内存操作没有: 
+                        一个内存写的唯一效果是存储一个值到一个位置, 并且一个内存读返回最近写到那里的值. 因为内存存取速度对 CPU 
+                        性能是至关重要的, 这种无边际效果的情况已被多种方式优化: 值被缓存, 并且 读/写指令被重编排.</P>
+                        <P>编译器能够缓存数据值到 CPU 寄存器而不写到内存, 并且即便它存储它们, 
+                        读和写操作都能够在缓冲内存中进行而不接触物理 RAM. 重编排也可能在编译器级别和在硬件级别都发生: 
+                        常常一个指令序列能够执行得更快, 如果它以不同于在程序文本中出现的顺序来执行, 例如, 为避免在 RISC 
+                        流水线中的互锁. 在CISC 处理器, 要花费相当数量时间的操作能够和其他的并发执行, 更快的.</P>
+                        <P>当应用于传统内存时(至少在单处理器系统)这些优化是透明和有益的, 但是它们可能对正确的 I/O 
+                        操作是致命的, 因为它们干扰了那些"边际效果", 这是主要的原因为什么一个驱动存取 I/O 寄存器. 
+                        处理器无法预见这种情形, 一些其他的操作(在一个独立处理器上运行, 或者发生在一个 I/O 
+                        控制器的事情)依赖内存存取的顺序. 编译器或者 CPU 可能只尽力胜过你并且重编排你请求的操作; 
+                        结果可能是奇怪的错误而非常难于调试. 因此, 
+                        一个驱动必须确保没有进行缓冲并且在存取寄存器时没有发生读或写的重编排.</P>
+                        <P>硬件缓冲的问题是最易面对的:底层的硬件已经配置(或者自动地或者通过 Linux 
+                        初始化代码)成禁止任何硬件缓冲, 当存取 I/O 区时(不管它们是内存还是端口区域).</P>
+                        <P>对编译器优化和硬件重编排的解决方法是安放一个内存屏障在必须以一个特殊顺序对硬件(或者另一个处理器)可见的操作之间. 
+                        Linux 提供 4 个宏来应对可能的排序需要:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/kernel.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          barrier(void)</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数告知编译器插入一个内存屏障但是对硬件没有影响. 编译的代码将所有的当前改变的并且驻留在 CPU 
+                          寄存器的值存储到内存, 并且后来重新读取它们当需要时. 对屏障的调用阻止编译器跨越屏障的优化, 
+                          而留给硬件自由做它的重编排.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/system.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          rmb(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          read_barrier_depends(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          wmb(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          mb(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>这些函数插入硬件内存屏障在编译的指令流中; 它们的实际实例是平台相关的. 一个 rmb ( read 
+                          memory barrier) 保证任何出现于屏障前的读在执行任何后续读之前完成. wmb 
+                          保证写操作中的顺序, 并且 mb 指令都保证. 每个这些指令是一个屏障的超集.</P>
+                          <P>read_barrier_depends 是读屏障的一个特殊的, 弱些的形式. 而 rmb 
+                          阻止所有跨越屏障的读的重编排, read_barrier_depends 
+                          只阻止依赖来自其他读的数据的读的重编排. 区别是微小的, 并且它不在所有体系中存在. 
+                          除非你确切地理解做什么, 并且你有理由相信, 一个完整的读屏障确实是一个过度地性能开销, 你可能应当坚持使用 
+                          rmb.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          smp_rmb(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          smp_read_barrier_depends(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          smp_wmb(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          smp_mb(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>屏障的这些版本仅当内核为 SMP 系统编译时插入硬件屏障; 否则, 
+                          它们都扩展为一个简单的屏障调用.</P></DD></DL></DIV>
+                        <P>在一个设备驱动中一个典型的内存屏障的用法可能有这样的形式:</P><PRE class=programlisting>writel(dev-&gt;registers.addr, io_destination_address);
+writel(dev-&gt;registers.size, io_size);
+writel(dev-&gt;registers.operation, DEV_READ);
+wmb();
+writel(dev-&gt;registers.control, DEV_GO);
+</PRE>
+                        <P>在这种情况, 是重要的, 确保所有的控制一个特殊操作的设备寄存器在告诉它开始前已被正确设置. 
+                        内存屏障强制写以需要的顺序完成.</P>
+                        <P>因为内存屏障影响性能, 它们应当只用在确实需要它们的地方. 屏障的不同类型也有不同的性能特性, 
+                        因此值得使用最特定的可能类型. 例如, 在 x86 体系上, wmb() 目前什么都不做, 
+                        因为写到处理器外不被重编排. 但是, 读被重编排, 因此 mb() 被 wmb() 慢.</P>
+                        <P>值得注意大部分的其他的处理同步的内核原语, 例如自旋锁和原子的 _t 操作, 如同内存屏障一样是函数. 
+                        还值得注意的是一些外设总线(例如 PCI 总线)有它们自己的缓冲问题; 我们在以后章节遇到时讨论它们.</P>
+                        <P>一些体系允许一个赋值和一个内存屏障的有效组合. 内核提供了几个宏来完成这个组合; 在缺省情况下, 
+                        它们如下定义:</P><PRE class=programlisting>#define set_mb(var, value) do {var = value; mb();}  while 0
+#define set_wmb(var, value) do {var = value; wmb();} while 0
+#define set_rmb(var, value) do {var = value; rmb();} while 0
+</PRE>
+                        <P>在合适的地方, &lt;asm/system.h&gt; 定义这些宏来使用体系特定的指令来很快完成任务. 
+                        注意 set_rmb 只在少量体系上定义. (一个 do...while 结构的使用是一个标准 C 用语, 
+                        来使被扩展的宏作为一个正常的 C 语句可在所有上下文中工作).</P></DIV></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch09.html#id455522" 
+                        name=ftn.id455522><FONT color=#0000ff>32</FONT></A>] 
+                        </SUP>不是所有的计算机平台使用一个读和一个写信号; 有些有不同的方法来寻址外部电路. 
+                        这个不同在软件层次是无关的, 但是, 我们将假设全部有读和写来简化讨论.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=UsingIOPort.sect></A>9.2.&nbsp;使用 I/O 
+                        端口</H2></DIV></DIV></DIV>
+                        <P>I/O 端口是驱动用来和很多设备通讯的方法, 至少部分时间. 这节涉及可用的各种函数来使用 I/O 端口; 
+                        我们也触及一些可移植性问题.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=IOPortAllocation.sect></A>9.2.1.&nbsp;I/O 
+                        端口分配</H3></DIV></DIV></DIV>
+                        <P>如同你可能希望的, 你不应当离开并开始抨击 I/O 端口而没有首先确认你对这些端口有唯一的权限. 
+                        内核提供了一个注册接口以允许你的驱动来声明它需要的端口. 这个接口中的核心的函数是 
+                        request_region:</P><PRE class=programlisting>#include &lt;linux/ioport.h&gt;
+struct resource *request_region(unsigned long first, unsigned long n, const char *name);
+</PRE>
+                        <P>这个函数告诉内核, 你要使用 n 个端口, 从 first 开始. name 参数应当是你的设备的名子. 
+                        如果分配成功返回值是非 NULL. 如果你从 request_region 得到 NULL, 
+                        你将无法使用需要的端口. </P>
+                        <P>所有的的端口分配显示在 /proc/ioports 中. 如果你不能分配一个需要的端口组, 
+                        这是地方来看看谁先到那里了.</P>
+                        <P>当你用完一组 I/O 端口(在模块卸载时, 也许), 应当返回它们给系统, 使用:</P><PRE class=programlisting>void release_region(unsigned long start, unsigned long n); 
+</PRE>
+                        <P>还有一个函数以允许你的驱动来检查是否一个给定的 I/O 端口组可用:</P><PRE class=programlisting>int check_region(unsigned long first, unsigned long n); 
+</PRE>
+                        <P>这里, 如果给定的端口不可用, 返回值是一个负错误码. 这个函数是不推荐的, 
+                        因为它的返回值不保证是否一个分配会成功; 检查和后来的分配不是一个原子的操作. 
+                        我们列在这里因为几个驱动仍然在使用它, 但是你调用一直使用 request_region, 
+                        它进行要求的加锁来保证分配以一个安全的原子的方式完成.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ManipulatingIOports.sect></A>9.2.2.&nbsp;操作 I/O 
+                        端口</H3></DIV></DIV></DIV>
+                        <P>在驱动硬件请求了在它的活动中需要使用的 I/O 端口范围之后, 它必须读且/或写到这些端口. 为此, 
+                        大部分硬件区别8-位, 16-位, 和 32-位端口. 常常你无法混合它们, 
+                        象你正常使用系统内存存取一样.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch09s02.html#ftn.id455968" 
+                        name=id455968><FONT 
+                        color=#0000ff>33</FONT></A>]</SUP></P>
+                        <P>一个 C 程序, 因此, 必须调用不同的函数来存取不同大小的端口. 如果在前一节中建议的, 
+                        只支持唯一内存映射 I/O 寄存器的计算机体系伪装端口 I/O , 通过重新映射端口地址到内存地址, 
+                        并且内核向驱动隐藏了细节以便易于移植. Linux 内核头文件(特别地, 体系依赖的头文件 
+                        &lt;asm/io.h&gt;) 定义了下列内联函数来存取 I/O 端口:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>unsigned inb(unsigned 
+                          port);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outb(unsigned char 
+                          byte, unsigned port);</SPAN></SPAN> 
+                          <DD>
+                          <P>读或写字节端口( 8 位宽 ). port 参数定义为 unsigned long 在某些平台以及 
+                          unsigned short 在其他的上. inb 的返回类型也是跨体系而不同的.</P>
+                          <DT><SPAN class=term><SPAN>unsigned inw(unsigned 
+                          port);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outw(unsigned short 
+                          word, unsigned port);</SPAN></SPAN> 
+                          <DD>
+                          <P>这些函数存取 16-位 端口( 一个字宽 ); 在为 S390 平台编译时它们不可用, 它只支持字节 
+                          I/O.</P>
+                          <DT><SPAN class=term><SPAN>unsigned inl(unsigned 
+                          port);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outl(unsigned 
+                          longword, unsigned port);</SPAN></SPAN> 
+                          <DD>
+                          <P>这些函数存取 32-位 端口. longword 声明为或者 unsigned long 或者 
+                          unsigned int, 根据平台. 如同字 I/O, "Long" I/O 在 S390 
+                          上不可用.</P></DD></DL></DIV>
+                        <P>从现在开始, 当我们使用 unsigned 没有进一步类型规定时, 我们指的是一个体系相关的定义, 
+                        它的确切特性是不相关的. 函数几乎一直是可移植的, 因为编译器自动转换值在赋值时 -- 它们是 unsigned 
+                        有助于阻止编译时的警告. 这样的转换不丢失信息, 只要程序员安排明智的值来避免溢出. 
+                        我们坚持这个"未完成的类型"传统贯串本章.</P>
+                        <P>注意, 没有定义 64-位 端口 I/O 操作. 甚至在 64-位 体系中, 
+                        端口地址空间使用一个32-位(最大)的数据通路.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=IOPortAccessfromUserSpace.sect></A>9.2.3.&nbsp;从用户空间的 
+                        I/O 存取</H3></DIV></DIV></DIV>
+                        <P>刚刚描述的这些函数主要打算被设备驱动使用, 但它们也可从用户空间使用, 至少在 PC-类 的计算机. 
+                        GNU C 库在 &lt;sys/io.h&gt; 中定义它们. 下列条件应当应用来对于 inb 
+                        及其友在用户空间代码中使用:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>程序必须使用 -O 选项编译来强制扩展内联函数.</P>
+                          <LI>
+                          <P>ioperm 和 iopl 系统调用必须用来获得权限来进行对端口的 I/O 操作. ioperm 
+                          为单独端口获取许可, 而 iopl 为整个 I/O 空间获取许可. 这 2 个函数都是 x86 
+                          特有的.</P>
+                          <LI>
+                          <P>程序必须作为 root 来调用 ioperm 或者 iopl.<SUP>[<A 
+                          href="http://www.deansys.com/doc/ldd3/ch09s02.html#ftn.id456132" 
+                          name=id456132><FONT color=#0000ff>34</FONT></A>]</SUP> 
+                          可选地, 一个它的祖先必须已赢得作为 root 运行的端口权限.</P></LI></UL></DIV>
+                        <P>如果主机平台没有 ioperm 和 iopl 系统调用, 用户空间仍然可以存取 I/O 端口, 通过使用 
+                        /dev/prot 设备文件. 注意, 但是, 这个文件的含义是非常平台特定的, 并且对任何东西除了 PC 
+                        不可能有用.</P>
+                        <P>例子源码 misc-progs/inp.c 和 misc-progs/outp.c 
+                        是一个从命令行读写端口的小工具, 在用户空间. 它们希望被安装在多个名子下(例如, inb, inw, 和 
+                        inl 并且操作字节, 字, 或者长端口依赖于用户调用哪个名子). 它们使用 ioperm 或者 iopl 在 
+                        x86下, 在其他平台是 /dev/port.</P>
+                        <P>程序可以做成 setuid root, 如果你想过危险生活并且在不要求明确的权限的情况下使用你的硬件. 
+                        但是, 请不要在产品系统上以 set-uid 安装它们; 它们是设计上的安全漏洞.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=StringOperations.sect></A>9.2.4.&nbsp;字串操作</H3></DIV></DIV></DIV>
+                        <P>除了单发地输入和输出操作, 一些处理器实现了特殊的指令来传送一系列字节, 字, 或者 长字 到和自一个单个 
+                        I/O 端口或者同样大小. 这是所谓的字串指令, 并且它们完成任务比一个 C 语言循环能做的更快. 
+                        下列宏定义实现字串处理的概念或者通过使用一个单个机器指令或者通过执行一个紧凑的循环, 如果目标处理器没有进行字串 
+                        I/O 的指令. 当编译为 S390 平台时这些宏定义根本不定义. 这应当不是个移植性问题, 
+                        因为这个平台通常不与其他平台共享设备驱动, 因为它的外设总线是不同的.</P>
+                        <P>字串函数的原型是:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>void insb(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outsb(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <P>读或写从内存地址 addr 开始的 count 字节. 数据读自或者写入单个 port 端口.</P>
+                          <DT><SPAN class=term><SPAN>void insw(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outsw(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <P>读或写 16-位 值到一个单个 16-位 端口.</P>
+                          <DT><SPAN class=term><SPAN>void insl(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outsl(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <P>读或写 32-位 值到一个单个 32-位 端口.</P></DD></DL></DIV>
+                        <P>有件事要记住, 当使用字串函数时: 它们移动一个整齐的字节流到或自端口. 
+                        当端口和主系统有不同的字节对齐规则, 结果可能是令人惊讶的. 使用 inw 读取一个端口交换这些字节, 
+                        如果需要, 来使读取的值匹配主机字节序. 字串函数, 相反, 不进行这个交换.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=PausingIO.sect></A>9.2.5.&nbsp;暂停 
+                        I/O</H3></DIV></DIV></DIV>
+                        <P>一些平台 - 最有名的 i386 - 可能有问题当处理器试图太快传送数据到或自总线. 
+                        当处理器对于外设总线被过度锁定时可能引起问题( 想一下 ISA )并且可能当设备单板太慢时表现出来. 
+                        解决方法是插入一个小的延时在每个 I/O 指令后面, 如果跟随着另一个指令. 在 x86 上, 
+                        这个暂停是通过进行一个 outb 指令到端口 0x80 ( 正常地不是常常用到 )实现的, 或者通过忙等待. 
+                        细节见你的平台的 asm 子目录的 io.h 文件.</P>
+                        <P>如果你的设备丢失一些数据, 或者如果你担心它可能丢失一些, 你可以使用暂停函数代替正常的那些. 
+                        暂停函数正如前面列出的, 但是它们的名子以 _p 结尾; 它们称为 inb_p, outb_p, 等等. 
+                        这些函数定义给大部分被支持的体系, 尽管它们常常扩展为与非暂停 I/O 同样的代码, 因为没有必要额外暂停, 
+                        如果体系使用一个合理的现代外设总线.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=PlatformDependencies.sect></A>9.2.6.&nbsp;平台依赖性</H3></DIV></DIV></DIV>
+                        <P>I/O 指令, 由于它们的特性, 是高度处理器依赖的. 因为它们使用处理器如何处理移进移出的细节, 
+                        是非常难以隐藏系统间的不同. 作为一个结果, 大部分的关于端口 I/O 的源码是平台依赖的.</P>
+                        <P>你可以看到一个不兼容, 数据类型, 通过回看函数的列表, 这里参数是不同的类型, 基于平台间的体系不同点. 
+                        例如, 一个端口是 unsigned int 在 x86 (这里处理器支持一个 64-KB I/O 空间), 
+                        但是在别的平台是 unsiged long, 这里的端口只是同内存一样的同一个地址空间中的特殊位置.</P>
+                        <P>其他的平台依赖性来自处理器中的基本的结构性不同, 并且, 因此, 无可避免地. 
+                        我们不会进入这个依赖性的细节, 因为我们假定你不会给一个特殊的系统编写设备驱动而没有理解底层的硬件. 相反, 
+                        这是一个内核支持的体系的能力的概括:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>IA-32 (x86)</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>x86_64 </SPAN></SPAN>
+                          <DD>
+                          <P>这个体系支持所有的本章描述的函数. 端口号是 unsigned short 类型.</P>
+                          <DT><SPAN class=term><SPAN>IA-64 
+                          (Itanium)</SPAN></SPAN> 
+                          <DD>
+                          <P>支持所有函数; 端口是 unsigned long(以及内存映射的)). 字串函数用 C 
+实现.</P>
+                          <DT><SPAN class=term><SPAN>Alpha </SPAN></SPAN>
+                          <DD>
+                          <P>支持所有函数, 并且端口是内存映射的. 端口 I/O 的实现在不同 Alpha 平台上是不同的, 
+                          根据它们使用的芯片组. 字串函数用 C 实现并且定义在 arch/alpha/lib/io.c 中定义. 
+                          端口是 unsigned long.</P>
+                          <DT><SPAN class=term><SPAN>ARM </SPAN></SPAN>
+                          <DD>
+                          <P>端口是内存映射的, 并且支持所有函数; 字串函数用 C 实现. 端口是 unsigned int 
+                          类型.</P>
+                          <DT><SPAN class=term><SPAN>Cris </SPAN></SPAN>
+                          <DD>
+                          <P>这个体系不支持 I/O 端口抽象, 甚至在一个模拟模式; 各种端口操作定义成什么不做.</P>
+                          <DT><SPAN class=term><SPAN>M68k</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>M68k</SPAN></SPAN> 
+                          <DD>
+                          <P>端口是内存映射的. 支持字串函数, 并且端口类型是 unsigned char.</P>
+                          <DT><SPAN class=term><SPAN>MIPS</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>MIPS64 </SPAN></SPAN>
+                          <DD>
+                          <P>MIPS 端口支持所有的函数. 字串操作使用紧凑汇编循环来实现, 因为处理器缺乏机器级别的字串 
+                          I/O. 端口是内存映射的; 它们是 unsigned long.</P>
+                          <DT><SPAN class=term><SPAN>PA</SPAN></SPAN> 
+                          <DD>
+                          <P>支持所有函数; 端口是 int 在基于 PCI 的系统上以及 unsigned short 在 
+                          EISA 系统, 除了字串操作, 它们使用 unsigned long 端口号.</P>
+                          <DT><SPAN class=term><SPAN>PowerPC</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>PowerPC64 </SPAN></SPAN>
+                          <DD>
+                          <P>支持所有函数; 端口有 unsigned char * 类型在 32-位 系统上并且 unsigned 
+                          long 在 64-位 系统上.</P>
+                          <DT><SPAN class=term><SPAN>S390 </SPAN></SPAN>
+                          <DD>类似于 M68k, 这个平台的头文件只支持字节宽的端口 I/O, 而没有字串操作. 端口是 char 
+                          指针并且是内存映射的. 
+                          <P></P>
+                          <DT><SPAN class=term><SPAN>Super</SPAN></SPAN> 
+                          <DD>
+                          <P>端口是 unsigned int ( 内存映射的 ), 并且支持所有函数.</P>
+                          <DT><SPAN class=term><SPAN>SPARC SPARC64 
+</SPAN></SPAN>
+                          <DD>
+                          <P>再一次, I/O 空间是内存映射的. 端口函数的版本定义来使用 unsigned long 
+                          端口.</P></DD></DL></DIV>
+                        <P>好奇的读者能够从 io.h 文件中获得更多信息, 这个文件有时定义几个结构特定的函数, 
+                        加上我们在本章中描述的那些. 但是, 警告有些这些文件是相当难读的.</P>
+                        <P>有趣的是注意没有 x86 家族之外的处理器具备一个不同的地址空间给端口, 尽管几个被支持的家族配备有 
+                        ISA 和/或 PCI 插槽 ( 并且 2 种总线实现分开的 I/O 和地址空间 ).</P>
+                        <P>更多地, 有些处理器(最有名的是早期的 Alphas)缺乏一次移动一个或 2 
+                        个字节的指令.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch09s02.html#ftn.id456626" 
+                        name=id456626><FONT color=#0000ff>35</FONT></A>]</SUP> 
+                        因此, 它们的外设芯片组模拟 8-位 和 16-位 I/O 存取, 通过映射它们到内存地址空间的特殊的地址范围. 
+                        因此, 操作同一个端口的一个 inb 和 一个 inw 指令, 通过 2 个操作不同地址的 
+                        32-位内存读来实现. 幸运的是, 所有这些都对设备驱动编写者隐藏了, 通过本节中描述的宏的内部, 
+                        但是我们觉得它是一个要注意的有趣的特性. 如果你想深入探究, 查找在 
+                        include/asm-alpha/core_lca.h 中的例子.</P>
+                        <P>在每个平台的程序员手册中充分描述了I/O 操作如何在每个平台上进行; 这些手册常常在 WEB 上作为 
+                        PDF 下载.</P></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch09s02.html#id455968" 
+                        name=ftn.id455968><FONT color=#0000ff>33</FONT></A>] 
+                        </SUP>有时 I/O 端口象内存一样安排, 并且你可(例如)绑定 2 个 8-位 写为一个单个 16-位 
+                        操作. 例如, 这应用于 PC 视频板. 但是通常, 你不能指望这个特色.</P></DIV>
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch09s02.html#id456132" 
+                        name=ftn.id456132><FONT color=#0000ff>34</FONT></A>] 
+                        </SUP>技术上, 它必须有 CAP_SYS_RAWIO 能力, 但是在大部分当前系统中这是与作为 root 
+                        运行是同样的.</P></DIV>
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch09s02.html#id456626" 
+                        name=ftn.id456626><FONT color=#0000ff>35</FONT></A>] 
+                        </SUP>单字节 I/O 不是一个人可能想象的那么重要, 因为它是一个稀少的操作. 
+                        为读/写一个单字节到任何地址空间, 你需要实现一个数据通道, 
+                        连接寄存器组的数据总线的低位到外部数据总线的任意字节位置. 这些数据通道需要额外的逻辑门在每个数据传输的通道上. 
+                        丢掉字节宽的载入和存储能够使整个系统性能受益.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=AnIOPortExample.sect></A>9.3.&nbsp;一个 I/O 
+                        端口例子</H2></DIV></DIV></DIV>
+                        <P>我们用来展示一个设备驱动内的端口 I/O 的例子代码, 操作通用的数字 I/O 端口; 
+                        这样的端口在大部分计算机系统中找到.</P>
+                        <P>一个数字 I/O 端口, 在它的大部分的普通的化身中, 是一个字节宽的 I/O 位置, 
+                        或者内存映射的或者端口映射的. 当你写一个值到一个输出位置, 在输出管脚上见到的电信号根据写入的单个位而改变. 
+                        当你从一个输入位置读取一个值, 输入管脚上所见的当前逻辑电平作为单个位的值被返回.</P>
+                        <P>这样的 I/O 端口的实际实现和软件接口各个系统不同. 大部分时间, I/O 管脚由 2 个 I/O 
+                        位置控制: 一个允许选择使用那些位作为输入, 哪些位作为输出, 以及一个可以实际读或写逻辑电平的. 有时, 
+                        但是, 事情可能更简单, 并且这些位是硬连线为输入或输出(但是, 在这个情况下, 它们不再是所谓的"通用 
+                        I/O"); 在所有个人计算机上出现的并口是这样一个非通用 I/O 端口. 任一方式, I/O 
+                        管脚对我们马上介绍的例子代码是可用的.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AnOverviewoftheParallelPort.sect></A>9.3.1.&nbsp;并口纵览</H3></DIV></DIV></DIV>
+                        <P>因为我们期望大部分读者以所谓的"个人计算机"的形式使用一个 x86 平台, 我们觉得值得解释一下 PC 
+                        并口如何设计的. 并口是在个人计算机上运行数字 I/O 例子代码的外设接口选择. 
+                        尽管大部分读者可能有并口规范用, 为你的方便, 我们在这里总结一下它们.</P>
+                        <P>并口, 在它的最小配置中 ( 我们浏览一下 ECP 和 EPP 模式) 由 3 个 8-位端口组成. PC 
+                        标准在 0x378 开始第一个并口的 I/O 端口并且第 2 个在 0x278. 
+                        第一个端口是一个双向数据寄存器; 它直接连接到物理连接器的管脚 2 - 9. 第 2 
+                        个端口是一个只读状态寄存器; 当并口为打印机使用, 这个寄存器报告打印机状态的几个方面, 例如正在线, 缺纸, 
+                        或者忙. 第 3 个端口是一个只出控制寄存器, 它, 在其他东西中, 控制是否中断使能.</P>
+                        <P>并口通讯中使用的信号电平是标准的 TTL 电平: 0 和 5 伏特, 逻辑门限在大概 1.2 伏特. 
+                        你可依靠端口至少符合标准 TTL LS 电流规格, 尽管大部分现代并口在电流和电压额定值都工作的好.</P>
+                        <P>并口连接器和计算机内部电路不隔离, 当你想直接连接逻辑门到这个端口是有用的. 
+                        但是你不得不小心地正确连接线; 并口电路当你使用你自己的定制电路时容易损坏, 除非你给你的电路增加绝缘. 
+                        你可以选择使用插座并口如果你害怕会损坏你的主板.</P>
+                        <P>位的规范在图 <A title=图&nbsp;9.1.&nbsp;并口的管脚 
+                        href="http://www.deansys.com/doc/ldd3/ch09s03.html#ldd3-9-1.fig"><FONT 
+                        color=#0000ff>并口的管脚</FONT></A> 中概述. 你可以存取 12 个输出位和 5 
+                        个输入位, 有些是在它们地信号路径上逻辑地翻转了. 唯一的没有关联信号管脚的位是端口 2 的位 4 
+                        (0x10), 它使能来自并口的中断. 我们使用这个位作为我们的在第 10 
+章中的中断处理的实现的一部分.</P>
+                        <DIV class=figure><A name=ldd3-9-1.fig></A>
+                        <P class=title><B>图&nbsp;9.1.&nbsp;并口的管脚</B></P>
+                        <DIV><IMG alt=并口的管脚 
+                        src="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/ldd3-9-1.png"></DIV></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ASampleDriver.sect></A>9.3.2.&nbsp;一个例子驱动</H3></DIV></DIV></DIV>
+                        <P>我们介绍的驱动称为 short (Simple Hardware Operations and Raw 
+                        Tests). 所有它做的是读和写几个 8-位 端口, 从你在加载时选择的开始. 缺省地, 它使用分配给 PC 
+                        并口的端口范围. 每个设备节点(有一个独特的次编号)存取一个不同的端口. short 驱动不做任何有用的事情; 
+                        它只是隔离来作为操作端口的单个指令给外部使用. 如果你习惯端口 I/O, 你可以使用 short 来熟悉它; 
+                        你能够测量它花费来通过端口传送数据的时间或者其他游戏的时间.</P>
+                        <P>为 short 在你的系统上运行, 必须有存取底层硬件设备的自由(缺省地, 并口); 因此, 
+                        不能有其他驱动已经分配了它. 大部分现代发布设置并口驱动作为只在需要时加载的模块, 因此对 I/O 
+                        地址的竞争常常不是个问题. 如果, 但是, 你从 short 得到一个"无法获得 I/O 地址" 
+                        错误(在控制台上或者在系统 log 文件), 一些其他的驱动可能已经获得这个端口. 一个快速浏览 
+                        /proc/ioports 常常告诉你哪个驱动在捣乱. 同样的告诫应用于另外 I/O 
+                        设备如果你没有在使用并口.</P>
+                        <P>从现在开始, 我们只是用"并口"来简化讨论. 但是, 你能够设置基本的模块参数在加载时来重定向 short 
+                        到其他 I/O 设备. 这个特性允许例子代码在任何 Linux 平台上运行, 这里你对一个数字 I/O 
+                        接口有权限通过 outb 和 inb 存取( 尽管实际的硬件是内存映射的, 除 x86 外的所有平台). 后面, 
+                        在"使用 I/O 内存"的一节, 我们展示 short 如何用来使用通用的内存映射数字 I/O.</P>
+                        <P>为观察在并口上发生了什么以及如果你有使用硬件的爱好, 你可以焊接尽管 LED 到输出管脚. 每个 LED 
+                        应当串连一个 1-K 电阻导向一个地引脚(除非, 当然, 你的 LED 有内嵌的电阻). 
+                        如果你连接一个输出引脚到一个输入管脚, 你会产生你自己的输入能够从输入端口读到.</P>
+                        <P>注意, 你无法只连接一个打印机到并口并且看到数据发向 short. 这个驱动实现简单的对 I/O 
+                        端口的存取, 并且没有进行与打印机需要的来操作数据的握手; 在下一章, 我们展示了一个例子驱动(称为 
+                        shortprint ), 它能够驱动并口打印机; 这个驱动使用中断, 但是, 
+因此我们还是不能到这一点.</P>
+                        <P>如果你要查看并口数据通过焊接 LED 到一个 D-型 连接器, 我们建议你不要使用管脚 9 和管脚 10, 
+                        因为我们之后连接它们在一起来运行第 10 章展示的例子代码.</P>
+                        <P>只考虑到 short, /dev/short0 写到和读自位于 I/O 基地址的 8-bit 端口( 
+                        0x378, 除非在加载时间改变). /dev/short1 写到位于基址 + 1 的 8-位, 等等直到基址 
+                        + 7.</P>
+                        <P>/dev/short0 进行的实际输出操作是基于使用 outb 的一个紧凑循环. 
+                        一个内存屏障指令用来保证输出操作实际发生并且不被优化掉:</P><PRE class=programlisting>while (count--) {
+ outb(*(ptr++), port);
+    wmb(); 
+} 
+</PRE>
+                        <P>你可以运行下列命令来点亮你的 LED:</P><PRE class=screen>echo -n "any string" &gt; /dev/short0 
+</PRE>
+                        <P>每个 LED 监视一个单个的输出端口位. 记住只有最后写入的字符, 
+                        保持稳定在输出管脚上足够长时间你的眼睛能感觉到. 因此, 我们建议你阻止自动插入一个结尾新行, 通过传递一个 
+                        -n 选项给 echo.</P>
+                        <P>读是通过一个类似的函数, 围绕 inb 而不是 outb 建立的. 为了从并口读"有意义的"值, 
+                        你需要某个硬件连接到连接器的输入管脚来产生信号. 如果没有信号, 你会读到一个相同字节的无结尾的流. 
+                        如果你选择从一个输出端口读取, 你极可能得到写到端口的最后的值(这适用于并口和普通使用的其他数字 I/O 
+                        电路). 因此, 那些不喜欢拿出他们的烙铁的人可以读取当前的输出值在端口 0x378, 
+                        通过运行这样一个命令:</P><PRE class=screen>dd if=/dev/short0 bs=1 count=1 | od -t x1 
+</PRE>
+                        <P>为演示所有 I/O 指令的使用, 每个 short 设备有 3 个变形: /dev/short0 
+                        进行刚刚展示的循环, /dev/short0p 使用 outb_p 和 inb_p 代替"快速"函数, 并且 
+                        /dev/short0s 使用字串指令. 有 8 个这样的设备, 从 short0 到 short7. 尽管 
+                        PC 并口只有 3 个端口, 你可能需要它们更多如果使用不同的 I/O 设备来运行你的测试.</P>
+                        <P>short 驱动进行一个非常少的硬件控制, 但是足够来展示如何使用 I/O 端口指令. 
+                        感兴趣的读者可能想看看 parpor 和 parport_pc 模块的源码, 
+                        来知道这个设备在真实生活中能有多复杂来支持一系列并口上的设备(打印机, 磁带备份, 网络接口)</P>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=UsingIOMemory.sect></A>9.4.&nbsp;使用 I/O 
+                        内存</H2></DIV></DIV></DIV>
+                        <P>尽管 I/O 端口在 x86 世界中流行, 用来和设备通讯的主要机制是通过内存映射的寄存器和设备内存. 2 
+                        者都称为 I/O 内存, 因为寄存器和内存之间的区别对软件是透明的.</P>
+                        <P>I/O 内存是简单的一个象 RAM 的区域, 它被处理器用来跨过总线存取设备. 这个内存可用作几个目的, 
+                        例如持有视频数据或者以太网报文, 同时实现设备寄存器就象 I/O 端口一样的行为(即, 
+                        它们有读和写它们相关联的边际效果).</P>
+                        <P>存取 I/O 内存的方式依赖计算机体系, 总线, 和使用的设备, 尽管外设到处都一样. 本章的讨论主要触及 
+                        ISA 和 PCI 内存, 而也试图传递通用的信息. 尽管存取 PCI 内存在这里介绍, 一个 PCI 
+                        的通透介绍安排在第 12 章.</P>
+                        <P>依赖计算机平台和使用的总线, I/O 内存可以或者不可以通过页表来存取. 当通过页表存取, 
+                        内核必须首先安排从你的驱动可见的物理地址, 并且这常常意味着你必须调用 ioremap 在做任何 I/O 之前. 
+                        如果不需要页表, I/O 内存位置看来很象 I/O 端口, 并且你只可以使用正确的包装函数读和写它们.</P>
+                        <P>不管是否需要 ioremap 来存取 I/O 内存, 不鼓励直接使用 I/O 内存的指针. 尽管(如同在 
+                        "I/O 端口和 I/O 内存" 一节中介绍的 )I/O 内存如同在硬件级别的正常 RAM 一样寻址, 
+                        在"I/O 寄存器和传统内存"一节中概述的额外的小心建议避免正常的指针. 用来存取 I/O 
+                        内存的包装函数在所有平台上是安全的并且在任何时候直接的指针解引用能够进行操作时, 会被优化掉.</P>
+                        <P>因此, 尽管在 x86 上解引用一个指针能工作(在现在), 
+                        不使用正确的宏定义阻碍了驱动的移植性和可读性.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=IOMemoryAllocationandMapping.sect></A>9.4.1.&nbsp;I/O 
+                        内存分配和映射</H3></DIV></DIV></DIV>
+                        <P>I/O 内存区必须在使用前分配. 分配内存区的接口是( 在 &lt;linux/ioport.h&gt; 
+                        定义):</P><PRE class=programlisting>struct resource *request_mem_region(unsigned long start, unsigned long len, char *name);
+</PRE>
+                        <P>这个函数分配一个 len 字节的内存区, 从 start 开始. 如果一切顺利, 一个 非NULL 
+                        指针返回; 否则返回值是 NULL. 所有的 I/O 内存分配来 /proc/iomem 中列出.</P>
+                        <P>内存区在不再需要时应当释放:</P><PRE class=programlisting>void release_mem_region(unsigned long start, unsigned long len); 
+</PRE>
+                        <P>还有一个旧的检查 I/O 内存区可用性的函数:</P><PRE class=programlisting>int check_mem_region(unsigned long start, unsigned long len); 
+</PRE>
+                        <P>但是, 对于 check_region, 这个函数是不安全和应当避免的.</P>
+                        <P>在存取内存之前, 分配 I/O 内嵌不是唯一的要求的步骤. 你必须也保证这个 I/O 
+                        内存已经对内核是可存取的. 使用 I/O 内存不只是解引用一个指针的事情; 在许多系统, I/O 
+                        内存根本不是可以这种方式直接存取的. 因此必须首先设置一个映射. 这是 ioremap 函数的功能, 在第 1 
+                        章的 "vmalloc 及其友"一节中介绍的. 这个函数设计来特别的安排虚拟地址给 I/O 内存区.</P>
+                        <P>一旦装备了 ioremap (和iounmap), 一个设备驱动可以存取任何 I/O 内存地址, 
+                        不管是否它是直接映射到虚拟地址空间. 记住, 但是, 从 ioremap 返回的地址不应当直接解引用; 相反, 
+                        应当使用内核提供的存取函数. 在我们进入这些函数之前, 我们最好回顾一下 ioremap 
+                        原型和介绍几个我们在前一章略过的细节.</P>
+                        <P>这些函数根据下列定义调用:</P><PRE class=programlisting>#include &lt;asm/io.h&gt;
+void *ioremap(unsigned long phys_addr, unsigned long size);
+void *ioremap_nocache(unsigned long phys_addr, unsigned long size);
+void iounmap(void * addr);
+</PRE>
+                        <P>首先, 你注意新函数 ioremap_nacache. 我们在第 8 章没有涉及它, 
+                        因为它的意思是明确地硬件相关的. 引用自一个内核头文件:"It’s useful if some control 
+                        registers are in such an area, and write combining or 
+                        read caching is not desirable.". 实际上, 函数实现在大部分计算机平台上与 
+                        ioremap 一致: 在所有 I/O 内存已经通过非缓冲地址可见的地方, 没有理由使用一个分开的, 非缓冲 
+                        ioremap 版本.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AccessingIOMemory.sect></A>9.4.2.&nbsp;存取 I/O 
+                        内存</H3></DIV></DIV></DIV>
+                        <P>在一些平台上, 你可能逃过作为一个指针使用 ioremap 的返回值的惩罚. 这样的使用不是可移植的, 
+                        并且, 更加地, 内核开发者已经努力来消除任何这样的使用. 使用 I/O 
+                        内存的正确方式是通过一系列为此而提供的函数(通过 &lt;asm/io.h&gt; 定义的).</P>
+                        <P>从 I/O 内存读, 使用下列之一:</P><PRE class=programlisting>unsigned int ioread8(void *addr);
+unsigned int ioread16(void *addr);
+unsigned int ioread32(void *addr);
+</PRE>
+                        <P>这里, addr 应当是从 ioremap 获得的地址(也许与一个整型偏移); 返回值是从给定 I/O 
+                        内存读取的.</P>
+                        <P>有类似的一系列函数来写 I/O 内存:</P><PRE class=programlisting>void iowrite8(u8 value, void *addr);
+void iowrite16(u16 value, void *addr);
+void iowrite32(u32 value, void *addr);
+</PRE>
+                        <P>如果你必须读和写一系列值到一个给定的 I/O 内存地址, 你可以使用这些函数的重复版本:</P><PRE class=programlisting>void ioread8_rep(void *addr, void *buf, unsigned long count);
+void ioread16_rep(void *addr, void *buf, unsigned long count);
+
+void ioread32_rep(void *addr, void *buf, unsigned long count);
+void iowrite8_rep(void *addr, const void *buf, unsigned long count);
+void iowrite16_rep(void *addr, const void *buf, unsigned long count);
+void iowrite32_rep(void *addr, const void *buf, unsigned long count);
+</PRE>
+                        <P>这些函数读或写 count 值从给定的 buf 到 给定的 addr. 注意 count 
+                        表达为在被写入的数据大小; ioread32_rep 读取 count 32-位值从 buf 开始.</P>
+                        <P>上面描述的函数进行所有的 I/O 到给定的 addr. 如果, 相反, 你需要操作一块 I/O 地址, 
+                        你可使用下列之一:</P><PRE class=programlisting>void memset_io(void *addr, u8 value, unsigned int count);
+void memcpy_fromio(void *dest, void *source, unsigned int count);
+void memcpy_toio(void *dest, void *source, unsigned int count);
+</PRE>
+                        <P>这些函数行为如同它们的 C 库类似物.</P>
+                        <P>如果你通览内核源码, 你可看到许多调用旧的一套函数, 当使用 I/O 内存时. 这些函数仍然可以工作, 
+                        但是它们在新代码中的使用不鼓励. 除了别的外, 它们较少安全因为它们不进行同样的类型检查. 但是, 
+                        我们在这里描述它们:</P><PRE class=programlisting>unsigned readb(address);
+unsigned readw(address);
+unsigned readl(address); 
+</PRE>
+                        <P>这些宏定义用来从 I/O 内存获取 8-位, 16-位, 和 32-位 数据值.</P><PRE class=programlisting>void writeb(unsigned value, address);
+void writew(unsigned value, address);
+void writel(unsigned value, address); 
+</PRE>
+                        <P>如同前面的函数, 这些函数(宏)用来写 8-位, 16-位, 和 32-位数据项.</P>
+                        <P>一些 64-位平台也提供 readq 和 writeq, 为 PCI 总线上的 
+                        4-字(8-字节)内存操作. 这个 4-字 的命名是一个从所有的真实处理器有 16-位 字的时候的历史遗留. 
+                        实际上, 用作 32-位 值的 L 命名也已变得不正确, 但是命名任何东西可能使事情更混淆.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=PortsasIOMemory.sect></A>9.4.3.&nbsp;作为 I/O 
+                        内存的端口</H3></DIV></DIV></DIV>
+                        <P>一些硬件有一个有趣的特性: 一些版本使用 I/O 端口, 而其他的使用 I/O 内存. 
+                        输出给处理器的寄存器在任一种情况中相同, 但是存取方法是不同的. 作为一个使驱动处理这类硬件的生活容易些的方式, 
+                        并且作为一个使 I/O 端口和内存存取的区别最小化的方法, 2.6 内核提供了一个函数, 称为 
+                        ioport_map:</P><PRE class=programlisting>void *ioport_map(unsigned long port, unsigned int count); 
+</PRE>
+                        <P>这个函数重映射 count I/O 端口和使它们出现为 I/O 内存. 从这点以后, 
+                        驱动可以在返回的地址上使用 ioread8 和其友并且根本忘记它在使用 I/O 端口.</P>
+                        <P>这个映射应当在它不再被使用时恢复:</P><PRE class=programlisting>void ioport_unmap(void *addr); 
+</PRE>
+                        <P>这些函数使 I/O 端口看来象内存. 但是, 注意 I/O 端口必须仍然使用 request_region 
+                        在它们以这种方式被重映射前分配.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ReusingshortforIOMemory.sect></A>9.4.4.&nbsp;重用 
+                        short 为 I/O 内存</H3></DIV></DIV></DIV>
+                        <P>short 例子模块, 在存取 I/O 端口前介绍的, 也能用来存取 I/O 内存. 为此, 
+                        你必须告诉它使用 I/O 内存在加载时; 还有, 你需要改变基地址来使它指向你的 I/O 区.</P>
+                        <P>例如, 这是我们如何使用 short 来点亮调试 LED, 在一个 MIPS 开发板上:</P><PRE class=screen>mips.root# ./short_load use_mem=1 base=0xb7ffffc0
+mips.root# echo -n 7 &gt; /dev/short0
+</PRE>
+                        <P>使用 short 给 I/O 内存是与它用在 I/O 端口上同样的.</P>
+                        <P>下列片段显示了 short 在写入一个内存位置时用的循环:</P><PRE class=programlisting>while (count--) {
+ iowrite8(*ptr++, address);
+    wmb(); 
+} 
+</PRE>
+                        <P>注意, 这里使用一个写内存屏障. 因为在很多体系上 iowrites8 可能转变为一个直接赋值, 
+                        需要内存屏障来保证以希望的顺序来发生.</P>
+                        <P>short 使用 inb 和 outb 来显示它如何完成. 对于读者它可能是一个直接的练习, 但是, 改变 
+                        short 来使用 ioport_map 重映射 I/O 端口, 并且相当地简化剩下的代码.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ISAMemoryBelow1MB.sect></A>9.4.5.&nbsp;在 1 MB 之下的 
+                        ISA 内存</H3></DIV></DIV></DIV>
+                        <P>一个最著名的 I/O 内存区是在个人计算机上的 ISA 范围. 这是在 640 KB(0xA0000)和 
+                        1 MB(0x100000)之间的内存范围. 因此, 它正好出现于常规内存 RAM 中间. 
+                        这个位置可能看起来有点奇怪; 它是一个在 1980 年代早期所作的决定的产物, 当时 640 KB 
+                        内存看来多于任何人可能用到的大小.</P>
+                        <P>这个内存方法属于非直接映射的内存类别. <SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch09s04.html#ftn.id457608" 
+                        name=id457608><FONT 
+                        color=#0000ff>36</FONT></A>]</SUP>你可以读/写几个字节在这个内存范围, 
+                        如同前面解释的使用 short 模块, 就是, 通过在加载时设置 use_mem.</P>
+                        <P>尽管 ISA I/O 内存只在 x86-类 计算机中存在, 我们认为值得用几句话和一个例子驱动.</P>
+                        <P>我们不会谈论 PCI 在本章, 因为它是最干净的一类 I/O 内存: 一旦你知道内存地址, 
+                        你可简单地重映射和存取它. PCI I/O 内存的"问题"是它不能为本章提供一个能工作的例子, 
+                        因为我们不能事先知道你的 PCI 内存映射到的物理地址, 或者是否它是安全的来存取任一这些范围. 我们选择来描述 
+                        ISA 内存范围, 因为它不但少干净并且更适合运行例子代码.</P>
+                        <P>为演示存取 ISA 内存, 我们还使用另一个 silly 小模块( 例子源码的一部分). 实际上, 
+                        这个称为 silly, 作为 Simple Tool for Unloading and Printing 
+                        ISA Data 的缩写, 或者如此的东东.</P>
+                        <P>模块补充了 short 的功能, 通过存取整个 384-KB 内存空间和通过显示所有的不同 I/O 功能. 
+                        它特有 4 个设备节点来进行同样的任务, 使用不同的数据传输函数. silly 设备作为一个 I/O 
+                        内存上的窗口, 以类似 /dev/mem 的方式. 你可以读和写数据, 并且lseek 到一个任意 I/O 
+                        内存地址.</P>
+                        <P>因为 silly 提供了对 ISA 内存的存取, 它必须开始于从映射物理 ISA 地址到内核虚拟地址. 在 
+                        Linux 内核的早期, 一个人可以简单地安排一个指针给一个感兴趣的 ISA 地址, 接着直接对它解引用. 
+                        在现代世界, 但是, 我们必须首先使用虚拟内存系统和重映射内存范围. 这个映射使用 ioremap 完成, 
+                        如同前面为 short 解释的:</P><PRE class=programlisting>#define ISA_BASE 0xA0000
+#define ISA_MAX 0x100000 /* for general memory access */
+
+/* this line appears in silly_init */
+io_base = ioremap(ISA_BASE, ISA_MAX - ISA_BASE); 
+</PRE>
+                        <P>ioremap 返回一个指针值, 它能被用来使用 ioread8 和其他函数, 在"存取 I/O 
+                        内存"一节中解释.</P>
+                        <P>让我们回顾我们的例子模块来看看这些函数如何被使用. /dev/sillyb, 特有次编号 0, 存取 
+                        I/O 内存使用 ioread8 和 iowrite8. 下列代码显示了读的实现, 它使地址范围 
+                        0xA0000-0xFFFF 作为一个虚拟文件在范围 0-0x5FFF. 读函数构造为一个 switch 
+                        语句在不同存取模式上; 这是 sillyb 例子:</P><PRE class=programlisting>case M_8:
+ while (count) {
+ *ptr = ioread8(add);
+ add++;
+ count--;
+ ptr++;
+
+ }
+ break;
+</PRE>
+                        <P>实际上, 这不是完全正确. 内存范围是很小和很频繁的使用, 以至于内核在启动时建立页表来存取这些地址. 
+                        但是, 这个用来存取它们的虚拟地址不是同一个物理地址, 并且因此无论如何需要 ioremap.</P>
+                        <P>下 2 个设备是 /dev/sillyw (次编号 1) 和 /dev/silly1 (次编号 2). 
+                        它们表现象 /dev/sillyb, 除了它们使用 16-位 和 32-位 函数. 这是 sillyl 
+                        的写实现, 又一次部分 switch:</P><PRE class=programlisting>case M_32:
+ while (count &gt;= 4) {
+ iowrite8(*(u32 *)ptr, add);
+ add += 4;
+ count -= 4;
+ ptr += 4;
+
+ }
+ break;
+</PRE>
+                        <P>最后的设备是 /dev/sillycp (次编号 3), 它使用 memcpy_*io 
+                        函数来进行同样的任务. 这是它的读实现的核心:</P><PRE class=programlisting>case M_memcpy:
+ memcpy_fromio(ptr, add, count);
+ break;
+</PRE>
+                        <P>因为 ioremap 用来提供对 ISA 内存区的存取, silly 必须调用 iounmap 
+                        当模块卸载时:</P><PRE class=programlisting>iounmap(io_base); 
+</PRE></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=isareadbandFriends.sect></A>9.4.6.&nbsp;isa_readb 
+                        和其友</H3></DIV></DIV></DIV>
+                        <P>看一下内核源码会展现另一套函数, 有如 isa_readb 的名子. 实际上, 每个刚才描述的函数都有一个 
+                        isa_ 对等体. 这些函数提供对 ISA 内存的存取不需要一个单独的 ioremap 步骤. 但是, 
+                        来自内核开发者的话, 是这些函数打算用来作为暂时的驱动移植辅助, 并且它可能将来消失. 因此, 
+                        你应当避免使用它们.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=CommunicatingwithHardwareqr.sect></A>9.5.&nbsp;快速参考</H2></DIV></DIV></DIV>
+                        <P>本章介绍下列与硬件管理相关的符号:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/kernel.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          barrier(void)</SPAN></SPAN> 
+                          <DD>
+                          <P>这个"软件"内存屏蔽要求编译器对待所有内存是跨这个指令而非易失的.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/system.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          rmb(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          read_barrier_depends(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          wmb(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          mb(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>硬件内存屏障. 它们请求 CPU(和编译器)来检查所有的跨这个指令的内存读, 写, 或都有.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/io.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned inb(unsigned 
+                          port);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outb(unsigned char 
+                          byte, unsigned port);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned inw(unsigned 
+                          port);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outw(unsigned short 
+                          word, unsigned port);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned inl(unsigned 
+                          port);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outl(unsigned 
+                          doubleword, unsigned port);</SPAN></SPAN> 
+                          <DD>
+                          <P>用来读和写 I/O 端口的函数. 它们还可以被用户空间程序调用, 
+                          如果它们有正当的权限来存取端口.</P>
+                          <DT><SPAN class=term><SPAN>unsigned inb_p(unsigned 
+                          port);</SPAN></SPAN> 
+                          <DD>
+                          <P>如果在一次 I/O 操作后需要一个小延时, 你可以使用在前一项中介绍的这些函数的 6 个暂停对应部分; 
+                          这些暂停函数有以 _p 结尾的名子.</P>
+                          <DT><SPAN class=term><SPAN>void insb(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outsb(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void insw(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outsw(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void insl(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void outsl(unsigned port, 
+                          void *addr, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <P>这些"字串函数"被优化为传送数据从一个输入端口到一个内存区, 或者其他的方式. 
+                          这些传送通过读或写到同一端口 count 次来完成.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/ioport.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct resource 
+                          *request_region(unsigned long start, unsigned long 
+                          len, char *name);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          release_region(unsigned long start, unsigned long 
+                          len);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int check_region(unsigned 
+                          long start, unsigned long len);</SPAN></SPAN> 
+                          <DD>
+                          <P>I/O 端口的资源分配器. 这个检查函数成功返回 0 并且在错误时小于 0.</P>
+                          <DT><SPAN class=term><SPAN>struct resource 
+                          *request_mem_region(unsigned long start, unsigned long 
+                          len, char *name);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          release_mem_region(unsigned long start, unsigned long 
+                          len);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          check_mem_region(unsigned long start, unsigned long 
+                          len);</SPAN></SPAN> 
+                          <DD>
+                          <P>为内存区处理资源分配的函数</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/io.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void *ioremap(unsigned long 
+                          phys_addr, unsigned long size);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          *ioremap_nocache(unsigned long phys_addr, unsigned 
+                          long size);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void iounmap(void 
+                          *virt_addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>ioremap 重映射一个物理地址范围到处理器的虚拟地址空间, 使它对内核可用. iounmap 
+                          释放映射当不再需要它时.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/io.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned int ioread8(void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned int ioread16(void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned int ioread32(void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void iowrite8(u8 value, 
+                          void *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void iowrite16(u16 value, 
+                          void *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void iowrite32(u32 value, 
+                          void *addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>用来使用 I/O 内存的存取者函数.</P>
+                          <DT><SPAN class=term><SPAN>void ioread8_rep(void 
+                          *addr, void *buf, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void ioread16_rep(void 
+                          *addr, void *buf, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void ioread32_rep(void 
+                          *addr, void *buf, unsigned long count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void iowrite8_rep(void 
+                          *addr, const void *buf, unsigned long 
+                          count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void iowrite16_rep(void 
+                          *addr, const void *buf, unsigned long 
+                          count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void iowrite32_rep(void 
+                          *addr, const void *buf, unsigned long 
+                          count);</SPAN></SPAN> 
+                          <DD>
+                          <P>I/O 内存原语的"重复"版本.</P>
+                          <DT><SPAN class=term><SPAN>unsigned 
+                          readb(address);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned 
+                          readw(address);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned 
+                          readl(address);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void writeb(unsigned value, 
+                          address);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void writew(unsigned value, 
+                          address);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void writel(unsigned value, 
+                          address);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>memset_io(address, value, 
+                          count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>memcpy_fromio(dest, source, 
+                          nbytes);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>memcpy_toio(dest, source, 
+                          nbytes);</SPAN></SPAN> 
+                          <DD>
+                          <P>旧的, 类型不安全的存取 I/O 内存的函数.</P>
+                          <DT><SPAN class=term><SPAN>void *ioport_map(unsigned 
+                          long port, unsigned int count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void ioport_unmap(void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>一个想对待 I/O 端口如同它们是 I/O 内存的驱动作者, 可以传递它们的端口给 
+                          ioport_map. 这个映射应当在不需要的时候恢复( 使用 ioport_unmap 
+                        )</P></DD></DL></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:35，已浏览58次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270127">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270127">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（9）内存管理 - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>

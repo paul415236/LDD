@@ -1,0 +1,1579 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270111 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时" 
+name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（7）时间, 延时, 和延后工作</B></FONT> 
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>第&nbsp;7&nbsp;章&nbsp;时间, 延时, 和延后工作</DIV>
+                        <DIV>
+                        <P>到此, 我们知道了如何编写一个全特性字符模块的基本知识. 真实世界的驱动, 然而, 
+                        需要做比实现控制一个设备的操作更多的事情; 它们不得不处理诸如定时, 内存管理, 硬件存取, 等更多. 
+                        幸运的是, 内核输出了许多设施来简化驱动编写者的任务. 在下几章中, 我们将描述一些你可使用的内核资源. 
+                        这一章引路, 通过描述定时问题是如何阐述. 处理时间问题包括下列任务, 按照复杂度上升的顺序:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>测量时间流失和比较时间</P>
+                          <LI>
+                          <P>知道当前时间</P>
+                          <LI>
+                          <P>指定时间量的延时操作</P>
+                          <LI>
+                          <P>调度异步函数在之后的时间发生</P></LI></UL></DIV>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=MeasuringTimeLapes.sect></A>7.1.&nbsp;测量时间流失</H2></DIV></DIV></DIV>
+                        <P>内核通过定时器中断来跟踪时间的流动. 中断在第 10 章详细描述.</P>
+                        <P>定时器中断由系统定时硬件以规律地间隔产生; 这个间隔在启动时由内核根据 HZ 值来编程, HZ 
+                        是一个体系依赖的值, 在 &lt;linux/param.h&gt;中定义或者它所包含的一个子平台文件中. 
+                        在发布的内核源码中的缺省值在真实硬件上从 50 到 1200 嘀哒每秒, 在软件模拟器中往下到 24. 
+                        大部分平台运行在 100 或者 1000 中断每秒; 流行的 x86 PC 缺省是 1000, 
+                        尽管它在以前版本上(向上直到并且包括 2.4)常常是 100. 作为一个通用的规则, 即便如果你知道 HZ 
+                        的值, 在编程时你应当从不依赖这个特定值.</P>
+                        <P>可能改变 HZ 的值, 对于那些要系统有一个不同的时钟中断频率的人. 如果你在头文件中改变 HZ 的值, 
+                        你需要使用新的值重编译内核和所有的模块. 如果你愿意付出额外的时间中断的代价来获得你的目标, 你可能想提升 HZ 
+                        来得到你的异步任务的更细粒度的精度. 实际上, 提升 HZ 到 1000 在使用 2.4 或 2.2 内核版本的 
+                        x86 工业系统中是相当普遍的. 但是, 对于当前版本, 最好的方法是保持 HZ 的缺省值, 
+                        由于我们完全信任内核开发者, 他们肯定已经选择了最好的值. 另外, 一些内部计算当前实现为只为从 12 到 
+                        1535 范围的 HZ (见 &lt;linux/timex.h&gt; 和 RFC-1589).</P>
+                        <P>每次发生一个时钟中断, 一个内核计数器的值递增. 这个计数器在系统启动时初始化为 0, 
+                        因此它代表从最后一次启动以来的时钟嘀哒的数目. 这个计数器是一个 64-位 变量( 即便在 
+                        32-位的体系上)并且称为 jiffies_64. 但是, 驱动编写者正常地存取 jiffies 变量, 一个 
+                        unsigned long, 或者和 jiffies_64 是同一个或者它的低有效位. 使用 jiffies 
+                        常常是首选, 因为它更快, 并且再所有的体系上存取 64-位的 jiffies_64 值不必要是原子的. 
+</P>
+                        <P>除了低精度的内核管理的 jiffy 机制, 一些 CPU 平台特有一个高精度的软件可读的计数器. 
+                        尽管它的实际使用有些在各个平台不同, 它有时是一个非常有力的工具.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=UsingthejiffesCounter.sect></A>7.1.1.&nbsp;使用 
+                        jiffies 计数器</H3></DIV></DIV></DIV>
+                        <P>这个计数器和来读取它的实用函数位于 &lt;linux/jiffies.h&gt;, 尽管你会常常只是包含 
+                        &lt;linux/sched.h&gt;, 它会自动地将 jiffies.h 拉进来. 不用说, 
+                        jiffies 和 jiffies_64 必须当作只读的.</P>
+                        <P>无论何时你的代码需要记住当前的 jiffies 值, 可以简单地存取这个 unsigned long 
+                        变量, 它被声明做 volatile 来告知编译器不要优化内存读. 你需要读取当前的计数器, 
+                        无论何时你的代码需要计算一个将来的时间戳, 如下面例子所示:</P><PRE class=programlisting>#include &lt;linux/jiffies.h&gt;
+unsigned long j, stamp_1, stamp_half, stamp_n;
+
+j = jiffies; /* read the current value */
+stamp_1 = j + HZ; /* 1 second in the future */
+stamp_half = j + HZ/2; /* half a second */
+stamp_n = j + n * HZ / 1000; /* n milliseconds */
+</PRE>
+                        <P>这个代码对于 jiffies 回绕没有问题, 只要不同的值以正确的方式进行比较. 尽管在 32-位 
+                        平台上当 HZ 是 1000 时, 计数器只是每 50 天回绕一次, 你的代码应当准备面对这个事件. 
+                        为比较你的被缓存的值( 象上面的 stamp_1 ) 和当前值, 你应当使用下面一个宏定义:</P><PRE class=programlisting>#include &lt;linux/jiffies.h&gt;
+int time_after(unsigned long a, unsigned long b);
+int time_before(unsigned long a, unsigned long b);
+int time_after_eq(unsigned long a, unsigned long b);
+int time_before_eq(unsigned long a, unsigned long b);
+</PRE>
+                        <P>第一个当 a, 作为一个 jiffies 的快照, 代表 b 之后的一个时间时, 取值为真, 第二个当 
+                        时间 a 在时间 b 之前时取值为真, 以及最后 2 个比较"之后或相同"和"之前或相同". 
+                        这个代码工作通过转换这个值为 signed long, 减它们, 并且比较结果. 如果你需要以一种安全的方式知道 
+                        2 个 jiffies 实例之间的差, 你可以使用同样的技巧: diff = (long)t2 - 
+                        (long)t1;.</P>
+                        <P>你可以转换一个 jiffies 差为毫秒, 一般地通过:</P><PRE class=programlisting>msec = diff * 1000 / HZ; 
+</PRE>
+                        <P>有时, 但是, 你需要与用户空间程序交换时间表示, 它们打算使用 struct timeval 和 
+                        struct timespec 来表示时间. 这 2 个结构代表一个精确的时间量, 使用 2 个成员: 
+                        seconds 和 microseconds 在旧的流行的 struct timeval 中使用, 
+                        seconds 和 nanoseconds 在新的 struct timespec 中使用. 内核输出 4 
+                        个帮助函数来转换以 jiffies 表达的时间值, 到和从这些结构:</P><PRE class=programlisting>#include &lt;linux/time.h&gt; 
+unsigned long timespec_to_jiffies(struct timespec *value);
+void jiffies_to_timespec(unsigned long jiffies, struct timespec *value);
+unsigned long timeval_to_jiffies(struct timeval *value);
+void jiffies_to_timeval(unsigned long jiffies, struct timeval *value);
+</PRE>
+                        <P>存取这个 64-位 jiffy 计数值不象存取 jiffies 那样直接. 而在 64-位 计算机体系上, 
+                        这 2 个变量实际上是一个, 存取这个值对于 32-位 处理器不是原子的. 
+                        这意味着你可能读到错误的值如果这个变量的两半在你正在读取它们时被更新. 极不可能你会需要读取这个 64-位 
+                        计数器, 但是万一你需要, 你会高兴地得知内核输出了一个特别地帮助函数, 为你完成正确地加锁:</P><PRE class=programlisting>#include &lt;linux/jiffies.h&gt; 
+u64 get_jiffies_64(void);
+</PRE>
+                        <P>在上面的原型中, 使用了 u64 类型. 这是一个定义在 &lt;linux/types.h&gt; 
+                        中的类型, 在 11 章中讨论, 并且表示一个 unsigned 64-位 类型.</P>
+                        <P>如果你在奇怪 32-位 平台如何同时更新 32-位 和 64-位 计数器, 读你的平台的连接脚本( 
+                        查找一个文件, 它的名子匹配 valinux*.lds*). 在那里, jiffies 符号被定义来存取这个 
+                        64-位 值的低有效字, 根据平台是小端或者大端. 实际上, 同样的技巧也用在 64-位 平台上, 因此这个 
+                        unsigned long 和 u64 变量在同一个地址被存取.</P>
+                        <P>最后, 注意实际的时钟频率几乎完全对用户空间隐藏. 宏 HZ 一直扩展为 100 当用户空间程序包含 
+                        param.h, 并且每个报告给用户空间的计数器都对应地被转换. 这应用于 clock(3), 
+                        times(2), 以及任何相关的函数. 对 HZ 值的用户可用的唯一证据是时钟中断多快发生, 如在 
+                        /proc/interrupts 所显示的. 例如, 你可以获得 HZ, 通过用在 /proc/uptime 
+                        中报告的系统 uptime 除这个计数值.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=PorcessorSpecificRegisters.sect></A>7.1.2.&nbsp;处理器特定的寄存器</H3></DIV></DIV></DIV>
+                        <P>如果你需要测量非常短时间间隔, 或者你需要非常高精度, 你可以借助平台依赖的资源, 
+                        一个要精度不要移植性的选择.</P>
+                        <P>在现代处理器中, 对于经验性能数字的迫切需求被大部分 CPU 设计中内在的指令定时不确定性所阻碍, 
+                        这是由于缓存内存, 指令调度, 以及分支预测引起. 作为回应, CPU 制造商引入一个方法来计数时钟周期, 
+                        作为一个容易并且可靠的方法来测量时间流失. 因此, 大部分现代处理器包含一个计数器寄存器, 
+                        它在每个时钟周期固定地递增一次. 现在, 资格时钟计数器是唯一可靠的方法来进行高精度的时间管理任务.</P>
+                        <P>细节每个平台不同: 这个寄存器可以或者不可以从用户空间可读, 它可以或者不可以写, 并且它可能是 64 
+                        或者 32 位宽. 在后一种情况, 你必须准备处理溢出, 就象我们处理 jiffy 计数器一样. 
+                        这个寄存器甚至可能对你的平台来说不存在, 或者它可能被硬件设计者在一个外部设备实现, 如果 CPU 
+                        缺少这个特性并且你在使用一个特殊用途的计算机.</P>
+                        <P>无论是否寄存器可以被清零, 我们强烈不鼓励复位它, 即便当硬件允许时. 毕竟, 
+                        在任何给定时间你可能不是这个计数器的唯一用户; 在一些支持 SMP 的平台上, 例如, 
+                        内核依赖这样一个计数器来在处理器之间同步. 因为你可以一直测量各个值的差, 只要差没有超过溢出时间, 
+                        你可以通过修改它的当前值来做这个事情不用声明独自拥有这个寄存器.</P>
+                        <P>最有名的计数器寄存器是 TSC ( timestamp counter), 在 x86 处理器中随 
+                        Pentium 引入的并且在所有从那之后的 CPU 中出现 -- 包括 x86_64 平台. 它是一个 64-位 
+                        寄存器计数 CPU 的时钟周期; 它可从内核和用户空间读取.</P>
+                        <P>在包含了 &lt;asm/msr.h&gt; (一个 x86-特定的头文件, 
+                        它的名子代表"machine-specific registers"), 你可使用一个这些宏:</P><PRE class=programlisting>rdtsc(low32,high32);
+rdtscl(low32);
+rdtscll(var64);
+</PRE>
+                        <P>第一个宏自动读取 64-位 值到 2 个 32-位 变量; 下一个("read low half") 
+                        读取寄存器的低半部到一个 32-位 变量, 丢弃高半部; 最后一个读 64-位 值到一个 long long 
+                        变量, 由此得名. 所有这些宏存储数值到它们的参数中.</P>
+                        <P>对大部分的 TSC 应用, 读取这个计数器的的低半部足够了. 一个 1-GHz 的 CPU 只在每 4.2 
+                        秒溢出一次, 因此你不会需要处理多寄存器变量, 如果你在使用的时间流失确定地使用更少时间. 但是, 随着 CPU 
+                        频率不断上升以及定时需求的提高, 将来你会几乎可能需要常常读取 64-位 计数器.</P>
+                        <P>作为一个只使用寄存器低半部的例子, 下面的代码行测量了指令自身的执行:</P><PRE class=programlisting>unsigned long ini, end;
+rdtscl(ini); rdtscl(end);
+printk("time lapse: %li\n", end - ini);
+</PRE>
+                        <P>一些其他的平台提供相似的功能, 并且内核头文件提供一个体系独立的功能, 你可用来代替 rdtsc. 它称为 
+                        get_cycles, 定义在 &lt;asm/timex.h&gt;( 由 
+                        &lt;linux/timex.h&gt; 包含). 它的原型是:</P><PRE class=programlisting> #include &lt;linux/timex.h&gt;
+ cycles_t get_cycles(void); 
+</PRE>
+                        <P>这个函数为每个平台定义, 并且它一直返回 0 在没有周期-计数器寄存器的平台上. cycles_t 
+                        类型是一个合适的 unsigned 类型来持有读到的值.</P>
+                        <P>不论一个体系独立的函数是否可用, 我们最好利用机会来展示一个内联汇编代码的例子. 为此, 我们实现一个 
+                        rdtscl 函数给 MIPS 处理器, 它与在 x86 上同样的方式工作.</P>
+                        <P>拖尾的 nop 指令被要求来阻止编译器在 mfc0 之后马上存取指令中的目标寄存器. 这种内部锁在 
+                        RISC 处理器中是典型的, 并且编译器仍然可以在延迟时隙中调度有用的指令. 在这个情况中, 我们使用 nop 
+                        因为内联汇编对编译器是一个黑盒并且不会进行优化.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch07.html#ftn.id443760" 
+                        name=id443760><FONT 
+                        color=#0000ff>26</FONT></A>]</SUP></P><PRE class=programlisting>#define rdtscl(dest) \
+ __asm__ __volatile__("mfc0 %0,$9; nop" : "=r" (dest))
+</PRE>
+                        <P>有这个宏在, MIPS 处理器可以执行同样的代码, 如同前面为 x86 展示的一样的代码.</P>
+                        <P>使用 gcc 内联汇编, 通用寄存器的分配留给编译器. 刚刚展示的这个宏使用 %0 作为"参数 
+                        0"的一个占位符, 之后它被指定为"任何用作输出( = )的寄存器( r )". 这个宏还声明输出寄存器必须对应 
+                        C 表达式 dest. 内联函数的语法是非常强大但是有些复杂, 
+                        特别对于那些有限制每个寄存器可以做什么的体系上(就是说, x86 家族). 这个用法在 gcc 文档中描述, 
+                        常常在 info 文档目录树中有.</P>
+                        <P>本节已展示的这个简短的 C-代码片段已在一个 K7-级 x86 处理器 和一个 MIPS VR4181 ( 
+                        使用刚刚描述过的宏 )上运行. 前者报告了一个 11 个时钟嘀哒的时间流失而后者只是 2 个时钟嘀哒. 
+                        小的数字是期望的, 因为 RISC 处理器常常每个时钟周期执行一条指令.</P>
+                        <P>有另一个关于时戳计数器的事情值得知道: 它们在一个 SMP 系统中不必要跨处理器同步. 
+                        为保证得到一个一致的值, 你应当为查询这个计数器的代码禁止抢占.</P></DIV></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch07.html#id443760" 
+                        name=ftn.id443760><FONT color=#0000ff>26</FONT></A>] 
+                        </SUP>我们在 MIPS 上建立这例子, 因为大部分的 MIPS 处理器特有一个 32-位 
+                        计数器作为它们内部"协处理器 0"的寄存器 9. 为存取这个寄存器, 仅仅从内核空间可读, 
+                        你可以定义下列的宏来执行一条"从协处理器 0 转移"的汇编指令:</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=KnowingtheCurrentTime.sect></A>7.2.&nbsp;获知当前时间</H2></DIV></DIV></DIV>
+                        <P>内核代码能一直获取一个当前时间的表示, 通过查看 jifies 的值. 常常地, 
+                        这个值只代表从最后一次启动以来的时间, 这个事实对驱动来说无关, 因为它的生命周期受限于系统的 uptime. 
+                        如所示, 驱动可以使用 jiffies 的当前值来计算事件之间的时间间隔(例如, 
+                        在输入驱动中从单击中区分双击或者计算超时). 简单地讲, 查看 jiffies 几乎一直是足够的, 
+                        当你需要测量时间间隔. 如果你需要对短时间流失的非常精确的测量, 处理器特定的寄存器来帮忙了( 
+                        尽管它们带来严重的移植性问题 ).</P>
+                        <P>它是非常不可能一个驱动会需要知道墙上时钟时间, 以月, 天, 和小时来表达的; 
+                        这个信息常常只对用户程序需要, 例如 cron 和 syslogd. 处理真实世界的时间常常最好留给用户空间, 
+                        那里的 C 库提供了更好的支持; 另外, 这样的代码常常太策略相关以至于不属于内核. 
+                        有一个内核函数转变一个墙上时钟时间到一个 jiffies 值, 但是:</P><PRE class=programlisting>#include &lt;linux/time.h&gt; 
+unsigned long mktime (unsigned int year, unsigned int mon,
+ unsigned int day, unsigned int hour,
+ unsigned int min, unsigned int sec); 
+</PRE>
+                        <P>重复:直接在驱动中处理墙上时钟时间往往是一个在实现策略的信号, 并且应当因此而被置疑.</P>
+                        <P>虽然你不会一定处理人可读的时间表示, 有时你需要甚至在内核空间中处理绝对时间. 为此, 
+                        &lt;linux/time.h&gt; 输出了 do_gettimeofday 函数. 当被调用时, 
+                        它填充一个 struct timeval 指针 -- 和在 gettimeofday 系统调用中使用的相同 -- 
+                        使用类似的秒和毫秒值. do_gettimeofday 的原型是:</P><PRE class=programlisting> #include &lt;linux/time.h&gt;
+ void do_gettimeofday(struct timeval *tv);
+</PRE>
+                        <P>这段源代码声明 do_gettimeofday 有" 接近毫秒的精度", 因为它询问时间硬件当前 
+                        jiffy 多大比例已经流失. 这个精度每个体系都不同, 但是, 因为它依赖实际使用中的硬件机制. 例如, 一些 
+                        m68knommu 处理器, Sun3 系统, 和其他 m68k 系统不能提供大于 jiffy 的精度. 
+                        Pentium 系统, 另一方面, 提供了非常快速和精确的小于嘀哒的测量, 
+                        通过读取本章前面描述的时戳计数器.</P>
+                        <P>当前时间也可用( 尽管使用 jiffy 的粒度 )来自 xtime 变量, 一个 struct 
+                        timespec 值. 不鼓励这个变量的直接使用, 因为难以原子地同时存取这 2 个字段. 因此, 
+                        内核提供了实用函数 current_kernel_time:</P><PRE class=programlisting>#include &lt;linux/time.h&gt;
+struct timespec current_kernel_time(void);
+</PRE>
+                        <P>用来以各种方式获取当前时间的代码, 可以从由 O' Reilly 提供的 FTP 网站上的源码文件的 
+                        jit ("just in time") 模块获得. jit 创建了一个文件称为 
+                        /proc/currentime, 当读取时, 它以 ASCII 码返回下列项:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>当前的 jiffies 和 jiffies_64 值, 以 16 进制数的形式.</P>
+                          <LI>
+                          <P>如同 do_gettimeofday 返回的相同的当前时间.</P>
+                          <LI>
+                          <P>由 current_kernel_time 返回的 
+                        timespec.</P></LI></UL></DIV>
+                        <P>我们选择使用一个动态的 /proc 文件来保持样板代码为最小 -- 
+                        它不值得创建一整个设备只是返回一点儿文本信息.</P>
+                        <P>这个文件连续返回文本行只要这个模块加载着; 每次 read 系统调用收集和返回一套数据, 
+                        为更好阅读而组织为 2 行. 无论何时你在少于一个时钟嘀哒内读多个数据集, 你将看到 
+                        do_gettimeofday 之间的差别, 它询问硬件, 并且其他值仅在时钟嘀哒时被更新.</P><PRE class=screen>phon% head -8 /proc/currentime
+0x00bdbc1f 0x0000000100bdbc1f 1062370899.630126
+ 1062370899.629161488
+0x00bdbc1f 0x0000000100bdbc1f 1062370899.630150
+ 1062370899.629161488
+0x00bdbc20 0x0000000100bdbc20 1062370899.630208
+ 1062370899.630161336
+0x00bdbc20 0x0000000100bdbc20 1062370899.630233
+ 1062370899.630161336
+</PRE>
+                        <P>在上面的屏幕快照中, 由 2 件有趣的事情要注意. 首先, 这个 current_kernel_time 
+                        值, 尽管以纳秒来表示, 只有时钟嘀哒的粒度; do_gettimeofday 
+                        持续报告一个稍晚的时间但是不晚于下一个时钟嘀哒. 第二, 这个 64-位的 jiffies 计数器有 高 
+                        32-位字集合的最低有效位. 这是由于 INITIAL_JIFFIES 的缺省值, 在启动时间用来初始化计数器, 
+                        在启动时间后几分钟内强加一个低字溢出来帮助探测与这个刚好溢出相关的问题. 这个在计数器中的初始化偏好没有效果, 
+                        因为 jiffies 与墙上时钟时间无关. 在 /proc/uptime 中, 这里内核从计数器中抽取 
+                        uptime, 初始化偏好在转换前被去除.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=DelayingExecution.sect></A>7.3.&nbsp;延后执行</H2></DIV></DIV></DIV>
+                        <P>设备驱动常常需要延后一段时间执行一个特定片段的代码, 常常允许硬件完成某个任务. 
+                        在这一节我们涉及许多不同的技术来获得延后. 每种情况的环境决定了使用哪种技术最好; 我们全都仔细检查它们, 
+                        并且指出每一个的长处和缺点.</P>
+                        <P>一件要考虑的重要的事情是你需要的延时如何与时钟嘀哒比较, 考虑到 HZ 的跨各种平台的范围. 
+                        那种可靠地比时钟嘀哒长并且不会受损于它的粗粒度的延时, 可以利用系统时钟. 
+                        每个短延时典型地必须使用软件循环来实现. 在这 2 种情况中存在一个灰色地带. 在本章, 我们使用短语" 
+                        long " 延时来指一个多 jiffy 延时, 在一些平台上它可以如同几个毫秒一样少, 但是在 CPU 
+                        和内核看来仍然是长的.</P>
+                        <P>下面的几节讨论不同的延时, 通过采用一些长路径, 从各种直觉上不适合的方法到正确的方法. 
+                        我们选择这个途径因为它允许对内核相关定时方面的更深入的讨论. 如果你急于找出正确的代码, 
+                        只要快速浏览本节.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=LongDelays.sect></A>7.3.1.&nbsp;长延时</H3></DIV></DIV></DIV>
+                        <P>偶尔地, 一个驱动需要延后执行相对长时间 -- 多于一个时钟嘀哒. 有几个方法实现这类延时; 
+                        我们从最简单的技术开始, 接着进入到高级些的技术.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Busywaiting.sect></A>7.3.1.1.&nbsp;忙等待</H4></DIV></DIV></DIV>
+                        <P>如果你想延时执行多个时钟嘀哒, 允许在值中某些疏忽, 最容易的( 尽管不推荐 ) 的实现是一个监视 
+                        jiffy 计数器的循环. 这种忙等待实现常常看来象下面的代码, 这里 j1 是 jiffies 
+                        的在延时超时的值:</P><PRE class=programlisting>while (time_before(jiffies, j1))
+    cpu_relax();
+</PRE>
+                        <P>对 cpu_relex 的调用使用了一个特定于体系的方式来说, 你此时没有在用处理器做事情. 
+                        在许多系统中它根本不做任何事; 在对称多线程(" 超线程" ) 系统中, 可能让出核心给其他线程. 
+                        在如何情况下, 无论何时有可能, 这个方法应当明确地避免. 
+                        我们展示它是因为偶尔你可能想运行这个代码来更好理解其他代码的内幕.</P>
+                        <P>我们来看一下这个代码如何工作. 这个循环被保证能工作因为 jiffies 被内核头文件声明做易失性的, 
+                        并且因此, 在任何时候 C 代码寻址它时都从内存中获取. 尽管技术上正确( 它如同设计的一样工作 ), 
+                        这种忙等待严重地降低了系统性能. 如果你不配置你的内核为抢占操作, 这个循环在延时期间完全锁住了处理器; 
+                        调度器永远不会抢占一个在内核中运行的进程, 并且计算机看起来完全死掉直到时间 j1 到时. 
+                        这个问题如果你运行一个可抢占的内核时会改善一点, 因为, 除非这个代码正持有一个锁, 
+                        处理器的一些时间可以被其他用途获得. 但是, 忙等待在可抢占系统中仍然是昂贵的.</P>
+                        <P>更坏的是, 当你进入循环时如果中断碰巧被禁止, jiffies 将不会被更新, 并且 while 
+                        条件永远保持真. 运行一个抢占的内核也不会有帮助, 并且你将被迫去击打大红按钮.</P>
+                        <P>这个延时代码的实现可拿到, 如同下列的, 在 jit 模块中. 模块创建的这些 /proc/jit* 
+                        文件每次你读取一行文本就延时一整秒, 并且这些行保证是每个 20 字节. 如果你想测试忙等待代码, 你可以读取 
+                        /proc/jitbusy, 每当它返回一行它忙-循环一秒.</P>
+                        <P>为确保读, 最多, 一行( 或者几行 ) 一次从 /proc/jitbusy. 简化的注册 /proc 
+                        文件的内核机制反复调用 read 方法来填充用户请求的数据缓存. 因此, 一个命令, 例如 cat 
+                        /proc/jitbusy, 如果它一次读取 4KB, 会冻住计算机 205 秒.</P>
+                        <P>推荐的读 /proc/jitbusy 的命令是 dd bs=200 &lt; /proc/jitbusy, 
+                        可选地同时指定块数目. 文件返回的每 20-字节 的行表示 jiffy 计数器已有的值, 在延时之前和延时之后. 
+                        这是一个例子运行在一个其他方面无负担的计算机上:</P><PRE class=screen>phon% dd bs=20 count=5 &lt; /proc/jitbusy
+ 1686518 1687518
+ 1687519 1688519
+ 1688520 1689520
+ 1689520 1690520
+ 1690521 1691521 
+</PRE>
+                        <P>看来都挺好: 延时精确地是 1 秒 ( 1000 jiffies ), 并且下一个 read 
+                        系统调用在上一个结束后立刻开始. 但是让我们看看在一个有大量 
+                        CPU-密集型进程在运行(并且是非抢占内核)的系统上会发生什么:</P><PRE class=screen>phon% dd bs=20 count=5 &lt; /proc/jitbusy
+ 1911226 1912226
+ 1913323 1914323
+ 1919529 1920529
+ 1925632 1926632
+ 1931835 1932835 
+</PRE>
+                        <P>这里, 每个 read 系统调用精确地延时 1 秒, 但是内核耗费多过 5 秒在调度 dd 
+                        进程以便它可以发出下一个系统调用之前. 在一个多任务系统就期望是这样; CPU 时间在所有运行的进程间共享, 
+                        并且一个 CPU-密集型 进程有它的动态减少的优先级. ( 调度策略的讨论在本书范围之外). </P>
+                        <P>上面所示的在负载下的测试已经在运行 load50 例子程序中进行了. 这个程序派生出许多什么都不做的进程, 
+                        但是以一种 CPU-密集的方式来做. 这个程序是伴随本书的例子文件的一部分, 并且缺省是派生 50 个进程, 
+                        尽管这个数字可以在命令行指定. 在本章, 以及在本书其他部分, 使用一个有负载的系统的测试已经用 load50 
+                        在一个其他方面空闲的计算机上运行来进行了.</P>
+                        <P>如果你在运行一个可抢占内核时重复这个命令, 你会发现没有显著差别在一个其他方面空闲的 CPU 
+                        上以及下面的在负载下的行为:</P><PRE class=screen>phon% dd bs=20 count=5 &lt; /proc/jitbusy
+ 14940680 14942777
+ 14942778 14945430
+ 14945431 14948491
+ 14948492 14951960
+ 14951961 14955840 
+</PRE>
+                        <P>这里, 没有显著的延时在一个系统调用的末尾和下一个的开始之间, 但是单独的延时远远比 1 秒长: 直到 
+                        3.8 秒在展示的例子中并且随时间上升. 这些值显示了进程在它的延时当中被中断, 调度其他的进程. 
+                        系统调用之间的间隙不是唯一的这个进程的调度选项, 因此没有特别的延时在那里可以看到.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Yieldingtheprocessor.sect></A>7.3.1.2.&nbsp;让出处理器</H4></DIV></DIV></DIV>
+                        <P>如我们已见到的, 忙等待强加了一个重负载给系统总体; 我们乐意找出一个更好的技术. 
+                        想到的第一个改变是明确地释放 CPU 当我们对其不感兴趣时. 这是通过调用调度函数而实现地, 在 
+                        &lt;linux/sched.h&gt; 中声明:</P><PRE class=programlisting>while (time_before(jiffies, j1)) {
+    schedule();
+}
+</PRE>
+                        <P>这个循环可以通过读取 /proc/jitsched 如同我们上面读 /proc/jitbusy 
+                        一样来测试. 但是, 还是不够优化. 当前进程除了释放 CPU 不作任何事情, 但是它保留在运行队列中. 
+                        如果它是唯一的可运行进程, 实际上它运行( 它调用调度器来选择同一个进程, 进程又调用调度器, 这样下去). 
+                        换句话说, 机器的负载( 在运行的进程的平均数 ) 最少是 1, 并且空闲任务 ( 进程号 0, 
+                        也称为对换进程, 由于历史原因) 从不运行. 尽管这个问题可能看来无关, 
+                        在计算机是空闲时运行空闲任务减轻了处理器工作负载, 降低它的温度以及提高它的生命期, 
+                        同时电池的使用时间如果这个计算机是你的膝上机. 更多的, 因为进程实际上在延时中执行, 
+                        它所耗费的时间都可以统计.</P>
+                        <P>/proc/jitsched 的行为实际上类似于运行 /proc/jitbusy 在一个抢占的内核下. 
+                        这是一个例子运行, 在一个无负载的系统:</P><PRE class=screen>phon% dd bs=20 count=5 &lt; /proc/jitsched
+ 1760205 1761207
+ 1761209 1762211
+ 1762212 1763212
+ 1763213 1764213
+ 1764214 1765217 
+</PRE>
+                        <P>有趣的是要注意每次 read 有时结束于等待比要求的多几个时钟嘀哒. 这个问题随着系统变忙会变得越来越坏, 
+                        并且驱动可能结束于等待长于期望的时间. 一旦一个进程使用调度来释放处理器, 
+                        无法保证进程将拿回处理器在任何时间之后. 因此, 以这种方式调用调度器对于驱动的需求不是一个安全的解决方法, 
+                        另外对计算机系统整体是不好的. 如果你在运行 load50 时测试 jitsched, 
+                        你可以见到关联到每一行的延时被扩充了几秒, 因为当定时超时的时候其他进程在使用 CPU .</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Timeouts.sect></A>7.3.1.3.&nbsp;超时</H4></DIV></DIV></DIV>
+                        <P>到目前为止所展示的次优化的延时循环通过查看 jiffy 计数器而不告诉任何人来工作. 
+                        但是最好的实现一个延时的方法, 如你可能猜想的, 常常是请求内核为你做. 有 2 种方法来建立一个基于 
+                        jiffy 的超时, 依赖于是否你的驱动在等待其他的事件.</P>
+                        <P>如果你的驱动使用一个等待队列来等待某些其他事件, 但是你也想确保它在一个确定时间段内运行, 可以使用 
+                        wait_event_timeout 或者 
+                        wait_event_interruptible_timeout:</P><PRE class=programlisting>#include &lt;linux/wait.h&gt;
+long wait_event_timeout(wait_queue_head_t q, condition, long timeout);
+long wait_event_interruptible_timeout(wait_queue_head_t q, condition, long timeout);
+</PRE>
+                        <P>这些函数在给定队列上睡眠, 但是它们在超时(以 jiffies 表示)到后返回. 因此, 
+                        它们实现一个限定的睡眠不会一直睡下去. 注意超时值表示要等待的 jiffies 数, 不是一个绝对时间值. 
+                        这个值由一个有符号的数表示, 因为它有时是一个相减运算的结果, 尽管这些函数如果提供的超时值是负值通过一个 
+                        printk 语句抱怨. 如果超时到, 这些函数返回 0; 如果这个进程被其他事件唤醒, 它返回以 
+                        jiffies 表示的剩余超时值. 返回值从不会是负值, 甚至如果延时由于系统负载而比期望的值大.</P>
+                        <P>/proc/jitqueue 文件展示了一个基于 
+                        wait_event_interruptible_timeout 的延时, 结果这个模块没有事件来等待, 
+                        并且使用 0 作为一个条件:</P><PRE class=programlisting>wait_queue_head_t wait; 
+init_waitqueue_head (&amp;wait); 
+wait_event_interruptible_timeout(wait, 0, delay); 
+</PRE>
+                        <P>当读取 /proc/jitqueue 时, 观察到的行为近乎优化的, 即便在负载下:</P><PRE class=screen>phon% dd bs=20 count=5 &lt; /proc/jitqueue
+ 2027024  2028024 
+ 2028025  2029025 
+ 2029026  2030026 
+ 2030027  2031027 
+ 2031028  2032028  
+</PRE>
+                        <P>因为读进程当等待超时( 上面是 dd )不在运行队列中, 你看不到表现方面的差别, 
+                        无论代码是否运行在一个抢占内核中.</P>
+                        <P>wait_event_timeout 和 wait_event_interruptible_timeout 
+                        被设计为有硬件驱动存在, 这里可以用任何一种方法来恢复执行: 或者有人调用 wake_up 在等待队列上, 
+                        或者超时到. 这不适用于 jitqueue, 因为没人在等待队列上调用 wake_up ( 毕竟, 
+                        没有其他代码知道它 ), 因此这个进程当超时到时一直唤醒. 为适应这个特别的情况, 
+                        这里你想延后执行不等待特定事件, 内核提供了 schedule_timeout 函数, 
+                        因此你可以避免声明和使用一个多余的等待队列头:</P><PRE class=programlisting>#include &lt;linux/sched.h&gt;
+signed long schedule_timeout(signed long timeout);
+</PRE>
+                        <P>这里, timeout 是要延时的 jiffies 数. 返回值是 0 除非这个函数在给定的 
+                        timeout 流失前返回(响应一个信号). schedule_timeout 
+                        请求调用者首先设置当前的进程状态, 因此一个典型调用看来如此:</P><PRE class=programlisting>set_current_state(TASK_INTERRUPTIBLE);
+schedule_timeout (delay);
+</PRE>
+                        <P>前面的行( 来自 /proc/jitschedto ) 导致进程睡眠直到经过给定的时间. 因为 
+                        wait_event_interruptible_timeout 在内部依赖 schedule_timeout, 
+                        我们不会费劲显示 jitschedto 返回的数, 因为它们和 jitqueue 的相同. 再一次, 
+                        不值得有一个额外的时间间隔在超时到和你的进程实际被调度来执行之间.</P>
+                        <P>在刚刚展示的例子中, 第一行调用 set_current_state 
+                        来设定一些东西以便调度器不会再次运行当前进程, 直到超时将它置回 TASK_RUNNING 状态. 
+                        为获得一个不可中断的延时, 使用 TASK_UNINTERRUPTIBLE 代替. 
+                        如果你忘记改变当前进程的状态, 调用 schedule_time 如同调用 shcedule( 即, 
+                        jitsched 的行为), 建立一个不用的定时器.</P>
+                        <P>如果你想使用这 4 个 jit 文件在不同的系统情况下或者不同的内核, 或者尝试其他的方式来延后执行, 
+                        你可能想配置延时量当加载模块时通过设定延时模块参数.</P></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ShortDelays.sect></A>7.3.2.&nbsp;短延时</H3></DIV></DIV></DIV>
+                        <P>当一个设备驱动需要处理它的硬件的反应时间, 涉及到的延时常常是最多几个毫秒. 在这个情况下, 
+                        依靠时钟嘀哒显然不对路.</P>The kernel functions ndelay, udelay, and 
+                        mdelay serve well for short delays, delaying execution 
+                        for the specified number of nanoseconds, microseconds, 
+                        or milliseconds respectively.* Their prototypes are: * 
+                        The u in udelay represents the Greek letter mu and 
+                        stands for micro. 
+                        <P>内核函数 ndelay, udelay, 以及 mdelay 对于短延时好用, 分别延后执行指定的纳秒数, 
+                        微秒数或者毫秒数. <SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch07s03.html#ftn.id444639" 
+                        name=id444639><FONT 
+                        color=#0000ff>27</FONT></A>]</SUP>它们的原型是:</P><PRE class=programlisting>#include &lt;linux/delay.h&gt;
+void ndelay(unsigned long nsecs);
+void udelay(unsigned long usecs);
+void mdelay(unsigned long msecs);
+</PRE>
+                        <P>这些函数的实际实现在 &lt;asm/delay.h&gt;, 是体系特定的, 
+                        并且有时建立在一个外部函数上. 每个体系都实现 udelay, 但是其他的函数可能或者不可能定义; 
+                        如果它们没有定义, &lt;linux/delay.h&gt; 提供一个缺省的基于 udelay 的版本. 
+                        在所有的情况中, 获得的延时至少是要求的值, 但可能更多; 实际上, 当前没有平台获得了纳秒的精度, 
+                        尽管有几个提供了次微秒的精度. 延时多于要求的值通常不是问题, 因为驱动中的短延时常常需要等待硬件, 
+                        并且这个要求是等待至少一个给定的时间流失.</P>
+                        <P>udelay 的实现( 可能 ndelay 也是) 使用一个软件循环基于在启动时计算的处理器速度, 
+                        使用整数变量 loos_per_jiffy. 如果你想看看实际的代码, 但是, 小心 x86 
+                        实现是相当复杂的一个因为它使用的不同的时间源, 基于什么 CPU 类型在运行代码.</P>
+                        <P>为避免在循环计算中整数溢出, udelay 和 ndelay 强加一个上限给传递给它们的值. 
+                        如果你的模块无法加载和显示一个未解决的符号, __bad_udelay, 这意味着你使用太大的参数调用 
+                        udleay. 注意, 但是, 编译时检查只对常量进行并且不是所有的平台实现它. 作为一个通用的规则, 
+                        如果你试图延时几千纳秒, 你应当使用 udelay 而不是 ndelay; 类似地, 毫秒规模的延时应当使用 
+                        mdelay 完成而不是一个更细粒度的函数. </P>
+                        <P>重要的是记住这 3 个延时函数是忙等待; 其他任务在时间流失时不能运行. 因此, 它们重复, 
+                        尽管在一个不同的规模上, jitbusy 的做法. 因此, 这些函数应当只用在没有实用的替代时.</P>
+                        <P>有另一个方法获得毫秒(和更长)延时而不用涉及到忙等待. 文件 &lt;linux/delay.h&gt; 
+                        声明这些函数:</P><PRE class=programlisting>void msleep(unsigned int millisecs);
+unsigned long msleep_interruptible(unsigned int millisecs);
+void ssleep(unsigned int seconds)
+</PRE>
+                        <P>前 2 个函数使调用进程进入睡眠给定的毫秒数. 一个对 msleep 的调用是不可中断的; 
+                        你能确保进程睡眠至少给定的毫秒数. 如果你的驱动位于一个等待队列并且你想唤醒来打断睡眠, 使用 
+                        msleep_interruptible. 从 msleep_interruptible 的返回值正常地是 0; 
+                        如果, 但是, 这个进程被提早唤醒, 返回值是在初始请求睡眠周期中剩余的毫秒数. 对 ssleep 
+                        的调用使进程进入一个不可中断的睡眠给定的秒数.</P>
+                        <P>通常, 如果你能够容忍比请求的更长的延时, 你应当使用 schedule_timeout, msleep, 
+                        或者 ssleep.</P></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch07s03.html#id444639" 
+                        name=ftn.id444639><FONT color=#0000ff>27</FONT></A>] 
+                        </SUP>udelay 中的 u 表示希腊字母 mu 并且代表 micro.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=KernelTimers.sect></A>7.4.&nbsp;内核定时器</H2></DIV></DIV></DIV>
+                        <P>无论何时你需要调度一个动作以后发生, 而不阻塞当前进程直到到时, 内核定时器是给你的工具. 
+                        这些定时器用来调度一个函数在将来一个特定的时间执行, 基于时钟嘀哒, 并且可用作各类任务; 例如, 
+                        当硬件无法发出中断时, 查询一个设备通过在定期的间隔内检查它的状态. 
+                        其他的内核定时器的典型应用是关闭软驱马达或者结束另一个长期终止的操作. 在这种情况下, 延后来自 close 
+                        的返回将强加一个不必要(并且吓人的)开销在应用程序上. 最后, 内核自身使用定时器在几个情况下, 包括实现 
+                        schedule_timeout.</P>
+                        <P>一个内核定时器是一个数据结构, 
+                        它指导内核执行一个用户定义的函数使用一个用户定义的参数在一个用户定义的时间. 这个实现位于 
+                        &lt;linux/timer.h&gt; 和 kernel/timer.c 
+                        并且在"内核定时器"一节中详细介绍.</P>
+                        <P>被调度运行的函数几乎确定不会在注册它们的进程在运行时运行. 它们是, 相反, 异步运行. 直到现在, 
+                        我们在我们的例子驱动中已经做的任何事情已经在执行系统调用的进程上下文中运行. 当一个定时器运行时, 但是, 
+                        这个调度进程可能睡眠, 可能在不同的一个处理器上运行, 或者很可能已经一起退出.</P>
+                        <P>这个异步执行类似当发生一个硬件中断时所发生的( 这在第 10 章详细讨论 ). 实际上, 
+                        内核定时器被作为一个"软件中断"的结果而实现. 当在这种原子上下文运行时, 你的代码易受到多个限制. 
+                        定时器函数必须是原子的以所有的我们在第 1 章"自旋锁和原子上下文"一节中曾讨论过的方式, 
+                        但是有几个附加的问题由于缺少一个进程上下文而引起的. 我们将介绍这些限制; 在后续章节的几个地方将再次看到它们. 
+                        循环被调用因为原子上下文的规则必须认真遵守, 否则系统会发现自己陷入大麻烦中.</P>
+                        <P>为能够被执行, 多个动作需要进程上下文. 当你在进程上下文之外(即, 在中断上下文), 
+                        你必须遵守下列规则:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>没有允许存取用户空间. 因为没有进程上下文, 没有和任何特定进程相关联的到用户空间的途径.</P>
+                          <LI>
+                          <P>这个 current 指针在原子态没有意义, 
+                          并且不能使用因为相关的代码没有和已被中断的进程的联系.</P>
+                          <LI>
+                          <P>不能进行睡眠或者调度. 原子代码不能调用 schedule 或者某种 wait_event, 
+                          也不能调用任何其他可能睡眠的函数. 例如, 调用 kmalloc(..., GFP_KERNEL) 
+                          是违犯规则的. 旗标也必须不能使用因为它们可能睡眠.</P></LI></UL></DIV>
+                        <P>内核代码能够告知是否它在中断上下文中运行, 通过调用函数 in_interrupt(), 
+                        它不要参数并且如果处理器当前在中断上下文运行就返回非零, 要么硬件中断要么软件中断.</P>
+                        <P>一个和 in_interrupt() 相关的函数是 in_atomic(). 
+                        它的返回值是非零无论何时调度被禁止; 这包含硬件和软件中断上下文以及任何持有自旋锁的时候. 在后一种情况, 
+                        current 可能是有效的, 但是存取用户空间被禁止, 因为它能导致调度发生. 无论何时你使用 
+                        in_interrupt(), 你应当真正考虑是否 in_atomic 是你实际想要的. 2 个函数都在 
+                        &lt;asm/hardirq.h&gt; 中声明.</P>
+                        <P>内核定时器的另一个重要特性是一个任务可以注册它本身在后面时间重新运行. 这是可能的, 因为每个 
+                        timer_list 结构在运行前从激活的定时器链表中去连接, 并且因此能够马上在其他地方被重新连接. 
+                        尽管反复重新调度相同的任务可能表现为一个无意义的操作, 有时它是有用的. 例如, 
+                        它可用作实现对设备的查询.</P>
+                        <P>也值得了解在一个 SMP 系统, 定时器函数被注册时相同的 CPU 来执行, 
+                        为在任何可能的时候获得更好的缓存局部特性. 因此, 一个重新注册它自己的定时器一直运行在同一个 CPU.</P>
+                        <P>不应当被忘记的定时器的一个重要特性是, 它们是一个潜在的竞争条件的源, 即便在一个单处理器系统. 
+                        这是它们与其他代码异步运行的一个直接结果. 因此, 任何被定时器函数存取的数据结构应当保护避免并发存取, 
+                        要么通过原子类型( 在第 1 章的"原子变量"一节) 要么使用自旋锁( 在第 9 章讨论 ).</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheTimerAPI.sect></A>7.4.1.&nbsp;定时器 
+                        API</H3></DIV></DIV></DIV>
+                        <P>内核提供给驱动许多函数来声明, 注册, 以及去除内核定时器. 下列的引用展示了基本的代码块:</P><PRE class=programlisting>#include &lt;linux/timer.h&gt;
+struct timer_list
+{
+        /* ... */
+        unsigned long expires;
+        void (*function)(unsigned long);
+        unsigned long data;
+};
+void init_timer(struct timer_list *timer);
+struct timer_list TIMER_INITIALIZER(_function, _expires, _data);
+
+void add_timer(struct timer_list * timer);
+int del_timer(struct timer_list * timer);
+</PRE>
+                        <P>这个数据结构包含比曾展示过的更多的字段, 但是这 3 个是打算从定时器代码自身以外被存取的. 这个 
+                        expires 字段表示定时器期望运行的 jiffies 值; 在那个时间, 这个 function 
+                        函数被调用使用 data 作为一个参数. 如果你需要在参数中传递多项, 
+                        你可以捆绑它们作为一个单个数据结构并且传递一个转换为 unsiged long 的指针, 
+                        在所有支持的体系上的一个安全做法并且在内存管理中相当普遍( 如同 15 章中讨论的 ). expires 
+                        值不是一个 jiffies_64 项因为定时器不被期望在将来很久到时, 并且 64-位操作在 
+                        32-位平台上慢.</P>
+                        <P>这个结构必须在使用前初始化. 这个步骤保证所有的成员被正确建立, 包括那些对调用者不透明的. 
+                        初始化可以通过调用 init_timer 或者 安排 TIMER_INITIALIZER 给一个静态结构, 
+                        根据你的需要. 在初始化后, 你可以改变 3 个公共成员在调用 add_timer 前. 
+                        为在到时前禁止一个已注册的定时器, 调用 del_timer.</P>
+                        <P>jit 模块包括一个例子文件, /proc/jitimer ( 为 "just in timer"), 
+                        它返回一个头文件行以及 6 个数据行. 这些数据行表示当前代码运行的环境; 
+                        第一个由读文件操作产生并且其他的由定时器. 下列的输出在编译内核时被记录:</P><PRE class=screen>phon% cat /proc/jitimer
+ time delta  inirq  pid  cpu command 
+ 33565837  0  0  1269  0  cat 
+ 33565847  10  1  1271  0  sh 
+ 33565857  10  1  1273  0  cpp0 
+ 33565867  10  1  1273  0  cpp0 
+ 33565877  10  1  1274  0  cc1 
+ 33565887  10  1  1274  0  cc1  
+</PRE>
+                        <P>在这个输出, time 字段是代码运行时的 jiffies 值, delta 是自前一行的 jiffies 
+                        改变值, inirq 是由 in_interrupt 返回的布尔值, pid 和 command 
+                        指的是当前进程, 以及 cpu 是在使用的 CPU 的数目( 在单处理器系统上一直为 0).</P>
+                        <P>如果你读 /proc/jitimer 当系统无负载时, 你会发现定时器的上下文是进程 0, 空闲任务, 
+                        它被称为"对换进程"只要由于历史原因.</P>
+                        <P>用来产生 /proc/jitimer 数据的定时器是缺省每 10 jiffies 运行一次, 
+                        但是你可以在加载模块时改变这个值通过设置 tdelay ( timer delay ) 参数.</P>
+                        <P>下面的代码引用展示了 jit 关于 jitimer 定时器的部分. 当一个进程试图读取我们的文件, 
+                        我们建立这个定时器如下:</P><PRE class=programlisting>unsigned long j = jiffies;
+/* fill the data for our timer function */
+data-&gt;prevjiffies = j;
+
+data-&gt;buf = buf2;
+data-&gt;loops = JIT_ASYNC_LOOPS;
+
+/* register the timer */
+data-&gt;timer.data = (unsigned long)data;
+data-&gt;timer.function = jit_timer_fn;
+data-&gt;timer.expires = j + tdelay; /* parameter */
+add_timer(&amp;data-&gt;timer);
+
+/* wait for the buffer to fill */
+wait_event_interruptible(data-&gt;wait, !data-&gt;loops);
+
+The actual timer function looks like this:
+void jit_timer_fn(unsigned long arg)
+{
+        struct jit_data *data = (struct jit_data *)arg;
+        unsigned long j = jiffies;
+        data-&gt;buf += sprintf(data-&gt;buf, "%9li %3li %i %6i %i %s\n",
+                             j, j - data-&gt;prevjiffies, in_interrupt() ? 1 : 0,
+                             current-&gt;pid, smp_processor_id(), current-&gt;comm);
+        if (--data-&gt;loops) {
+                data-&gt;timer.expires += tdelay;
+                data-&gt;prevjiffies = j;
+                add_timer(&amp;data-&gt;timer);
+
+        } else {
+                wake_up_interruptible(&amp;data-&gt;wait);
+        }
+}
+</PRE>
+                        <P>定时器 API 包括几个比上面介绍的那些更多的功能. 下面的集合是完整的核提供的函数列表:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>int mod_timer(struct 
+                          timer_list *timer, unsigned long 
+                          expires);</SPAN></SPAN> 
+                          <DD>
+                          <P>更新一个定时器的超时时间, 使用一个超时定时器的一个普通的任务(再一次, 
+                          关马达软驱定时器是一个典型例子). mod_timer 也可被调用于非激活定时器, 那里你正常地使用 
+                          add_timer.</P>
+                          <DT><SPAN class=term><SPAN>int del_timer_sync(struct 
+                          timer_list *timer);</SPAN></SPAN> 
+                          <DD>
+                          <P>如同 del_timer 一样工作, 但是还保证当它返回时, 定时器函数不在任何 CPU 上运行. 
+                          del_timer_sync 用来避免竞争情况在 SMP 系统上, 并且在 UP 内核中和 
+                          del_timer 相同. 这个函数应当在大部分情况下比 del_timer 更首先使用. 
+                          这个函数可能睡眠如果它被从非原子上下文调用, 但是在其他情况下会忙等待. 要十分小心调用 
+                          del_timer_sync 当持有锁时; 如果这个定时器函数试图获得同一个锁, 系统会死锁. 
+                          如果定时器函数重新注册自己, 调用者必须首先确保这个重新注册不会发生; 这常常同设置一个" 关闭 
+                          "标志来实现, 这个标志被定时器函数检查.</P>
+                          <DT><SPAN class=term><SPAN>int timer_pending(const 
+                          struct timer_list * timer);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回真或假来指示是否定时器当前被调度来运行, 
+                        通过调用结构的其中一个不透明的成员.</P></DD></DL></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheImplementaionofKernelTimers.sect></A>7.4.2.&nbsp;内核定时器的实现</H3></DIV></DIV></DIV>
+                        <P>为了使用它们, 尽管你不会需要知道内核定时器如何实现, 这个实现是有趣的, 
+                        并且值得看一下它们的内部.</P>
+                        <P>定时器的实现被设计来符合下列要求和假设:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>定时器管理必须尽可能简化.</P>
+                          <LI>
+                          <P>设计应当随着激活的定时器数目上升而很好地适应.</P>
+                          <LI>
+                          <P>大部分定时器在几秒或最多几分钟内到时, 而带有长延时的定时器是相当少见.</P>
+                          <LI>
+                          <P>一个定时器应当在注册它的同一个 CPU 上运行.</P></LI></UL></DIV>
+                        <P>由内核开发者想出的解决方法是基于一个每-CPU 数据结构. 这个 timer_list 
+                        结构包括一个指针指向这个的数据结构在它的 base 成员. 如果 base 是 NULL, 
+                        这个定时器没有被调用运行; 否则, 这个指针告知哪个数据结构(并且, 因此, 哪个 CPU )运行它. 
+                        每-CPU 数据项在第 8 章的"每-CPU变量"一节中描述. </P>
+                        <P>无论何时内核代码注册一个定时器( 通过 add_timer 或者 mod_timer), 操作最终由 
+                        internal_add_timer 进行( 在kernel/timer.c), 
+                        它依次添加新定时器到一个双向定时器链表在一个关联到当前 CPU 的"层叠表" 中.</P>
+                        <P>这个层叠表象这样工作: 如果定时器在下一个 0 到 255 jiffies 内到时, 
+                        它被添加到专供短时定时器 256 列表中的一个上, 使用 expires 成员的最低有效位. 
+                        如果它在将来更久时间到时( 但是在 16,384 jiffies 之前 ), 它被添加到基于 expires 
+                        成员的 9 - 14 位的 64 个列表中一个. 对于更长的定时器, 同样的技巧用在 15 - 20 位, 21 
+                        - 26 位, 和 27 - 31 位. 带有一个指向将来还长时间的 expires 成员的定时器( 
+                        一些只可能发生在 64-位 平台上的事情 ) 被使用一个延时值 0xffffffff 进行哈希处理, 
+                        并且带有在过去到时的定时器被调度来在下一个时钟嘀哒运行. (一个已经到时的定时器模拟有时在高负载情况下被注册, 
+                        特别的是如果你运行一个可抢占内核).</P>
+                        <P>当触发 __run_timers, 它为当前定时器嘀哒执行所有挂起的定时器. 如果 jiffies 当前是 
+                        256 的倍数, 这个函数还重新哈希处理一个下一级别的定时器列表到 256 短期列表, 
+                        可能地层叠一个或多个别的级别, 根据jiffies 的位表示.</P>
+                        <P>这个方法, 虽然第一眼看去相当复杂, 在几个和大量定时器的时候都工作得很好. 
+                        用来管理每个激活定时器的时间独立于已经注册的定时器数目并且限制在几个对于它的 expires 
+                        成员的二进制表示的逻辑操作上. 关联到这个实现的唯一的开销是给 512 链表头的内存( 256 短期链表和 4 
+                        组 64 更长时间的列表) -- 即 4 KB 的容量.</P>
+                        <P>函数 __run_timers, 如同 /proc/jitimer 所示, 在原子上下文运行. 
+                        除了我们已经描述过的限制, 这个带来一个有趣的特性: 定时器刚好在合适的时间到时, 
+                        甚至你没有运行一个可抢占内核, 并且 CPU 在内核空间忙. 你可以见到发生了什么当你在后台读 
+                        /proc/jitbusy 时以及在前台 /proc/jitimer. 
+                        尽管系统看来牢固地被锁住被这个忙等待系统调用, 内核定时器照样工作地不错.</P>
+                        <P></P>但是, 记住, 一个内核定时器还远未完善, 因为它受累于 jitter 和 
+                        其他由硬件中断引起怪物, 还有其他定时器和其他异步任务. 虽然一个关联到简单数字 I/O 
+                        的定时器对于一个如同运行一个步进马达或者其他业余电子设备等简单任务是足够的, 
+                        它常常是不合适在工业环境中的生产系统. 对于这样的任务, 你将最可能需要依赖一个实时内核扩展.</DIV>
+                        <DIV class=sect2 lang=zh-cn>&nbsp;</DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=Tasklets.sect></A>7.5.&nbsp;Tasklets 
+                        机制</H2></DIV></DIV></DIV>
+                        <P>另一个有关于定时问题的内核设施是 tasklet 机制. 它大部分用在中断管理(我们将在第 10 
+                        章再次见到).</P>
+                        <P>tasklet 类似内核定时器在某些方面. 它们一直在中断时间运行, 它们一直运行在调度它们的同一个 
+                        CPU 上, 并且它们接收一个 unsigned long 参数. 不象内核定时器, 但是, 
+                        你无法请求在一个指定的时间执行函数. 通过调度一个 tasklet, 
+                        你简单地请求它在以后的一个由内核选择的时间执行. 这个行为对于中断处理特别有用, 那里硬件中断必须被尽快处理, 
+                        但是大部分的时间管理可以安全地延后到以后的时间. 实际上, 一个 tasket, 就象一个内核定时器, 
+                        在一个"软中断"的上下文中执行(以原子模式), 在使能硬件中断时执行异步任务的一个内核机制.</P>
+                        <P>一个 tasklet 存在为一个时间结构, 它必须在使用前被初始化. 
+                        初始化能够通过调用一个特定函数或者通过使用某些宏定义声明结构:</P><PRE class=programlisting>#include &lt;linux/interrupt.h&gt; 
+struct tasklet_struct {
+ /* ... */
+
+void (*func)(unsigned long);
+ unsigned long data;
+};
+
+void tasklet_init(struct tasklet_struct *t,
+ void (*func)(unsigned long), unsigned long data);
+DECLARE_TASKLET(name, func, data);
+DECLARE_TASKLET_DISABLED(name, func, data);
+</PRE>
+                        <P>tasklet 提供了许多有趣的特色:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>一个 tasklet 能够被禁止并且之后被重新使能; 
+                          它不会执行直到它被使能与被禁止相同的的次数.</P>
+                          <LI>
+                          <P>如同定时器, 一个 tasklet 可以注册它自己.</P>
+                          <LI>
+                          <P>一个 tasklet 能被调度来执行以正常的优先级或者高优先级. 后一组一直是首先执行.</P>
+                          <LI>
+                          <P>taslet 可能立刻运行, 如果系统不在重载下, 但是从不会晚于下一个时钟嘀哒.</P>
+                          <LI>
+                          <P>一个 tasklet 可能和其他 tasklet 并发, 但是对它自己是严格地串行的 -- 同样的 
+                          tasklet 从不同时运行在超过一个处理器上. 同样, 如已经提到的, 一个 tasklet 
+                          常常在调度它的同一个 CPU 上运行.</P></LI></UL></DIV>
+                        <P>jit 模块包括 2 个文件, /proc/jitasklet 和 /proc/jitasklethi, 
+                        它返回和在"内核定时器"一节中介绍过的 /proc/jitimer 同样的数据. 当你读其中一个文件时, 
+                        你取回一个 header 和 sixdata 行. 第一个数据行描述了调用进程的上下文, 并且其他的行描述了一个 
+                        tasklet 过程连续运行的上下文. 这是一个在编译一个内核时的运行例子:</P><PRE class=screen>phon% cat /proc/jitasklet
+ time delta inirq pid cpu command
+ 6076139 0 0 4370 0 cat
+ 6076140 1 1 4368 0 cc1
+ 6076141 1 1 4368 0 cc1
+ 6076141 0 1 2 0 ksoftirqd/0
+ 6076141 0 1 2 0 ksoftirqd/0
+ 6076141 0 1 2 0 ksoftirqd/0
+</PRE>
+                        <P>如同由上面数据所确定的, tasklet 在下一个时间嘀哒内运行只要 CPU 在忙于运行一个进程, 
+                        但是它立刻被运行当 CPU 处于空闲. 内核提供了一套 ksoftirqd 内核线程, 每个 CPU 一个, 
+                        只是来运行 "软件中断" 处理, 就像 tasklet_action 函数. 因此, tasklet 的最后 3 
+                        个运行在关联到 CPU 0 的 ksoftirqd 内核线程的上下文中发生. jitasklethi 
+                        的实现使用了一个高优先级 tasklet, 在马上要来的函数列表中解释. </P>
+                        <P>jit 中实现 /proc/jitasklet 和 /proc/jittasklethi 的实际代码与 
+                        /proc/jitimer 的实现代码几乎是一致的, 但是它使用 tasklet 调用代替那些定时器. 
+                        下面的列表详细展开了 tasklet 结构已被初始化后的内核对 tasklet 的接口:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>void tasklet_disable(struct 
+                          tasklet_struct *t);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数禁止给定的 tasklet. tasklet 可能仍然被 tasklet_schedule 
+                          调度, 但是它的执行被延后直到这个 tasklet 被再次使能. 如果这个 tasklet 当前在运行, 
+                          这个函数忙等待直到这个tasklet退出; 因此, 在调用 tasklet_disable 后, 
+                          你可以确保这个 tasklet 在系统任何地方都不在运行.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          tasklet_disable_nosync(struct tasklet_struct 
+                          *t);</SPAN></SPAN> 
+                          <DD>
+                          <P>禁止这个 tasklet, 但是没有等待任何当前运行的函数退出. 当它返回, 这个 tasklt 
+                          被禁止并且不会在以后被调度直到重新使能, 但是它可能仍然运行在另一个 CPU 当这个函数返回时.</P>
+                          <DT><SPAN class=term><SPAN>void tasklet_enable(struct 
+                          tasklet_struct *t);</SPAN></SPAN> 
+                          <DD>
+                          <P>使能一个之前被禁止的 tasklet. 如果这个 tasklet 已经被调度, 它会很快运行. 一个对 
+                          tasklet_enable 的调用必须匹配每个对 tasklet_disable 的调用, 
+                          因为内核跟踪每个 tasklet 的"禁止次数". </P>
+                          <DT><SPAN class=term><SPAN>void 
+                          tasklet_schedule(struct tasklet_struct 
+                          *t);</SPAN></SPAN> 
+                          <DD>
+                          <P>调度 tasklet 执行. 如果一个 tasklet 被再次调度在它有机会运行前, 它只运行一次. 
+                          但是, 如果他在运行中被调度, 它在完成后再次运行; 这保证了在其他事件被处理当中发生的事件收到应有的注意. 
+                          这个做法也允许一个 tasklet 重新调度它自己.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          tasklet_hi_schedule(struct tasklet_struct 
+                          *t);</SPAN></SPAN> 
+                          <DD>
+                          <P>调度 tasklet 在更高优先级执行. 当软中断处理运行时, 它处理高优先级 tasklet 
+                          在其他软中断之前, 包括"正常的" tasklet. 理想地, 只有具有低响应周期要求( 例如填充音频缓冲 
+                          )应当使用这个函数, 为避免其他软件中断处理引入的附加周期. 实际上, /proc/jitasklethi 
+                          没有显示可见的与 /proc/jitasklet 的区别.</P>
+                          <DT><SPAN class=term><SPAN>void tasklet_kill(struct 
+                          tasklet_struct *t);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数确保了这个 tasklet 没被再次调度来运行; 
+                          它常常被调用当一个设备正被关闭或者模块卸载时. 如果这个 tasklet 被调度来运行, 
+                          这个函数等待直到它已执行. 如果这个 tasklet 重新调度它自己, 你必须阻止在调用 
+                          tasklet_kill 前它重新调度它自己, 如同使用 
+                        del_timer_sync.</P></DD></DL></DIV>
+                        <P>tasklet 在 kernel/softirq.c 中实现. 2 个 tasklet 链表( 
+                        正常和高优先级 )被声明为每-CPU数据结构, 使用和内核定时器相同的 CPU-亲和 机制. 在 tasklet 
+                        管理中的数据结构是简单的链表, 因为 tasklet 没有内核定时器的分类请求.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=Workqueues.sect></A>7.6.&nbsp;工作队列</H2></DIV></DIV></DIV>
+                        <P>工作队列是, 表面上看, 类似于 taskets; 它们允许内核代码来请求在将来某个时间调用一个函数. 
+                        但是, 有几个显著的不同在这 2 个之间, 包括:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>tasklet 在软件中断上下文中运行的结果是所有的 tasklet 代码必须是原子的. 相反, 
+                          工作队列函数在一个特殊内核进程上下文运行; 结果, 它们有更多的灵活性. 特别地, 
+                          工作队列函数能够睡眠.</P>
+                          <LI>
+                          <P>tasklet 常常在它们最初被提交的处理器上运行. 工作队列以相同地方式工作, 缺省地.</P>
+                          <LI>
+                          <P>内核代码可以请求工作队列函数被延后一个明确的时间间隔.</P></LI></UL></DIV>
+                        <P>两者之间关键的不同是 tasklet 执行的很快, 短时期, 并且在原子态, 
+                        而工作队列函数可能有高周期但是不需要是原子的. 每个机制有它适合的情形.</P>
+                        <P>工作队列有一个 struct workqueue_struct 类型, 在 
+                        &lt;linux/workqueue.h&gt; 中定义. 一个工作队列必须明确的在使用前创建, 
+                        使用一个下列的 2 个函数:</P><PRE class=programlisting>struct workqueue_struct *create_workqueue(const char *name);
+struct workqueue_struct *create_singlethread_workqueue(const char *name);
+</PRE>
+                        <P>每个工作队列有一个或多个专用的进程("内核线程"), 它运行提交给这个队列的函数. 如果你使用 
+                        create_workqueue, 你得到一个工作队列它有一个专用的线程在系统的每个处理器上. 在很多情况下, 
+                        所有这些线程是简单的过度行为; 如果一个单个工作者线程就足够, 使用 
+                        create_singlethread_workqueue 来代替创建工作队列</P>
+                        <P>提交一个任务给一个工作队列, 你需要填充一个 work_struct 结构. 这可以在编译时完成, 
+                        如下:</P><PRE class=programlisting>DECLARE_WORK(name, void (*function)(void *), void *data);
+</PRE>
+                        <P>这里 name 是声明的结构名称, function 是从工作队列被调用的函数, 以及 data 
+                        是一个传递给这个函数的值. 如果你需要建立 work_struct 结构在运行时, 使用下面 2 
+                        个宏定义:</P><PRE class=programlisting>INIT_WORK(struct work_struct *work, void (*function)(void *), void *data); 
+PREPARE_WORK(struct work_struct *work, void (*function)(void *), void *data); 
+</PRE>
+                        <P>INIT_WORK 做更加全面的初始化结构的工作; 你应当在第一次建立结构时使用它. 
+                        PREPARE_WORK 做几乎同样的工作, 但是它不初始化用来连接 work_struct 
+                        结构到工作队列的指针. 如果有任何的可能性这个结构当前被提交给一个工作队列, 并且你需要改变这个队列, 使用 
+                        PREPARE_WORK 而不是 INIT_WORK.</P>
+                        <P>有 2 个函数来提交工作给一个工作队列:</P><PRE class=programlisting>int queue_work(struct workqueue_struct *queue, struct work_struct *work);
+int queue_delayed_work(struct workqueue_struct *queue, struct work_struct *work, unsigned long delay);
+</PRE>
+                        <P>每个都添加工作到给定的队列. 如果使用 queue_delay_work, 但是, 
+                        实际的工作没有进行直到至少 delay jiffies 已过去. 从这些函数的返回值是 0 
+                        如果工作被成功加入到队列; 一个非零结果意味着这个 work_struct 结构已经在队列中等待, 并且第 2 
+                        次没有加入.</P>
+                        <P>在将来的某个时间, 这个工作函数将被使用给定的 data 值来调用. 这个函数将在工作者线程的上下文运行, 
+                        因此它可以睡眠如果需要 -- 尽管你应当知道这个睡眠可能怎样影响提交给同一个工作队列的其他任务. 
+                        这个函数不能做的是, 但是, 是存取用户空间. 因为它在一个内核线程中运行, 完全没有用户空间来存取.</P>
+                        <P>如果你需要取消一个挂起的工作队列入口, 你可以调用:</P><PRE class=programlisting>int cancel_delayed_work(struct work_struct *work); 
+</PRE>
+                        <P>返回值是非零如果这个入口在它开始执行前被取消. 内核保证给定入口的执行不会在调用 
+                        cancel_delay_work 后被初始化. 如果 cancel_delay_work 返回 0, 但是, 
+                        这个入口可能已经运行在一个不同的处理器, 并且可能仍然在调用 cancel_delayed_work 后在运行. 
+                        要绝对确保工作函数没有在 cancel_delayed_work 返回 0 后在任何地方运行, 
+                        你必须跟随这个调用来调用:</P><PRE class=programlisting>void flush_workqueue(struct workqueue_struct *queue); 
+</PRE>
+                        <P>在 flush_workqueue 返回后, 没有在这个调用前提交的函数在系统中任何地方运行.</P>
+                        <P>当你用完一个工作队列, 你可以去掉它, 使用:</P><PRE class=programlisting>void destroy_workqueue(struct workqueue_struct *queue); 
+</PRE>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheSharedQueue.sect></A>7.6.1.&nbsp;共享队列</H3></DIV></DIV></DIV>
+                        <P>一个设备驱动, 在许多情况下, 不需要它自己的工作队列. 如果你只偶尔提交任务给队列, 
+                        简单地使用内核提供的共享的, 缺省的队列可能更有效. 如果你使用这个队列, 但是, 
+                        你必须明白你将和别的在共享它. 从另一个方面说, 这意味着你不应当长时间独占队列(无长睡眠), 
+                        并且可能要更长时间它们轮到处理器.</P>
+                        <P>jiq ("just in queue") 模块输出 2 个文件来演示共享队列的使用. 它们使用一个单个 
+                        work_struct structure, 这个结构这样建立:</P><PRE class=programlisting>static struct work_struct jiq_work;
+    /* this line is in jiq_init() */
+ INIT_WORK(&amp;jiq_work, jiq_print_wq, &amp;jiq_data);
+</PRE>
+                        <P>当一个进程读 /proc/jiqwq, 这个模块不带延迟地初始化一系列通过共享的工作队列的路线.</P><PRE class=programlisting>int schedule_work(struct work_struct *work); 
+</PRE>
+                        <P>注意, 当使用共享队列时使用了一个不同的函数; 它只要求 work_struct 结构作为一个参数. 在 
+                        jiq 中的实际代码看来如此:</P><PRE class=programlisting>prepare_to_wait(&amp;jiq_wait, &amp;wait, TASK_INTERRUPTIBLE);
+schedule_work(&amp;jiq_work);
+schedule();
+finish_wait(&amp;jiq_wait, &amp;wait);
+</PRE>
+                        <P>这个实际的工作函数打印出一行就象 jit 模块所作的, 接着, 如果需要, 重新提交这个 
+                        work_structcture 到工作队列中. 在这是 jiq_print_wq 全部:</P><PRE class=programlisting>static void jiq_print_wq(void *ptr)
+{
+        struct clientdata *data = (struct clientdata *) ptr;
+
+        if (! jiq_print (ptr))
+                return;
+
+        if (data-&gt;delay)
+                schedule_delayed_work(&amp;jiq_work, data-&gt;delay);
+        else
+                schedule_work(&amp;jiq_work);
+}
+</PRE>
+                        <P>如果用户在读被延后的设备 (/proc/jiqwqdelay), 这个工作函数重新提交它自己在延后的模式, 
+                        使用 schedule_delayed_work:</P><PRE class=programlisting>int schedule_delayed_work(struct work_struct *work, unsigned long delay); 
+</PRE>
+                        <P>如果你看从这 2 个设备的输出, 它看来如:</P><PRE class=screen>% cat /proc/jiqwq
+ time  delta preempt  pid cpu command 
+ 1113043  0  0  7  1 events/1 
+ 1113043  0  0  7  1 events/1 
+ 1113043  0  0  7  1 events/1 
+ 1113043  0  0  7  1 events/1 
+ 1113043  0  0  7  1 events/1  
+% cat /proc/jiqwqdelay 
+ time  delta preempt  pid cpu command 
+ 1122066  1  0  6  0 events/0  
+
+1122067  1  0  6  0 events/0 
+ 1122068  1  0  6  0 events/0 
+ 1122069  1  0  6  0 events/0 
+ 1122070  1  0  6  0 events/0  
+</PRE>
+                        <P>当 /proc/jiqwq 被读, 在每行的打印之间没有明显的延迟. 相反, 当 
+                        /proc/jiqwqdealy 被读时, 在每行之间有恰好一个 jiffy 的延时. 在每一种情况, 
+                        我们看到同样的进程名子被打印; 它是实现共享队列的内核线程的名子. CPU 号被打印在斜线后面; 
+                        我们从不知道当读 /proc 文件时哪个 CPU 会在运行, 
+                        但是这个工作函数之后将一直运行在同一个处理器.</P>
+                        <P>如果你需要取消一个已提交给工作队列的工作入口, 你可以使用 cancel_delayed_work, 
+                        如上面所述. 刷新共享队列需要一个不同的函数, 但是:</P><PRE class=programlisting>void flush_scheduled_work(void); 
+</PRE>
+                        <P>因为你不知道别人谁可能使用这个队列, 你从不真正知道 flush_schduled_work 
+                        返回可能需要多长时间.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=timedelayanddefferedworkqk.sect></A>7.7.&nbsp;快速参考</H2></DIV></DIV></DIV>
+                        <P>本章介绍了下面的符号.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=Timekeeping.sect></A>7.7.1.&nbsp;时间管理</H3></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/param.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>HZ <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>HZ 符号指定了每秒产生的时钟嘀哒的数目.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/jiffies.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>volatile unsigned long 
+                          jiffies;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>u64 
+                          jiffies_64;</SPAN></SPAN> 
+                          <DD>
+                          <P>jiffies_64 变量每个时钟嘀哒时被递增; 因此, 它是每秒递增 HZ 次. 
+                          内核代码几乎常常引用 jiffies, 它在 64-位平台和 jiffies_64 相同并且在 
+                          32-位平台是它低有效的一半.</P>
+                          <DT><SPAN class=term><SPAN>int time_after(unsigned 
+                          long a, unsigned long b);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int time_before(unsigned 
+                          long a, unsigned long b);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int time_after_eq(unsigned 
+                          long a, unsigned long b);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int time_before_eq(unsigned 
+                          long a, unsigned long b);</SPAN></SPAN> 
+                          <DD>
+                          <P>这些布尔表达式以一种安全的方式比较 jiffies, 没有万一计数器溢出的问题和不需要存取 
+                          jiffies_64.</P>
+                          <DT><SPAN class=term><SPAN>u64 
+                          get_jiffies_64(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>获取 jiffies_64 而没有竞争条件.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/time.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          timespec_to_jiffies(struct timespec 
+                          *value);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          jiffies_to_timespec(unsigned long jiffies, struct 
+                          timespec *value);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          timeval_to_jiffies(struct timeval 
+                          *value);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          jiffies_to_timeval(unsigned long jiffies, struct 
+                          timeval *value);</SPAN></SPAN> 
+                          <DD>
+                          <P>在 jiffies 和其他表示之间转换时间表示.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/msr.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>rdtsc(low32,high32);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>rdtscl(low32);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>rdtscll(var32);</SPAN></SPAN> 
+                          <DD>
+                          <P>x86-特定的宏定义来读取时戳计数器. 它们作为 2 半 32-位来读取, 只读低一半, 
+                          或者全部读到一个 long long 变量.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/timex.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>cycles_t 
+                          get_cycles(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>以平台独立的方式返回时戳计数器. 如果 CPU 没提供时戳特性, 返回 0.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/time.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long mktime(year, 
+                          mon, day, h, m, s);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回自 Epoch 以来的秒数, 基于 6 个 unsigned int 参数.</P>
+                          <DT><SPAN class=term><SPAN>void do_gettimeofday(struct 
+                          timeval *tv);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回当前时间, 作为自 Epoch 以来的秒数和微秒数, 用硬件能提供的最好的精度. 
+                          在大部分的平台这个解决方法是一个微秒或者更好, 尽管一些平台只提供 jiffies 精度.</P>
+                          <DT><SPAN class=term><SPAN>struct timespec 
+                          current_kernel_time(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回当前时间, 以一个 jiffy 的精度.</P></DD></DL></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=Delays.sect></A>7.7.2.&nbsp;延迟</H3></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/wait.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>long 
+                          wait_event_interruptible_timeout(wait_queue_head_t *q, 
+                          condition, signed long timeout);</SPAN></SPAN> 
+                          <DD>
+                          <P>使当前进程在等待队列进入睡眠, 安装一个以 jiffies 表达的超时值. 使用 
+                          schedule_timeout( 下面) 给不可中断睡眠.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/sched.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>signed long 
+                          schedule_timeout(signed long timeout);</SPAN></SPAN> 
+                          <DD>
+                          <P>调用调度器, 在确保当前进程在超时到的时候被唤醒后. 调用者首先必须调用 
+                          set_curret_state 来使自己进入一个可中断的或者不可中断的睡眠状态.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/delay.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void ndelay(unsigned long 
+                          nsecs);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void udelay(unsigned long 
+                          usecs);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void mdelay(unsigned long 
+                          msecs);</SPAN></SPAN> 
+                          <DD>
+                          <P>引入一个整数纳秒, 微秒和毫秒的延迟. 获得的延迟至少是请求的值, 但是可能更多. 
+                          每个函数的参数必须不超过一个平台特定的限制(常常是几千).</P>
+                          <DT><SPAN class=term><SPAN>void msleep(unsigned int 
+                          millisecs);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          msleep_interruptible(unsigned int 
+                          millisecs);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void ssleep(unsigned int 
+                          seconds);</SPAN></SPAN> 
+                          <DD>
+                          <P>使进程进入睡眠给定的毫秒数(或者秒, 如果使 
+                        ssleep).</P></DD></DL></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=KernelTimers.sect></A>7.7.3.&nbsp;内核定时器</H3></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/hardirq.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          in_interrupt(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          in_atomic(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回一个布尔值告知是否调用代码在中断上下文或者原子上下文执行. 中断上下文是在一个进程上下文之外, 
+                          或者在硬件或者软件中断处理中. 
+                          原子上下文是当你不能调度一个中断上下文或者一个持有一个自旋锁的进程的上下文.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/timer.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void init_timer(struct 
+                          timer_list * timer);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct timer_list 
+                          TIMER_INITIALIZER(_function, _expires, 
+                          _data);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数和静态的定时器结构的声明是初始化一个 timer_list 数据结构的 2 个方法.</P>
+                          <DT><SPAN class=term><SPAN>void add_timer(struct 
+                          timer_list * timer);</SPAN></SPAN> 
+                          <DD>
+                          <P>注册定时器结构来在当前 CPU 上运行.</P>
+                          <DT><SPAN class=term><SPAN>int mod_timer(struct 
+                          timer_list *timer, unsigned long 
+                          expires);</SPAN></SPAN> 
+                          <DD>
+                          <P>改变一个已经被调度的定时器结构的超时时间. 它也能作为一个 add_timer 的替代.</P>
+                          <DT><SPAN class=term><SPAN>int timer_pending(struct 
+                          timer_list * timer);</SPAN></SPAN> 
+                          <DD>
+                          <P>宏定义, 返回一个布尔值说明是否这个定时器结构已经被注册运行.</P>
+                          <DT><SPAN class=term><SPAN>void del_timer(struct 
+                          timer_list * timer);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void del_timer_sync(struct 
+                          timer_list * timer);</SPAN></SPAN> 
+                          <DD>
+                          <P>从激活的定时器链表中去除一个定时器. 后者保证这定时器当前没有在另一个 CPU 
+                          上运行.</P></DD></DL></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=Taskletsqr.sect></A>7.7.4.&nbsp;Tasklets 
+                        机制</H3></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/interrupt.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>DECLARE_TASKLET(name, func, 
+                          data);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>DECLARE_TASKLET_DISABLED(name, func, 
+                          data);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void tasklet_init(struct 
+                          tasklet_struct *t, void (*func)(unsigned long), 
+                          unsigned long data);</SPAN></SPAN> 
+                          <DD>
+                          <P>前 2 个宏定义声明一个 tasklet 结构, 而 tasklet_init 
+                          函数初始化一个已经通过分配或其他方式获得的 tasklet 结构. 第 2 个 DECLARE 宏标识这个 
+                          tasklet 为禁止的.</P>
+                          <DT><SPAN class=term><SPAN>void tasklet_disable(struct 
+                          tasklet_struct *t);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          tasklet_disable_nosync(struct tasklet_struct 
+                          *t);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void tasklet_enable(struct 
+                          tasklet_struct *t);</SPAN></SPAN> 
+                          <DD>
+                          <P>禁止和使能一个 tasklet. 每个禁止必须配对一个使能( 你可以禁止这个 tasklet 
+                          即便它已经被禁止). 函数 tasklet_disable 等待 tasklet 终止如果它在另一个 CPU 
+                          上运行. 这个非同步版本不采用这个额外的步骤.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          tasklet_schedule(struct tasklet_struct 
+                          *t);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          tasklet_hi_schedule(struct tasklet_struct 
+                          *t);</SPAN></SPAN> 
+                          <DD>
+                          <P>调度一个 tasklet 运行, 或者作为一个"正常" tasklet 或者一个高优先级的. 
+                          当软中断被执行, 高优先级 tasklets 被首先处理, 而正常 tasklet 最后执行.</P>
+                          <DT><SPAN class=term><SPAN>void tasklet_kill(struct 
+                          tasklet_struct *t);</SPAN></SPAN> 
+                          <DD>
+                          <P>从激活的链表中去掉 tasklet, 如果它被调度执行. 如同 tasklet_disable, 
+                          这个函数可能在 SMP 系统中阻塞等待 tasklet 终止, 如果它当前在另一个 CPU 
+                          上运行.</P></DD></DL></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=workqueueskr.sect></A>7.7.5.&nbsp;工作队列</H3></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/workqueue.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct 
+                          workqueue_struct;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct 
+                          work_struct;</SPAN></SPAN> 
+                          <DD>
+                          <P>这些结构分别表示一个工作队列和一个工作入口.</P>
+                          <DT><SPAN class=term><SPAN>struct workqueue_struct 
+                          *create_workqueue(const char *name);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct workqueue_struct 
+                          *create_singlethread_workqueue(const char 
+                          *name);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          destroy_workqueue(struct workqueue_struct 
+                          *queue);</SPAN></SPAN> 
+                          <DD>
+                          <P>创建和销毁工作队列的函数. 一个对 create_workqueue 
+                          的调用创建一个有一个工作者线程在系统中每个处理器上的队列; 相反, 
+                          create_singlethread_workqueue 创建一个有一个单个工作者进程的工作队列.</P>
+                          <DT><SPAN class=term><SPAN>DECLARE_WORK(name, void 
+                          (*function)(void *), void *data);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>INIT_WORK(struct 
+                          work_struct *work, void (*function)(void *), void 
+                          *data);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>PREPARE_WORK(struct 
+                          work_struct *work, void (*function)(void *), void 
+                          *data);</SPAN></SPAN> 
+                          <DD>
+                          <P>声明和初始化工作队列入口的宏.</P>
+                          <DT><SPAN class=term><SPAN>int queue_work(struct 
+                          workqueue_struct *queue, struct work_struct 
+                          *work);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          queue_delayed_work(struct workqueue_struct *queue, 
+                          struct work_struct *work, unsigned long 
+                          delay);</SPAN></SPAN> 
+                          <DD>
+                          <P>从一个工作队列对工作进行排队执行的函数.</P>
+                          <DT><SPAN class=term><SPAN>int 
+                          cancel_delayed_work(struct work_struct 
+                          *work);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void flush_workqueue(struct 
+                          workqueue_struct *queue);</SPAN></SPAN> 
+                          <DD>
+                          <P>使用 cancel_delayed_work 来从一个工作队列中去除入口; 
+                          flush_workqueue 确保没有工作队列入口在系统中任何地方运行.</P>
+                          <DT><SPAN class=term><SPAN>int schedule_work(struct 
+                          work_struct *work);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          schedule_delayed_work(struct work_struct *work, 
+                          unsigned long delay);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          flush_scheduled_work(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>使用共享队列的函数.</P></DD></DL></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:34，已浏览45次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270111">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270111">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（7）时间, 延时, 和延后工作 - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>

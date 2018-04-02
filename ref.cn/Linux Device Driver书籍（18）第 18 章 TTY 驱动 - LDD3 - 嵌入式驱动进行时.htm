@@ -1,0 +1,1142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270161 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时" 
+name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（18）第 18 章 TTY 驱动</B></FONT> 
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>第&nbsp;18&nbsp;章&nbsp;TTY 驱动</DIV>
+                        <DIV>
+                        <P>一个 tty 设备得名于电传打字机的很老的简称, 并且起初只和连接到一台 UNIX 
+                        机器的物理或者虚拟终端有关联. 长时间以来, 这个名子还逐渐表示任何串口类型的设备, 
+                        因为终端连接也能够在这样的一个连接上建立. 一些物理 tty 设备的例子是串口, USB-串口 转换器, 
+                        以及某些类型的需要特殊处理来正确工作的调制解调器(例如传统的 Win-Modem 类型设备). tty 
+                        虚拟设备支持虚拟控制台以用来登录到一台计算机, 或者从键盘, 或者从网络连接, 或者通过一个 xterm 
+                        会话.</P>
+                        <P>Linux tty 驱动的核心正好位于标准字符驱动级别之下, 
+                        并且提供了一些特性集中在为使用终端类型设备提供一个接口. 这个核心负责控制跨越一个 tty 
+                        设备的数据流和数据格式. 这允许 tty 驱动以一种一致的方式集中于处理到硬件和出自硬件的数据, 
+                        而不必担心如何控制对用户空间的接口. 为控制数据流, 有几个不同的线路规程可以虚拟地"插入"任何一个 tty 
+                        设备. 这由不同的 tty 线路规程驱动来完成.</P>
+                        <P>如同图<A title="图&nbsp;18.1.&nbsp;tty 核心概览" 
+                        href="http://www.deansys.com/doc/ldd3/ch18.html#ldd3-18-1.fig"><FONT 
+                        color=#0000ff>tty 核心概览</FONT></A>所示, tty 
+                        核心从一个用户获取将要发送给一个 tty 设备的数据. 它接着传递它到一个 tty 线路规程驱动, 
+                        接着传递它到一个 tty 驱动. 这个 tty 驱动转换数据为可以发送给硬件的格式. 从 tty 
+                        硬件收到的数据向上回流通过 tty 驱动, 进入 tty 线路规程驱动, 再进入 tty 核心, 
+                        在这里它被一个用户获取. 有时 tty 驱动直接和 tty 核心通讯, 并且 tty 核心直接发送数据到 tty 
+                        驱动, 但是常常 tty 线路规程有机会修改在 2 者之间发送的数据.</P>
+                        <DIV class=figure><A name=ldd3-18-1.fig></A>
+                        <P class=title><B>图&nbsp;18.1.&nbsp;tty 核心概览</B></P>
+                        <DIV><IMG alt="tty 核心概览" 
+                        src="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/ldd3-18-1.png"></DIV></DIV>
+                        <P>tty 驱动从未看见 tty 线路规程. 这个驱动不能直接和线路规程通讯, 它甚至也不知道它存在. 
+                        驱动的工作是以硬件能够理解的方式格式化发送给它的数据, 并且从硬件接收数据. tty 
+                        线路规程的工作是以特殊的方式格式化从一个用户或者硬件收到的数据. 这种格式化常常采用一个协议转换的形式, 例如 
+                        PPP 和 Bluetooth. </P>
+                        <P>有 3 种不同类型 tty 驱动: 控制台, 串口, 和 pty. 控制台和 pty 
+                        驱动硬件已经被编写以及可能是唯一需要的 tty 驱动的类型. 这使得任何使用 tty 
+                        核心来与用户和系统交互的新驱动作为串口驱动.</P>
+                        <P>为知道什么类型的 tty 驱动当前被加载到内核以及什么 tty 设备当前存在, 查看 
+                        /proc/tty/drivers 文件. 这个文件包括一个当前存在的不同 tty 驱动的列表, 
+                        显示驱动的名子, 缺省的节点名子, 驱动的主编号, 这个驱动使用的次编号范围, 以及 tty 驱动的类型. 
+                        下面是一个这个文件的例子:</P><PRE class=screen>/dev/tty      /dev/tty      5     0     system:/dev/tty  
+/dev/console  /dev/console  5     1     system:console  
+/dev/ptmx     /dev/ptmx     5     2     system  
+/dev/vc/0     /dev/vc/0     4     0     system:vtmaster  
+usbserial     /dev/ttyUSB   188   0-254 serial  
+serial        /dev/ttyS     4     64-67 serial  
+pty_slave     /dev/pts      136   0-255 pty:slave  
+pty_master    /dev/ptm      128   0-255 pty:master  
+pty_slave     /dev/ttyp     3     0-255 pty:slave  
+pty_master    /dev/pty      2     0-255 pty:master  
+unknown       /dev/tty      4     1-63  console  
+</PRE>
+                        <P>/proc/tty/driver/ 目录给一些 tty 驱动包含了单独的文件, 如果它们实现这个功能. 
+                        缺省的串口驱动创建一个文件在这个目录中来展示许多串口特定的硬件信息. 
+                        如何在这个目录建立一个文件的信息后面描述.</P>
+                        <P>所有的当前注册的以及在内核中出现的 tty 设备有它们自己的子目录在 /sys/class/tty 下面. 
+                        在那个子目录下, 有一个 "dev" 文件包含有分配给那个 tty 设备的主次编号. 
+                        如果这个驱动告知内核物理设备和关联到这个 tty 设备的驱动的所在, 它创建符号连接到它们. 
+                        这个树的一个例子是:</P><PRE class=screen>/sys/class/tty/
+|-- console
+| `-- dev
+|-- ptmx
+| `-- dev
+|-- tty
+| `-- dev
+|-- tty0
+| `-- dev
+ ...
+|-- ttyS1
+| `-- dev
+|-- ttyS2
+| `-- dev
+|-- ttyS3
+| `-- dev
+ ...
+|-- ttyUSB0
+|  |-- dev  
+|  |-- device -&gt; ../../../devices/pci0000:00/0000:00:09.0/usb3/3-1/3-1:1.0/ttyUSB0  
+|  `-- driver -&gt; ../../../bus/usb-serial/drivers/keyspan_4  
+|-- ttyUSB1
+| |-- dev
+| |-- device -&gt; ../../../devices/pci0000:00/0000:00:09.0/usb3/3-1/3-1:1.0/ttyUSB1
+| `-- driver -&gt; ../../../bus/usb-serial/drivers/keyspan_4
+|-- ttyUSB2
+| |-- dev
+| |-- device -&gt; ../../../devices/pci0000:00/0000:00:09.0/usb3/3-1/3-1:1.0/ttyUSB2
+| `-- driver -&gt; ../../../bus/usb-serial/drivers/keyspan_4
+`-- ttyUSB3
+|-- dev
+|-- device -&gt; ../../../devices/pci0000:00/0000:00:09.0/usb3/3-1/3-1:1.0/ttyUSB3
+`-- driver -&gt; ../../../bus/usb-serial/drivers/keyspan_4 
+</PRE>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=ASmallTTYDriver.sect></A>18.1.&nbsp;一个小 TTY 
+                        驱动</H2></DIV></DIV></DIV>
+                        <P>为解释 tty 核心如何工作, 我们创建一个小 tty 驱动, 可以被加载, 以及写入读出, 并且卸载. 
+                        任何一个 tty 驱动的主要数据结构是 struct tty_driver. 它用来注册和注销一个 tty 
+                        驱动到 tty 内核, 在内核头文件 &lt;linux/tty_driver.h&gt; 中描述.</P>
+                        <P>为创建一个 struct tty_driver, 函数 alloc_tty_driver 
+                        必须用这个驱动作为参数而支持的 tty 设备号来调用. 这可使用下面的简短代码来完成:</P><PRE class=programlisting>/* allocate the tty driver */
+tiny_tty_driver = alloc_tty_driver(TINY_TTY_MINORS);
+if (!tiny_tty_driver)
+ return -ENOMEM; 
+</PRE>
+                        <P>在 alloc_tty_driver 函数被成功调用后, struct tty_driver 应当用基于 
+                        tty 驱动的需要的正确信息被初始化. 这个结构包含很多不同成员, 但不是为了有一个可工作的 tty 
+                        驱动而全部都必须被初始化. 这里有一个例子展示如何初始化这个结构并且建立足够的成员来创建一个工作的 tty 
+                        驱动. 它使用 tty_set_operations 函数来帮助拷贝驱动中定义的函数操作集合:</P><PRE class=programlisting>static struct tty_operations serial_ops = {
+ .open = tiny_open,
+ .close = tiny_close,
+ .write = tiny_write,
+ .write_room = tiny_write_room,
+ .set_termios = tiny_set_termios,
+}; 
+...
+ /* initialize the tty driver */
+ tiny_tty_driver-&gt;owner = THIS_MODULE;
+ tiny_tty_driver-&gt;driver_name = "tiny_tty";
+ tiny_tty_driver-&gt;name = "ttty";
+ tiny_tty_driver-&gt;devfs_name = "tts/ttty%d";
+ tiny_tty_driver-&gt;major = TINY_TTY_MAJOR,
+ tiny_tty_driver-&gt;type = TTY_DRIVER_TYPE_SERIAL,
+ tiny_tty_driver-&gt;subtype = SERIAL_TYPE_NORMAL,
+ tiny_tty_driver-&gt;flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS,
+ tiny_tty_driver-&gt;init_termios = tty_std_termios;
+ tiny_tty_driver-&gt;init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+ tty_set_operations(tiny_tty_driver, &amp;serial_ops);
+</PRE>
+                        <P>上面列出的变量和函数, 以及这个结构如何使用, 在本章的剩下部分讲解.</P>
+                        <P>为注册这个驱动到 tty 核心, struct tty_driver 必须传递到 
+                        tty_register_driver 函数:</P><PRE class=programlisting>/* register the tty driver */
+retval = tty_register_driver(tiny_tty_driver);
+if (retval)
+{
+        printk(KERN_ERR "failed to register tiny tty driver");
+        put_tty_driver(tiny_tty_driver);
+        return retval;
+}
+</PRE>
+                        <P>当调用 tty_register_driver, 内核创建了所有的不同 sysfs tty 文件为这个 
+                        tty 驱动可能有的整个范围的次设备. 如果你使用 devfs ( 本书不涉及 ) 并且除非指定 
+                        TTY_DRIVER_NO_DEVFS 标志, devfs 文件也被创建. 
+                        这个标志可被指定如果你只想为这个实际在系统中存在的设备调用 tty_register_device, 
+                        因此用户一直有一个内核中有的最新的设备视图, 这就是 devfs 用户期望的.</P>
+                        <P>在注册它自己后, 这个驱动通过 tty_register_device 注册它控制的设备. 这个函数有 3 
+                        个参数:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>一个指针指向这个设备所属的 struct tty_driver. </P>
+                          <LI>
+                          <P>设备的次编号</P>
+                          <LI>
+                          <P>一个指针指向这个 tty 设备所绑定的 struct device. 如果这个 tty 
+                          设备没绑定到任何一个 struct device, 这个参数可被设为 NULL. 
+                        </P></LI></UL></DIV>
+                        <P>我们的驱动一次注册所有的 tty 设备, 因为它们是虚拟的并且没有绑定到任何一个物理设备:</P><PRE class=programlisting>for (i = 0; i &lt; TINY_TTY_MINORS; ++i)
+        tty_register_device(tiny_tty_driver, i, NULL);
+</PRE>
+                        <P>为从 tty 核心注销这个驱动, 所有的通过调用 tty_register_device 而注册的 tty 
+                        设备需要使用对 tty_unregister_device 的调用来清理. 接着 struct 
+                        tty_driver 必须使用一个 tty_unregister_driver 调用来注销.</P><PRE class=programlisting>for (i = 0; i &lt; TINY_TTY_MINORS; ++i)
+        tty_unregister_device(tiny_tty_driver, i);
+tty_unregister_driver(tiny_tty_driver);
+</PRE>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=structtermios.sect></A>18.1.1.&nbsp;结构 struct 
+                        termios</H3></DIV></DIV></DIV>
+                        <P>在 struct tty_driver 中的 init_termios 变量是一个 struct 
+                        termios. 这个变量被用来提供一个健全的线路设置集合, 如果这个端口在被用户初始化前使用. 
+                        驱动初始化这个变量使用一个标准的数值集, 它拷贝自 tty_std_termios 变量. 
+                        tty_std_termos 在 tty 核心被定义为:</P><PRE class=programlisting>struct termios tty_std_termios = {
+ .c_iflag = ICRNL | IXON,
+ .c_oflag = OPOST | ONLCR,
+ .c_cflag = B38400 | CS8 | CREAD | HUPCL,
+ .c_lflag = ISIG | ICANON | ECHO | ECHOE | ECHOK |
+ ECHOCTL | ECHOKE | IEXTEN,
+ .c_cc = INIT_C_CC
+};
+</PRE>
+                        <P>这个 struct termios 结构用来持有所有的当前线路设置, 给这个 tty 设备的一个特定端口. 
+                        这些线路设置控制当前波特率, 数据大小, 数据流控设置, 以及许多其他值. 这个结构的不同成员是:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>tcflag_t 
+                          c_iflag;</SPAN></SPAN> 
+                          <DD>
+                          <P>输入模式标志</P>
+                          <DT><SPAN class=term><SPAN>tcflag_t 
+                          c_oflag;</SPAN></SPAN> 
+                          <DD>
+                          <P>输出模式标志</P>
+                          <DT><SPAN class=term><SPAN>tcflag_t 
+                          c_cflag;</SPAN></SPAN> 
+                          <DD>
+                          <P>控制模式标志</P>
+                          <DT><SPAN class=term><SPAN>tcflag_t 
+                          c_lflag;</SPAN></SPAN> 
+                          <DD>
+                          <P>本地模式标志</P>
+                          <DT><SPAN class=term><SPAN>cc_t c_line;</SPAN></SPAN> 
+                          <DD>
+                          <P>线路规程类型</P>
+                          <DT><SPAN class=term><SPAN>cc_t 
+                          c_cc[NCCS];</SPAN></SPAN> 
+                          <DD>
+                          <P>一个控制字符数组</P></DD></DL></DIV>
+                        <P>所有的模式标志被定义为一个大的位段. 模式的不同值, 以及它们用在哪里, 可以见在任何 Linux 
+                        发布中都有的 termios 手册页. 内核提供了一套有用的宏定义来获得不同的位. 这些宏定义在头文件 
+                        include/linux/tty.h 中定义.</P>
+                        <P>所有的在 tiny_tty_driver 变量中定义的成员有必要有一个工作的 tty 驱动. owner 
+                        成员是为了防止 tty 驱动在 tty 端口打开时被卸载. 在以前的内核版本, 它由 tty 
+                        驱动自己负责处理模块引用计数逻辑. 但是内核程序员认为可能有困难来解决所有的不同的可能的竞争条件, 因此 tty 
+                        核心为 tty 驱动处理所有的这样的控制..</P>
+                        <P>driver_name 和 name 成员看起来非常相似, 然而用于不同用途. driver_name 
+                        变量应当设为某个简单的, 描述性的并且和内核中所有 tty 驱动中是唯一的值. 这是因为它在 
+                        /proc/tty/drivers 文件中出现来描述这个驱动给用户, 以及在当前已加载的 tty 驱动的 
+                        sysfs tty 类目录. name 成员用来定义一个名子给单独的分配给这个 tty 驱动的 tty 节点在 
+                        /dev 树中. 这个字符串用来创建一个 tty 设备通过在这个字串的后面追加在使用的 tty 设备号. 
+                        它还用来创建一个设备名子在 sysfs /sys/class/tty 目录中. 如果 devfs 
+                        在内核中被使能, 这个名子应当包含任何这个 tty 驱动想被放入的子目录. 作为一个例子, 
+                        内核中的串口驱动设置这个 name 成员为 tts/ 如果 devfs 被使能, ttyS 如果它没有被使能. 
+                        这个字串也显示在 /proc/tty/drivers 文件中.</P>
+                        <P>如同我们提及的, /proc/tty/drivers 文件展示所有的当前注册的 tty 驱动. 
+                        在内核中注册的 tiny_tty 驱动并且没有 devfs, 这个文件看来如下:</P><PRE class=screen>$ cat /proc/tty/drivers 
+tiny_tty      /dev/ttty     240   0-3     serial  
+usbserial     /dev/ttyUSB   188   0-254   serial  
+serial        /dev/ttyS     4     64-107  serial  
+pty_slave     /dev/pts      136   0-255   pty:slave  
+pty_master    /dev/ptm      128   0-255   pty:master 
+pty_slave     /dev/ttyp     3     0-255   pty:slave  
+pty_master    /dev/pty      2     0-255   pty:master  
+unknown       /dev/vc/      4     1-63    console  
+/dev/vc/0     /dev/vc/0     4     0       system:vtmaster  
+/dev/ptmx     /dev/ptmx     5     2       system  
+/dev/console  /dev/console  5     1       system:console  
+/dev/tty      /dev/tty      5     0       system:/dev/tty  
+</PRE>
+                        <P>还有, 当 tny_tty driver 被注册到 tty 核心, sysfs 目录 
+                        /sys/class/tty 看来有些象下面:</P><PRE class=screen>$ tree /sys/class/tty/ttty*
+/sys/class/tty/ttty0
+`-- dev
+/sys/class/tty/ttty1
+`-- dev
+/sys/class/tty/ttty2
+`-- dev
+/sys/class/tty/ttty3
+`-- dev
+
+$ cat /sys/class/tty/ttty0/dev
+240:0
+</PRE>
+                        <P>major 变量描述这个驱动的主编号是什么. type 和 subtype 变量声明这个驱动是什么 tty 
+                        驱动. 对于我们的例子, 我们是一个"正常"类型的串口驱动. 一个 tty 驱动的唯一的其他子类型可能是一个 
+                        "callout" 类型. callout 设备传统上用来控制一个设备的线路设置. 
+                        数据应当通过一个设备节点被发送和接收, 并且任何路线设置改变应当被发送给一个不同的设备节点, 它是这个 
+                        callout 设备. 这要求使用 2 个次编号为每个 tty 设备. 感激地, 
+                        所有的驱动既处理数据也处理线路设置在同一个设备节点, 并且这个 callout 类型很少用在新驱动中.</P>
+                        <P>tty 驱动和 tty 核心都使用 flags 变量来指示驱动的当前状态和它是什么类型 tty 驱动. 
+                        几个在测试或者操作 flags 时你必须使用的位掩码宏被定义了. flags 变量中的 3 
+                        个位可被驱动设置:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>TTY_DRIVER_RESET_TERMIOS 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个标志说明 tty 核心复位了 termios 设置, 无论何时最后一个进程已关闭这个设备. 
+                          对于控制台和 pty 驱动这是有用的. 例如, 假定用户留置一个终端在一个奇怪的状态. 在设置了这个标志时, 
+                          这个终端被复位为一个正常值当用户注销或者控制个会话的进程被"杀掉".</P>
+                          <DT><SPAN class=term><SPAN>TTY_DRIVER_REAL_RAW 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个标志说明 tty 驱动保证发送奇偶或者坏字符通知给线路规程. 
+                          这允许线路规程以一种更快的方式来处理接收到的字符, 因为它不必查看从 tty 驱动收到的每个字符. 
+                          因为速度的得益, 这个值常常为所有 tty 驱动设置.</P>
+                          <DT><SPAN class=term><SPAN>TTY_DRIVER_NO_DEVFS 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个标志说明当调用 tty_register_driver 时, tty 核心不创建任何 devfs 
+                          入口给这个 tty 设备. 这对任何动态创建和销毁次设备的驱动都是有益的. 设置这个的驱动的例子是这个 
+                          USB-到-串口 驱动, USB 猫驱动, USB 蓝牙 tty 驱动, 
+                          以及好多标准串口设备.</P></DD></DL></DIV>
+                        <P>当 tty 驱动后来想注册一个特殊的 tty 设备到 tty 核心, 它必须调用 
+                        tty_register_device, 有一个指针到这个 tty 驱动, 并且设备的次编号已被创建. 
+                        如果这个没有完成, tty 核心仍然传递所有的调用到这个 tty 驱动, 但是一些内部的 tty 
+                        相关的功能可能不存在. 这个包括新 tty 设备的 /sbin/hotplug 通知和 tty 设备的 
+                        sysfs 表示. 当注册的 tty 设备从机器中被移出, tty 驱动必须调用 
+                        tty_unregister_device.</P>The one remaining bit in this 
+                        variable is controlled by the tty core and is called 
+                        TTY_DRIVER_INSTALLED. This flag is set by the tty core 
+                        after the driver has been regis-tered and should never 
+                        be set by a tty driver. </DIV>这个变量中剩下的一位被 tty 核心控制, 被称为 
+                        TTY_DRIVER_INSTALLED. 这个标志被tty 核心在驱动已注册后设置并且应当从不被 tty 
+                        驱动设置.</DIV>
+                        <DIV class=sect1 lang=zh-cn>&nbsp;</DIV>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=ttydriverFunctionPointers.sect></A>18.2.&nbsp;tty_driver 
+                        函数指针</H2></DIV></DIV></DIV>
+                        <P>最终, tiny_tty 驱动声明了 4 个函数指针.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=openandclose.sect></A>18.2.1.&nbsp;open 和 
+                        close</H3></DIV></DIV></DIV>
+                        <P>open 函数被 tty 核心调用, 当一个用户对这个 tty 驱动被分配的设备节点调用 open 时. 
+                        tty 核心使用一个指向分配给这个设备的 tty_struct 结构的指针调用它, 还用一个文件指针. 这个 
+                        open 成员必须被一个 tty 驱动为它能正确工作而设置; 否则, -ENODEV 被返回给用户当调用 
+                        open 时.</P>
+                        <P>当调用这个 open 函数, tty 驱动被期望或者保存一些传递给它的 tty_struct 
+                        变量中的数据, 或者保存一个可以基于端口次编号来引用的静态数组中的数据. 这是有必要的, 所以 tty 
+                        驱动知道哪个设备在被引用当以后的 close, write, 和其他函数被调用时.</P>
+                        <P>tiny_tty 驱动保存一个指针在 tty 结构中, 如同下面代码所见到:</P><PRE class=programlisting>static int tiny_open(struct tty_struct *tty, struct file *file)
+{
+        struct tiny_serial *tiny;
+        struct timer_list *timer;
+        int index;
+
+        /* initialize the pointer in case something fails */
+        tty-&gt;driver_data = NULL;
+
+        /* get the serial object associated with this tty pointer */
+        index = tty-&gt;index;
+        tiny = tiny_table[index];
+        if (tiny == NULL)
+        {
+
+                /* first time accessing this device, let's create it */
+                tiny = kmalloc(sizeof(*tiny), GFP_KERNEL);
+                if (!tiny)
+
+                        return -ENOMEM;
+                init_MUTEX(&amp;tiny-&gt;sem);
+                tiny-&gt;open_count = 0;
+                tiny-&gt;timer = NULL;
+
+                tiny_table[index] = tiny;
+        }
+
+        down(&amp;tiny-&gt;sem);
+        /* save our structure within the tty structure */
+        tty-&gt;driver_data = tiny;
+        tiny-&gt;tty = tty;
+</PRE>
+                        <P>在这个代码中, tiny_serial 结构被保存在 tty 结构中. 这允许 tiny_write, 
+                        tiny_write_room, 和 tiny_close 函数来获取 tiny_serial 
+                        结构和正确操作它.</P>
+                        <P>tiny_serial 结构定义为:</P><PRE class=programlisting>struct tiny_serial
+{
+        struct tty_struct *tty; /* pointer to the tty for this device */
+        int open_count; /* number of times this port has been opened */
+        struct semaphore  sem;  /* locks this structure */
+        struct timer_list  *timer;
+};
+</PRE>
+                        <P>如同我们已见到的, open_count 变量初始化为 0 在第一次打开端口的 open 调用中. 
+                        这是一个典型的引用计数, 因为一个 tty 驱动的 open 和 close 
+                        函数可能对同一个设备多次调用以便多个进程来读写数据. 为正确处理所有的事情, 
+                        必须保持一个这个端口被打开或者关闭的次数计数; 这个驱动递增和递减这个计数在打开使用时. 当打开第一次被打开, 
+                        任何必要的硬件初始化和内存分配可以做. 当端口被最后一次关闭, 任何必要的硬件关闭和内存清理可以做.</P>
+                        <P>tiny_open 函数的剩下部分展示了如何跟踪设备被打开的次数:</P><PRE class=programlisting>++tiny-&gt;open_count;
+if (tiny-&gt;open_count == 1)
+{
+        /* this is the first time this port is opened */
+        /* do any hardware initialization needed here */
+</PRE>
+                        <P>open 函数必须返回或者一个负的错误号如果发生事情阻止了成功打开, 或者一个 0 来表示成功.</P>
+                        <P>close 函数指针被 tty 核心调用, 在用户对前面使用 open 调用而创建的文件句柄调用 
+                        close 时. 这表示设备应当在这次被关闭. 但是, 因为 open 函数可被多次调用, 
+                        close函数也可多次调用. 因此这个函数应当跟踪它被调用的次数来决定是否硬件应当在此次真正被关闭. 
+                        tiny_tty 驱动做这个使用下面的代码:</P><PRE class=programlisting>static void do_close(struct tiny_serial *tiny)
+{
+        down(&amp;tiny-&gt;sem);
+
+        if (!tiny-&gt;open_count)
+        {
+                /* port was never opened */
+                goto exit;
+
+        }
+        --tiny-&gt;open_count;
+        if (tiny-&gt;open_count &lt;= 0)
+        {
+                /* The port is being closed by the last user. */
+                /* Do any hardware specific stuff here */
+
+                /* shut down our timer */
+                del_timer(tiny-&gt;timer);
+        }
+exit:
+        up(&amp;tiny-&gt;sem);
+}
+
+static void tiny_close(struct tty_struct *tty, struct file *file)
+{
+        struct tiny_serial *tiny = tty-&gt;driver_data;
+
+        if (tiny)
+                do_close(tiny);
+}
+</PRE>
+                        <P>tiny_close 函数只是调用 do_close 函数来完成实际的关闭设备工作. 
+                        因此关闭逻辑不必在这里和驱动被卸载和端口被打开时重复. close 函数没有返回值, 
+                        因为它不被认为会失败.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=FlowofData.sect></A>18.2.2.&nbsp;数据流</H3></DIV></DIV></DIV>
+                        <P>write 函数被用户在有数据发送给硬件时调用. 首先 tty 核心接收到调用, 接着它传递数据到 tty 
+                        驱动的 write 函数. tty 核心还告知 tty 驱动要发送的数据大小.</P>
+                        <P>有时, 因为速度和 tty 硬件的缓冲区容量, 不是所有的写程序要求的字符可以在调用写函数时发送. 
+                        这个写函数应当返回能够发送给硬件的字符数( 或者在以后时间可排队发送 ), 
+                        因此用户程序可以检查是否所有的数据真正写入. 这种检查在用户空间非常容易完成, 
+                        比一个内核驱动站着睡眠直到所有的请求数据能够被发送. 如果任何错误发生在 wirte 调用期间, 
+                        一个负的错误值应当被返回代替被写入的字节数. </P>
+                        <P>write 函数可从中断上下文和用户上下文中被调用. 知道这一点是重要的, 因为 tty 
+                        驱动不应当调用任何可能当它在中断上下文中睡眠的函数. 这些包括任何可能调用调度的函数, 例如普通的函数 
+                        copy_from_user, kmalloc, 和 printk. 如果你确实想睡眠, 
+                        确信去首先检查是否驱动在中断上下文, 通过调用 calling_in_interrupt.</P>
+                        <P>这个例子 tiny tty 驱动没有连接到任何真实的硬件, 
+                        因此它的写函数简单地将要写的什么数据记录到内核调试日志. 它使用下面的代码做这个:</P><PRE class=programlisting>static int tiny_write(struct tty_struct *tty, const unsigned char *buffer, int count)
+{
+
+        struct tiny_serial *tiny = tty-&gt;driver_data;
+        int i;
+        int retval = -EINVAL;
+        if (!tiny)
+                return -ENODEV;
+
+        down(&amp;tiny-&gt;sem);
+        if (!tiny-&gt;open_count)
+                /* port was not opened */
+                goto exit;
+
+        /* fake sending the data out a hardware port by
+        * writing it to the kernel debug log.
+        */
+        printk(KERN_DEBUG "%s - ", __FUNCTION__);
+        for (i = 0; i &lt; count; ++i)
+
+                printk("%02x ", buffer[i]);
+        printk("\n");
+
+exit:
+        up(&amp;tiny-&gt;sem);
+        return retval;
+
+}
+</PRE>
+                        <P>当 tty 子系统自己需要发送数据到 tty 设备之外, write 函数被调用. 如果 tty 驱动在 
+                        tty_struct 中没有实现 put_char 函数, 这会发生. 在这种情况下, tty 
+                        核心用一个数据大小为 1 来使用 write 函数回调. 这普遍发生在 tty 
+                        核心想转换一个新行字符为一个换行和新行字符. 这里的最大的问题是 tty 驱动的 write 函数必须不返回 0 
+                        对于这类的调用. 这意味着驱动必须写那个数据的字节到设备, 因为调用者( tty 核心 ) 
+                        不缓冲数据和在之后的时间重试. 因为 write 函数不能知道是否它在被调用来替代 put_char, 
+                        即便只有一个字节的数据被发送, 尽力实现 write 函数以至于它一直至少在返回前写一个字节. 许多当前的 
+                        USB-到-串口的 tty 驱动没有遵照这个规则, 并且因此, 一些终端类型不能正确工作当连接到它们时.</P>
+                        <P>write_room 函数被调用当 tty 核心想知道多少空间在写缓冲中 tty 驱动可用. 
+                        这个数字时时改变随着字符清空写缓冲以及调用写函数时, 添加字符到这个缓冲.</P><PRE class=programlisting>static int tiny_write_room(struct tty_struct *tty)
+{
+        struct tiny_serial *tiny = tty-&gt;driver_data;
+        int room = -EINVAL;
+
+        if (!tiny)
+                return -ENODEV;
+
+        down(&amp;tiny-&gt;sem);
+        if (!tiny-&gt;open_count)
+        {
+                /* port was not opened */
+                goto exit;
+
+        }
+        /* calculate how much room is left in the device */
+        room = 255;
+
+exit:
+        up(&amp;tiny-&gt;sem);
+        return room;
+}
+</PRE></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=OtherBufferingFunctions.sect></A>18.2.3.&nbsp;其他缓冲函数</H3></DIV></DIV></DIV>
+                        <P>一个工作的 tty 驱动不需要在 tty_driver 结构中的 chars_in_buffer 函数, 
+                        但是它被推荐. 这个函数被调用当 tty 核心想知道多少字符仍然保留在 tty 驱动的写缓冲中要被发送. 
+                        如果驱动能够存储字符在它发送它们到硬件之前, 它应当实现这个函数为了 tty 
+                        核心能够知道是否所有的驱动中的数据已经流出.</P>
+                        <P>3 个 tty_driver 结构中的函数回调可以用来刷新任何驱动保留的数据. 它们不被要求实现, 
+                        但是推荐如果 tty 驱动能够缓冲数据在它发送给硬件之前. 前 2 个函数回调称为 flush_chars 和 
+                        wait_until_sent. 这些函数被调用当 tty 核心使用 put_char 
+                        函数回调已发送了许多字符给 tty 驱动. flush_chars 函数回调被调用当 tty 核心要 tty 
+                        驱动启动发送这些字符到硬件, 如果它尚未启动. 这个函数被允许在所有的数据发送给硬件之前返回. 
+                        wait_until_sent 函数回调以非常相同的发生工作; 但是它必须等待直到所有的字符在返回到 tty 
+                        核心前被发送, 或者知道超时值到时. 如果这个传递给 wait_until_sent 函数回调的超时值设为 0, 
+                        函数应当等待直到它完成这个操作.</P>
+                        <P>剩下的数据刷新函数回调是 flush_buffer. 它被 tty 核心调用当 tty 
+                        驱动要刷新所有的仍然在它的写缓冲的数据. 任何保留在缓冲中的数据被丢失并且没发送给设备.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=NoreadFunction.sect></A>18.2.4.&nbsp;无 read 
+                        函数?</H3></DIV></DIV></DIV>
+                        <P>只使用这些函数, tiny_tty 驱动可被注册, 可打开一个设备节点, 数据被写入设备, 关闭设备节点, 
+                        以驱动注销和从内核中卸载. 但是 tty 核心和 tty_driver 结构没有提供一个 read 函数; 
+                        换句话说, 没有函数调用存在来从驱动到 tty 核心获取数据.</P>
+                        <P>替代一个传统的 read 函数, tty 驱动负责发送任何从硬件收到的数据到 tty 核心. tty 
+                        核心缓冲数据直到它被用户请求. 因为 tty 核心提供的缓冲逻辑, 对每个 tty 
+                        驱动不必要实现它自己的缓冲逻辑. tty 核心通知 tty 驱动当一个用户要驱动停止和开始发送数据, 
+                        但是如果内部的 tty 缓冲满, 没有这样的通知发生.</P>
+                        <P>tty 核心缓冲由 tty 驱动接收到的数据, 在一个称为 struct tty_flip_buffer 
+                        的结构中. 一个 flip 缓冲是一个结构包含 2 个主要数据数组. 从 tty 
+                        设备接收到的数据被存储于第一个数组. 当这个数组满, 任何等待数据的用户被通知数据可以读. 
+                        当用户从这个数组读数据, 任何新到的数据被存储在第 2 个数组. 当那个数组被读空, 数据再次刷新给用户, 
+                        并且驱动开始填充第 1 个数组. 本质上, 被接收的数据 "flips" 从一个缓冲到另一个, 期望不会溢出它们 
+                        2 个. 为试图阻止数据丢失, 一个 tty 驱动可以监视到来的数组多大, 并且, 如果它添满, 及时告知 
+                        tty 驱动在这个时刻刷新缓冲, 而不是等待下一个可用的机会.</P>
+                        <P>struct tty_flip_buffer 结构的细节对 tty 驱动没有关系, 只有一个例外, 
+                        可用的计数. 这个变量包含多少字节当前留在缓冲里可用来接收数据. 如果这个值等于值 
+                        TTY_FLIPBUF_SIZE, 这个 flip 缓冲需要被刷新到用户, 使用一个对 
+                        tty_flip_buffer_push 的调用. 这展示在下面的代码:</P><PRE class=programlisting>for (i = 0; i &lt; data_size; ++i)
+{
+        if (tty-&gt;flip.count &gt;= TTY_FLIPBUF_SIZE)
+                tty_flip_buffer_push(tty);
+        tty_insert_flip_char(tty, data[i], TTY_NORMAL);
+}
+tty_flip_buffer_push(tty);
+</PRE>
+                        <P>从 tty 驱动接收来的要发送给用户的字符被添加到 flip 缓冲, 使用对 
+                        tty_insert_flip_char 的调用. 这个函数的第一个参数是数据应当保存入的 struct 
+                        tty_struct, 第 2 个参数是要保存的字符, 第 3 个参数是任何应当为这个字符设置的标志. 
+                        这个标志值应当设为 TTY_NORMAL 如果这个是一个正常的被接收的字符. 
+                        如果这是一个特殊类型的指示错误接收数据的字符, 它应当设为 TTY_BREAK, TTY_PARITY, 或者 
+                        TTY_OVERRUN, 取决于错误.</P>
+                        <P>为了"推"数据给用户, 进行一个对 tty_flip_buffer_push 的调用. 
+                        这个函数应当也被调用如果 flip 缓冲将要溢出, 如同在这个例子中展示的. 因此无论何时数据被加到 flip 
+                        缓冲, 或者当 flip 缓冲满, tty 驱动必须调用 tty_flip_buffer_push. 如果 
+                        tty 驱动可高速接收数据, tty-&gt;low_latency 标志应当设置, 它是对 
+                        tty_flip_buffer_pus 的调用被立刻执行当调用时. 否则, 
+                        tty_flip_buffer_push 调用会调度它自己来将数据推出缓冲, 在之后近期的一个时间点.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=TTYLineSettings.sect></A>18.3.&nbsp;TTY 
+                        线路设置</H2></DIV></DIV></DIV>
+                        <P>当一个用户要改变一个 tty 设备的线路设置或者获取当前线路设置, 他调用一个许多的不同 termios 
+                        用户空间库函数或者直接对这个 tty 设备的节点调用 ioctl. tty 核心转换这 2 种接口为许多不同的 
+                        tty 驱动函数回调和 ioctl 调用.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=settermios.sect></A>18.3.1.&nbsp;set_termios 
+                        函数</H3></DIV></DIV></DIV>
+                        <P>大部分 termios 用户空间函数被库转换为一个对驱动节点的 ioctl 调用. 大量的不同的 tty 
+                        ioctl 调用接着被 tty 核心转换为一个对 tty 驱动的单个 set_termios 函数调用. 
+                        set_termios 调用需要决定哪个线路设置它被请求来改变, 接着在 tty 设备中做这些改变. tty 
+                        驱动必须能够解码所有的在 termios 结构中的不同设置并且响应任何需要的改变. 这是一个复杂的任务, 
+                        因为所有的线路设置以很多的方式被包装进 termios 结构.</P>
+                        <P>一个 set_termios 函数应当做的第一件事情是决定任何事情是否真的需要改变. 
+                        这可使用下面的代码完成:</P><PRE class=programlisting>unsigned int cflag;
+cflag = tty-&gt;termios-&gt;c_cflag;
+/* check that they really want us to change something */
+if (old_termios)
+{
+        if ((cflag == old_termios-&gt;c_cflag) &amp;&amp;
+                        (RELEVANT_IFLAG(tty-&gt;termios-&gt;c_iflag) == RELEVANT_IFLAG(old_termios-&gt;c_iflag))) {
+                printk(KERN_DEBUG " - nothing to change...\n");
+                return;
+        }
+}
+</PRE>
+                        <P>RELEVANT_IFLAG 宏定义为:</P><PRE class=programlisting>#define RELEVANT_IFLAG(iflag) ((iflag) &amp; (IGNBRK|BRKINT|IGNPAR|PARMRK|INPCK))
+</PRE>
+                        <P>而且用在屏蔽掉 cflags 变量的重要位. 接着这个和原来的值比较, 并且看是否它们不同. 如果不, 
+                        什么不改变, 因此我们返回. 注意 old_termios 变量是第一个被检查来看是否它指向一个有效的结构, 
+                        在它被存取之前. 这是需要的, 因为有时这个变量被设为 NULL. 试图存取一个 NULL 
+                        指针成员会导致内核崩溃.</P>
+                        <P>为查看需要的字节大小, CSIZE 位掩码可用来从 cflag 变量区分出正确的位. 
+                        如果这个大小无法知道, 习惯上确实是 8 个数据位. 这个可如下实现:</P><PRE class=programlisting>/* get the byte size */
+switch (cflag &amp; CSIZE)
+{
+
+case CS5:
+        printk(KERN_DEBUG " - data bits = 5\n");
+        break;
+case CS6:
+        printk(KERN_DEBUG " - data bits = 6\n");
+        break;
+case CS7:
+        printk(KERN_DEBUG " - data bits = 7\n");
+        break;
+default:
+case CS8:
+        printk(KERN_DEBUG " - data bits = 8\n");
+        break;
+}
+</PRE>
+                        <P>为决定需要的奇偶值, PARENB 位掩码可对 cflag 变量检查来告知是否任何奇偶要被设置. 
+                        如果这样, PARODD 位掩码可用来决定是否奇偶应当是奇或者偶. 这个的一个实现是:</P><PRE class=programlisting>/* determine the parity */
+if (cflag &amp; PARENB)
+        if (cflag &amp; PARODD)
+                printk(KERN_DEBUG " - parity = odd\n");
+        else
+                printk(KERN_DEBUG " - parity = even\n");
+else
+        printk(KERN_DEBUG " - parity = none\n");
+</PRE>
+                        <P>请求的停止位也可使用 CSTOPB 位掩码从 cflag 变量中来知道. 一个实现是:</P><PRE class=programlisting>/* figure out the stop bits requested */
+if (cflag &amp; CSTOPB)
+
+        printk(KERN_DEBUG " - stop bits = 2\n");
+else
+
+        printk(KERN_DEBUG " - stop bits = 1\n");
+</PRE>
+                        <P>有 2 个基本的流控类型: 硬件和软件. 为确定是否用户要求硬件流控, CRTSCTS 位掩码用来对 
+                        cflag 变量检查. 它的一个例子是:</P><PRE class=programlisting>/* figure out the hardware flow control settings */
+if (cflag &amp; CRTSCTS)
+
+        printk(KERN_DEBUG " - RTS/CTS is enabled\n");
+else
+
+        printk(KERN_DEBUG " - RTS/CTS is disabled\n");
+</PRE>
+                        <P>确定软件流控的不同模式和不同的起停字符是有些复杂:</P><PRE class=programlisting>/* determine software flow control */
+/* if we are implementing XON/XOFF, set the start and
+ 
+ * stop character in the device */
+if (I_IXOFF(tty) || I_IXON(tty))
+{
+        unsigned char stop_char = STOP_CHAR(tty);
+        unsigned char start_char = START_CHAR(tty);
+
+        /* if we are implementing INBOUND XON/XOFF */
+        if (I_IXOFF(tty))
+                printk(KERN_DEBUG " - INBOUND XON/XOFF is enabled, "
+                       "XON = %2x, XOFF = %2x", start_char, stop_char);
+        else
+                printk(KERN_DEBUG" - INBOUND XON/XOFF is disabled");
+
+        /* if we are implementing OUTBOUND XON/XOFF */
+        if (I_IXON(tty))
+                printk(KERN_DEBUG" - OUTBOUND XON/XOFF is enabled, "
+                       "XON = %2x, XOFF = %2x", start_char, stop_char);
+        else
+                printk(KERN_DEBUG" - OUTBOUND XON/XOFF is disabled");
+}
+</PRE>
+                        <P>最后, 波特率需要确定. tty 核心提供了一个函数, tty_get_baud_rate, 
+                        来帮助做这个. 这个函数返回一个整型数指示请求的波特率给特定的 tty 设备.</P><PRE class=programlisting>/* get the baud rate wanted */
+printk(KERN_DEBUG " - baud rate = %d", tty_get_baud_rate(tty));
+</PRE>
+                        <P>现在 tty 驱动已经确定了所有的不同的线路设置, 它可以基于这些值正确设置硬件.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=tiocmgetandtiocmset.sect></A>18.3.2.&nbsp;tiocmget 
+                        和 tiocmset</H3></DIV></DIV></DIV>
+                        <P>在 2.4 和老的内核, 常常有许多 tty ioctl 调用来获得和设置不同的控制线路设置. 这些被常量 
+                        TIOCMGET, TIOCMBIS, TIOCMBIC, 和 TIOCMSET 表示. TIOCMGET 
+                        用来获得内核的线路设置值, 并且对于 2.6 内核, 这个 ioctl 调用已经被转换为一个 tty 
+                        驱动回调函数, 称为 tiocmget. 其他的 3 个 ioctls 已经被简化并且现在用单个的 tty 
+                        驱动回调函数所代表, 称为 tiocmset.</P>
+                        <P>tty 驱动中的 iocmget 函数被 tty 核心所调用, 当核心需要知道当前的特定 tty 
+                        设备的控制线的物理值. 这常常用来获取一个串口的 DTR 和 RTS 线的值. 如果 tty 
+                        驱动不能直接读串口的 MSR 或者 MCR 寄存器, 因为硬件不允许这样, 一个它们的拷贝应当在本地保持. 许多 
+                        USB-到-串口 驱动必须实现这类的"影子"变量. 这是这个函数能如何被实现, 
+                        任何一个本地的这些值的拷贝被保存:</P><PRE class=programlisting>static int tiny_tiocmget(struct tty_struct *tty, struct file *file)
+{
+        struct tiny_serial *tiny = tty-&gt;driver_ data;
+        unsigned int result = 0;
+        unsigned int msr = tiny-&gt;msr;
+        unsigned int mcr = tiny-&gt;mcr;
+        result = ((mcr &amp; MCR_DTR)  ? TIOCM_DTR  : 0) |  /* DTR is set */
+                 ((mcr &amp; MCR_RTS)  ? TIOCM_RTS  : 0) |  /* RTS is set */
+                 ((mcr &amp; MCR_LOOP)  ? TIOCM_LOOP : 0) |  /* LOOP is set */
+                 ((msr &amp; MSR_CTS)  ? TIOCM_CTS  : 0) |  /* CTS is set */
+                 ((msr &amp; MSR_CD)  ? TIOCM_CAR  : 0) |  /* Carrier detect is set*/
+                 ((msr &amp; MSR_RI)  ? TIOCM_RI  : 0) |  /* Ring Indicator is set */
+                 ((msr &amp; MSR_DSR)  ? TIOCM_DSR  : 0);  /* DSR is set */
+        return result;
+}
+</PRE>
+                        <P>在 tty 驱动中的 tiocmset 函数被 tty 核心调用, 当核心要设置一个特定 tty 
+                        设备的控制线值. tty 核心告知 tty 驱动设置什么值和清理什么, 通过传递它们用 2 个变量: set 和 
+                        clear. 这些变量包含一个应当改变的线路设置的位掩码. 一个 ioctl 
+                        调用从不请求驱动既设置又清理一个特殊的位在同一时间, 因此先发生什么操作没有关系. 这是一个例子, 
+                        关于这个函数如何能够由一个 tty 驱动实现:</P><PRE class=programlisting>static int tiny_tiocmset(struct tty_struct *tty, struct file *file, unsigned int set , unsigned int clear) 
+{
+        struct tiny_serial *tiny = tty-&gt;driver_data;
+        unsigned int mcr = tiny-&gt;mcr;
+
+        if (set &amp; TIOCM_RTS)
+                mcr |= MCR_RTS;
+        if (set &amp; TIOCM_DTR)
+                mcr |= MCR_RTS;
+
+        if (clear &amp; TIOCM_RTS)
+                mcr &amp;= ~MCR_RTS;
+        if (clear &amp; TIOCM_DTR)
+                mcr &amp;= ~MCR_RTS;
+
+        /* set the new MCR value in the device */
+        tiny-&gt;mcr = mcr;
+        return 0;
+
+}
+</PRE><PRE class=programlisting><DIV class=sect1 lang=zh-cn><DIV class=titlepage><DIV><DIV><H2 class=title style="CLEAR: both"><A name=ioctl.sect></A>18.4.&nbsp;ioctls 函数</H2></DIV></DIV></DIV><P>在 struct tty_driver 中的 ioctl 函数被 tty 核心调用当 ioctl(2) 被在设备节点上调用. 如果这个 tty 驱动不知道如何处理传递给它的 ioctl 值, 它应当返回 -ENOIOCTLCMD 来试图让 tty 核心实现一个通用的调用版本.</P><P>2.6 内核定义了大约 70 个不同的 tty ioctls, 可被用来发送给一个 tty 驱动. 大部分的 tty 驱动不处理它们全部, 但是只有一个小的更普通的子集. 这是一个更通用的 tty ioctls 列表, 它们的含义, 以及如何实现它们:</P><DIV class=variablelist><DL><DT><SPAN class=term><SPAN>TIOCSERGETLSR </SPAN></SPAN><DD><P>获得这个 tty 设备的线路状态寄存器( LSR )的值.</P><DT><SPAN class=term><SPAN>TIOCGSERIAL </SPAN></SPAN><DD><P>获得串口线信息. 调用者可以潜在地从 tty 设备获得许多串口线路信息, 在这个调用中一次全部. 一些程序( 例如 setserial 和 dip) 调用这个函数来确保波特率被正确设置, 以及来获得通常的关于驱动控制的设备类型信息. 调用者传递一个指向一个大的 serial_struct 结构的指针, 这个结构应当由 tty 驱动填充正确的值. 这是一个如何实现这个的例子:</P><PRE class=programlisting>static int tiny_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
+{
+        struct tiny_serial *tiny = tty-&gt;driver_data;
+        if (cmd == TIOCGSERIAL)
+        {
+                struct serial_struct tmp;
+                if (!arg)
+                        return -EFAULT;
+                memset(&amp;tmp, 0, sizeof(tmp));
+                tmp.type  = tiny-&gt;serial.type;
+                tmp.line  = tiny-&gt;serial.line;
+                tmp.port  = tiny-&gt;serial.port;
+                tmp.irq  = tiny-&gt;serial.irq;
+                tmp.flags  = ASYNC_SKIP_TEST | ASYNC_AUTO_IRQ;
+
+                tmp.xmit_fifo_size = tiny-&gt;serial.xmit_fifo_size;
+                tmp.baud_base = tiny-&gt;serial.baud_base;
+                tmp.close_delay = 5*HZ;
+                tmp.closing_wait = 30*HZ;
+                tmp.custom_divisor = tiny-&gt;serial.custom_divisor;
+                tmp.hub6 = tiny-&gt;serial.hub6;
+                tmp.io_type = tiny-&gt;serial.io_type;
+                if (copy_to_user((void __user *)arg, &amp;tmp, sizeof(tmp)))
+
+                        return -EFAULT;
+                return 0;
+        }
+        return -ENOIOCTLCMD;
+}
+</PRE><DT><SPAN class=term><SPAN>TIOCSSERIAL</SPAN></SPAN> <DD><P>设置串口线路信息. 这是 IOCGSERIAL 的反面, 并且允许用户一次全部设置 tty 设备的串口线状态. 一个指向 struct serial_struct 的指针被传递给这个调用, 填满这个 tty 设备应当被设置的数据. 如果这个 tty 驱动没有实现这个调用, 大部分程序仍然正确工作.</P><DT><SPAN class=term><SPAN>TIOCMIWAIT </SPAN></SPAN><DD><P>等待 MSR 改变. 用户在非寻常的情况下请求这个 ioctl, 它想在内核中睡眠直到这个 tty 设备的 MSR 寄存器发生某些事情. arg 参数包含用户在等待的事件类型. 这通常用来等待直到一个状态线变化, 指示有更多的数据发送给设备.</P><P>当实现这个 ioctl 时要小心, 并且不要使用 interruptible_sleep_on 调用, 因为它是不安全的(有很多不好的竞争条件涉及它). 相反, 一个 wait_queue 应当用来避免这个问题. 这是一个如何实现这个 ioctl 的例子:</P><PRE class=programlisting>static int tiny_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
+{
+        struct tiny_serial *tiny = tty-&gt;driver_data;
+        if (cmd == TIOCMIWAIT)
+        {
+
+                DECLARE_WAITQUEUE(wait, current);
+                struct async_icount cnow;
+                struct async_icount cprev;
+                cprev = tiny-&gt;icount;
+                while (1) {
+
+                        add_wait_queue(&amp;tiny-&gt;wait, &amp;wait);
+                        set_current_state(TASK_INTERRUPTIBLE);
+                        schedule();
+                        remove_wait_queue(&amp;tiny-&gt;wait, &amp;wait); /* see if a signal woke us up */
+                        if (signal_pending(current))
+                                return -ERESTARTSYS;
+                        cnow = tiny-&gt;icount;
+                        if (cnow.rng == cprev.rng &amp;&amp; cnow.dsr == cprev.dsr &amp;&amp;
+                                        cnow.dcd == cprev.dcd &amp;&amp; cnow.cts == cprev.cts)
+                                return -EIO; /* no change =&gt; error */
+                        if (((arg &amp; TIOCM_RNG) &amp;&amp; (cnow.rng != cprev.rng)) || ((arg &amp; TIOCM_DSR) &amp;&amp; (cnow.dsr != cprev.dsr)) || ((arg &amp; TIOCM_CD) &amp;&amp; (cnow.dcd != cprev.dcd)) || ((arg &amp; TIOCM_CTS) &amp;&amp; (cnow.cts != cprev.cts)) ) {
+                                return 0;
+                        }
+                        cprev = cnow;
+
+                }
+        }
+        return -ENOIOCTLCMD;
+
+}
+</PRE><P>在 tty 驱动的代码中能知道 MSR 寄存器改变的某些地方, 下面的代码行必须调用以便这个代码能正常工作:</P><PRE class=programlisting>wake_up_interruptible(&amp;tp-&gt;wait);
+</PRE><DT><SPAN class=term><SPAN>TIOCGICOUNT</SPAN></SPAN> <DD><P>获得中断计数. 当用户要知道已经产生多少串口线中断时调用. 如果驱动有一个中断处理, 它应当定义一个内部计数器结构来跟踪这些统计和递增适当的计数器, 每次这个函数被内核运行时.</P></DD></DL></DIV><P>这个 ioctl 调用传递内核一个指向结构 serial_icounter_struct 的指针, 它应当被 tty 驱动填充. 这个调用常常和之前的 IOCMIWAIT ioctl 调用结合使用. 如果 tty 驱动跟踪所有的这些中断在驱动操作时, 实现这个调用的代码会非常简单:</P><PRE class=programlisting>static int tiny_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
+{
+        struct tiny_serial *tiny = tty-&gt;driver_data;
+        if (cmd == TIOCGICOUNT)
+        {
+                struct async_icount cnow = tiny-&gt;icount;
+                struct serial_icounter_struct icount;
+                icount.cts = cnow.cts;
+                icount.dsr = cnow.dsr;
+                icount.rng = cnow.rng;
+                icount.dcd = cnow.dcd;
+                icount.rx = cnow.rx;
+                icount.tx = cnow.tx;
+                icount.frame = cnow.frame;
+                icount.overrun = cnow.overrun;
+                icount.parity = cnow.parity;
+                icount.brk = cnow.brk;
+                icount.buf_overrun = cnow.buf_overrun;
+                if (copy_to_user((void __user *)arg, &amp;icount, sizeof(icount)))
+
+                        return -EFAULT;
+                return 0;
+        }
+        return -ENOIOCTLCMD;
+}
+</PRE><PRE class=programlisting><DIV class=sect1 lang=zh-cn><DIV class=titlepage><DIV><DIV><H2 class=title style="CLEAR: both"><A name=procandsysfsHandlingofTTYDevices.sect></A>18.5.&nbsp;TTY 设备的 proc 和 sysfs 处理</H2></DIV></DIV></DIV><P>tty 核心提供一个非常容易的方式给任何 tty 驱动来维护一个文件在 /proc/tty/driver 目录中. 如果驱动定义 read_proc 或者 write_proc 函数, 这个文件被创建. 接着, 任何在这个文件上的读或写调用被发送给这个驱动. 这些函数的格式只象标准的 /proc 文件处理函数.</P><P>作为一个例子, 由一个简单的 read_proc tty 回调实现, 只是打印出当前注册的端口号:</P><PRE class=programlisting>static int tiny_read_proc(char *page, char **start, off_t off, int count,
+                          int *eof, void *data)
+{
+        struct tiny_serial *tiny;
+        off_t begin = 0;
+        int length = 0;
+        int i;
+
+        length += sprintf(page, "tinyserinfo:1.0 driver:%s\n", DRIVER_VERSION);
+        for (i = 0; i &lt; TINY_TTY_MINORS &amp;&amp; length &lt; PAGE_SIZE; ++i) {
+                tiny = tiny_table[i];
+                if (tiny == NULL)
+
+                        continue;
+                length += sprintf(page+length, "%d\n", i);
+                if ((length + begin) &gt; (off + count))
+                        goto done;
+
+                if ((length + begin) &lt; off) {
+                        begin += length;
+                        length = 0;
+
+                }
+        }
+        *eof = 1;
+done:
+        if (off &gt;= (length + begin))
+
+                return 0;
+        *start = page + (off-begin);
+        return (count &lt; begin+length-off) ? count : begin + length-off;
+}
+</PRE><P>tty 核心处理所有的 sysfs 目录和设备创建, 当 tty 驱动被注册时, 或者当单个 tty 设备被创建时, 依赖在 struct tty_driver 中的 TTY_DRIVER_NO_DEVFS 标志. 单个目录一直包含 dev 文件, 它允许用户空间工具来决定分配给设备的主次号. 它还包含一个 device 和 driver 符号连接, 如果一个指向有效的 struct device 的指针被传递给读 tty_register_device 的调用. 除了这 3 个文件, 对单个 tty 驱动不可能在这个位置创建新的 sysfs 文件. 这个会可能在将来的内核发行中改变.</P><DIV class=sect1 lang=zh-cn><DIV class=titlepage><DIV><DIV><H2 class=title style="CLEAR: both"><A name=ThettydriverStructureinDetail.sect></A>18.6.&nbsp;tty_driver 结构的细节</H2></DIV></DIV></DIV><P>tty_driver 结构用来注册一个 tty 驱动到 tty 核心. 这是结构中所有不同的成员的列表和如何被 tty 核心使用:</P><DIV class=variablelist><DL><DT><SPAN class=term><SPAN>struct module *owner;</SPAN></SPAN> <DD><P>这个驱动的模块拥有者.</P><DT><SPAN class=term><SPAN>int magic;</SPAN></SPAN> <DD><P>给这个结构的"魔术"值. 应当一直设为 TTY_DRIVER_MAGIC. 在 alloc_tty_driver 函数中被初始化.</P><DT><SPAN class=term><SPAN>const char *driver_name;</SPAN></SPAN> <DD><P>驱动的名子, 用在 /proc/tty 和 sysfs.</P><DT><SPAN class=term><SPAN>const char *name;</SPAN></SPAN> <DD><P>驱动的节点名.</P><DT><SPAN class=term><SPAN>int name_base;</SPAN></SPAN> <DD><P>使用的起始数字, 当创建设备名子时. 当内核创建分配给这个 tty 驱动的一个特定 tty 设备的字符串表示是使用.</P><DT><SPAN class=term><SPAN>short major;</SPAN></SPAN> <DD><P>驱动的主编号</P><DT><SPAN class=term><SPAN>short minor_start;</SPAN></SPAN> <DD><P>驱动的开始次编号. 这常常设为 name_base 的相同值. 典型地, 这个值设为 0.</P><DT><SPAN class=term><SPAN>short num;</SPAN></SPAN> <DD><P>分配给这个驱动的次编号个数. 如果整个主编号范围被驱动使用了, 这个值应当设为 255. 这个变量在 alloc_tty_driver 函数中初始化.</P><DT><SPAN class=term><SPAN>short type;</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>short subtype;</SPAN></SPAN> <DD><P>描述什么类型的 tty 驱动在注册到 tty 核心. subtype 的值依赖于 type. type 成员可能是:</P><DIV class=variablelist><DL><DT><SPAN class=term><SPAN>TTY_DRIVER_TYPE_SYSTEM </SPAN></SPAN><DD><P>由 tty 子系统内部使用来记住它在处理一个内部 tty 驱动. subtype 应当设为 SYSTEM_TYPE_TTY, SYSTEM_TYEP_CONSOLE, SYSTEM_TYPE_SYSCONS, 或者 SYSTEM_TYPE_SYSPTMX. 这个类型不应当被任何"正常" tty 驱动使用.</P><DT><SPAN class=term><SPAN>TTY_DRIVER_TYPE_CONSOLE </SPAN></SPAN><DD><P>仅被控制台驱动使用.</P><DT><SPAN class=term><SPAN>TTY_DRIVER_TYPE_SERIAL</SPAN></SPAN> <DD><P>被任何串行类型驱动使用. subtype 应当设为 SERIAL_TYPE_NORMAL 或者 SERIAL_TYPE_CALLOUT, 根据你的驱动是什么类型. 这是 type 成员的其中一个最普遍的设置.</P><DT><SPAN class=term><SPAN>TTY_DRIVER_TYPE_PTY</SPAN></SPAN> <DD><P>被伪控制台接口(pty)使用. subtype 需要被设置为 PTY_TYPE_MASTER 或者 PTY_TYPE_SLAVE.</P></DD></DL></DIV><DT><SPAN class=term><SPAN>struct termios init_termios;</SPAN></SPAN> <DD><P>当创建设备时的初始化 struct termios 值.</P><DT><SPAN class=term><SPAN>int flags;</SPAN></SPAN> <DD><P>驱动标志, 如同本章前面描述的.</P><DT><SPAN class=term><SPAN>struct proc_dir_entry *proc_entry;</SPAN></SPAN> <DD><P>这个驱动的 /proc 入口结构. 它由 tty 核心创建如果驱动实现了 write_proc 或者 read_proc 函数. 这个成员不应当由 tty 驱动自己设置.</P><DT><SPAN class=term><SPAN>struct tty_driver *other;</SPAN></SPAN> <DD><P>指向一个 tty 从驱动. 这只被 pty 驱动使用, 并且不应当被其他的 tty 驱动使用.</P><DT><SPAN class=term><SPAN>void *driver_state;</SPAN></SPAN> <DD><P>tty 驱动的内部状态. 应当只被 pty 驱动使用.</P><DT><SPAN class=term><SPAN>struct tty_driver *next;</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>struct tty_driver *prev;</SPAN></SPAN> <DD><P>连接变量. 这些变量被 tty 核心使用来连接所有的不同 tty 驱动, 并且不应当被任何 tty 驱动碰.</P></DD></DL></DIV><P>&nbsp;</P><DIV class=sect1 lang=zh-cn><DIV class=titlepage><DIV><DIV><H2 class=title style="CLEAR: both"><A name=ThettyoperationsStructureinDetail.sect></A>18.7.&nbsp;tty_operaions 结构的细节</H2></DIV></DIV></DIV><P>tty_operations 结构包含所有的函数回调, 可以被一个 tty 驱动设置和被 tty 核心调用. 当前, 所有包含在这个结构中的的函数指针也在 tty_driver 结构中, 但是会很快被只有一个这个结构的实例来替代.</P><DIV class=variablelist><DL><DT><SPAN class=term><SPAN>int (*open)(struct tty_struct * tty, struct file * filp);</SPAN></SPAN> <DD><P>open 函数.</P><DT><SPAN class=term><SPAN>void (*close)(struct tty_struct * tty, struct file * filp);</SPAN></SPAN> <DD><P>close 函数.</P><DT><SPAN class=term><SPAN>int (*write)(struct tty_struct * tty, const unsigned char *buf, int count);</SPAN></SPAN> <DD><P>write 函数.</P><DT><SPAN class=term><SPAN>void (*put_char)(struct tty_struct *tty, unsigned char ch);</SPAN></SPAN> <DD><P>单字节写函数. 这个函数被 tty 核心调用当单个字节被写入设备. 如果一个 tty 驱动没有定义这个函数, write 函数被调用来替代, 当 tty 核心想发送一个单个字节.</P><DT><SPAN class=term><SPAN>void (*flush_chars)(struct tty_struct *tty);</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>void (*wait_until_sent)(struct tty_struct *tty, int timeout);</SPAN></SPAN> <DD><P>刷新数据到硬件的函数.</P><DT><SPAN class=term><SPAN>int (*write_room)(struct tty_struct *tty);</SPAN></SPAN> <DD><P>指示多少缓冲空闲的函数.</P><DT><SPAN class=term><SPAN>int (*chars_in_buffer)(struct tty_struct *tty);</SPAN></SPAN> <DD><P>指示多少缓冲满数据的函数.</P><DT><SPAN class=term><SPAN>int (*ioctl)(struct tty_struct *tty, struct file * file, unsigned int cmd, unsigned long arg);</SPAN></SPAN> <DD><P>ioctl 函数. 这个函数被 tty 核心调用, 当 ioctl(2)在设备节点上被调用时.</P><DT><SPAN class=term><SPAN>void (*set_termios)(struct tty_struct *tty, struct termios * old);</SPAN></SPAN> <DD><P>set_termios 函数. 这个函数被 tty 核心调用, 当设备的 termios 设置已被改变时.</P><DT><SPAN class=term><SPAN>void (*throttle)(struct tty_struct * tty);</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>void (*unthrottle)(struct tty_struct * tty);</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>void (*stop)(struct tty_struct *tty);</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>void (*start)(struct tty_struct *tty);</SPAN></SPAN> <DD><P>数据抑制函数. 这些函数用来帮助控制 tty 核心的输入缓存. 这个抑制函数被调用当 tty 核心的输入缓冲满. tty 驱动应当试图通知设备不应当发送字符给它. unthrottle 函数被调用当 tty 核心的输入缓冲已被清空, 并且它现在可以接收更多数据. tty 驱动应当接着通知设备可以接收数据. stop 和 start 函数非常象 throttle 和 unthrottle 函数, 但是它们表示 tty 驱动应当停止发送数据给设备以及以后恢复发送数据.</P><DT><SPAN class=term><SPAN>void (*hangup)(struct tty_struct *tty);</SPAN></SPAN> <DD><P>挂起函数. 这个函数被调用当 tty 驱动应当挂起 tty 设备. 任何需要做的特殊的硬件操作应当在此时发生.</P><DT><SPAN class=term><SPAN>void (*break_ctl)(struct tty_struct *tty, int state);</SPAN></SPAN> <DD><P>线路中断控制函数. 这个函数被调用当这个 tty 驱动要打开或关闭线路的 BREAK 状态在 RS-232 端口上. 如果状态设为 -1, BREAK 状态应当打开. 如果状态设为 0, BREAK 状态应当关闭. 如果这个函数由 tty 驱动实现, tty 核心将处理 TCSBRK, TCSBRKP, TIOCSBRK, 和 TIOCCBRK ioctl. 否则, 这些 ioctls 被发送给驱动 ioctl 函数.</P><DT><SPAN class=term><SPAN>void (*flush_buffer)(struct tty_struct *tty);</SPAN></SPAN> <DD><P>刷新缓冲和丢失任何剩下的数据.</P><DT><SPAN class=term><SPAN>void (*set_ldisc)(struct tty_struct *tty);</SPAN></SPAN> <DD><P>设置线路规程的函数. 这个函数被调用当 tty 核心已改变这个 tty 驱动的线路规程. 这个函数通常不用并且不应当被一个驱动定义.</P><DT><SPAN class=term><SPAN>void (*send_xchar)(struct tty_struct *tty, char ch);</SPAN></SPAN> <DD><P>发送 X-类型 字符 的函数. 这个函数用来发送一个高优先级 XON 或者 XOFF 字符给 tty 设备. 要被发送的字符在 ch 变量中指定.</P><DT><SPAN class=term><SPAN>int (*read_proc)(char *page, char **start, off_t off, int count, int *eof, void *data);</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>int (*write_proc)(struct file *file, const char *buffer, unsigned long count, void *data);</SPAN></SPAN> <DD><P>/proc 读和写函数.</P><DT><SPAN class=term><SPAN>int (*tiocmget)(struct tty_struct *tty, struct file *file);</SPAN></SPAN> <DD><P>获得当前的特定 tty 设备的线路设置. 如果从 tty 设备成功获取到, 应当返回这个值给调用者.</P><DT><SPAN class=term><SPAN>int (*tiocmset)(struct tty_struct *tty, struct file *file, unsigned int set, unsigned int clear);</SPAN></SPAN> <DD><P>设置当前的特定 tty 设备的线路设置. set 和 clear 包含了去设置或者清除的不同的线路设置.</P></DD></DL></DIV><P>&nbsp;</P><DIV class=sect1 lang=zh-cn><DIV class=titlepage><DIV><DIV><H2 class=title style="CLEAR: both"><A name=ThettystructStructureinDetail.sect></A>18.8.&nbsp;tty_struct 结构的细节</H2></DIV></DIV></DIV><P>tty_struct 变量被 tty 核心用来保持当前的特定 tty 端口的状态. 几乎它的所有的朋友都只被 tty 核心使用, 有几个例外. 一个 tty 驱动可以使用的成员在此描述:</P><DIV class=variablelist><DL><DT><SPAN class=term><SPAN>unsigned long flags;</SPAN></SPAN> <DD><P>tty 设备的当前状态. 这是一个位段变量, 并且通过下面的宏定义存取:</P><DIV class=variablelist><DL><DT><SPAN class=term><SPAN>TTY_THROTTLED </SPAN></SPAN><DD><P>当驱动以及有抑制函数被调用. 不应当被一个 tty 驱动设置, 只有 tty 核心.</P><DT><SPAN class=term><SPAN>TTY_IO_ERROR </SPAN></SPAN><DD><P>由驱动设置当它不想任何数据被读出或写入驱动. 如果一个用户程序试图做这个, 它接收一个 -EIO 错误从内核中. 这常常在设备被关闭时设置.</P><DT><SPAN class=term><SPAN>TTY_OTHER_CLOSED </SPAN></SPAN><DD><P>只由 pty 驱动使用来通知, 当端口已经被关闭.</P><DT><SPAN class=term><SPAN>TTY_EXCLUSIVE </SPAN></SPAN><DD><P>由 tty 核心设置来指示一个端口在独占模式并且只能一次由一个用户存取.</P><DT><SPAN class=term><SPAN>TTY_DEBUG </SPAN></SPAN><DD><P>内核中任何地方都不用.</P><DT><SPAN class=term><SPAN>TTY_DO_WRITE_WAKEUP </SPAN></SPAN><DD><P>如果被设置, 线路规程的 write_wakeup 函数被允许来被调用. 常常在 tty_driver 调用 wake_up_interruptible 函数的同一时间被调用.</P><DT><SPAN class=term><SPAN>TTY_PUSH </SPAN></SPAN><DD><P>只被缺省的 tty 线路规程内部使用.</P><DT><SPAN class=term><SPAN>TTY_CLOSING </SPAN></SPAN><DD><P>tty 核心用来跟踪是否一个端口在那个时刻及时处于关闭过程.</P><DT><SPAN class=term><SPAN>TTY_DONT_FLIP </SPAN></SPAN><DD><P>被缺省的 tty 线路规程用来通知 tty 核心, 它不应当改变 flip 缓冲, 当它被置位.</P><DT><SPAN class=term><SPAN>TTY_HW_COOK_OUT </SPAN></SPAN><DD><P>如果被一个 tty 驱动设置, 它通知线路规程应当"烹调"发送给它的输出. 如果它没有设置, 线路规程成块拷贝驱动的输出; 否则, 它不得不为线路改变将单个发送的字节逐个求值. 这个标志应当通常不被 tty 驱动设置.</P><DT><SPAN class=term><SPAN>TTY_HW_COOK_IN </SPAN></SPAN><DD><P>几乎和设置在驱动中的 flag 变量中的 TTY_DRIVER_REAL_RAW 标志一致. 这个标志通常应当不被 tty 驱动设置.</P><DT><SPAN class=term><SPAN>TTY_PTY_LOCK </SPAN></SPAN><DD><P>pty 驱动用来加锁和解锁一个端口.</P><DT><SPAN class=term><SPAN>TTY_NO_WRITE_SPLIT </SPAN></SPAN><DD><P>如果设置, tty 核心不将对 tty 驱动的写分成正常大小的块. 这个值不应当用来阻止对 tty 端口通过发送大量数据到端口的DoS攻击, </P></DD></DL></DIV><DT><SPAN class=term><SPAN>struct tty_flip_buffer flip;</SPAN></SPAN> <DD><P>给 tty 设备的 flip 缓冲.</P><DT><SPAN class=term><SPAN>struct tty_ldisc ldisc;</SPAN></SPAN> <DD><P>给 tty 设备的线路规程.</P><DT><SPAN class=term><SPAN>wait_queue_head_t write_wait;</SPAN></SPAN> <DD><P>给 tty 写函数的 wait_queue. 一个 tty 驱动应当唤醒它,当它可以接收更多数据时.</P><DT><SPAN class=term><SPAN>struct termios *termios;</SPAN></SPAN> <DD><P>指向 tty 设备的当前 termios 设置的指针.</P><DT><SPAN class=term><SPAN>unsigned char stopped:1;</SPAN></SPAN> <DD><P>指示是否 tty 设备被停止. tty 驱动可以设置这个值.</P><DT><SPAN class=term><SPAN>unsigned char hw_stopped:1;</SPAN></SPAN> <DD><P>指示是否 tty 设备的已经被停止. tty 驱动可以设置这个值.</P><DT><SPAN class=term><SPAN>unsigned char low_latency:1;</SPAN></SPAN> <DD><P>指示是否 tty 设备是一个低反应周期的设备, 能够高速接收数据. tty 驱动可以设置这个值.</P><DT><SPAN class=term><SPAN>unsigned char closing:1;</SPAN></SPAN> <DD><P>指示是否 tty 设备在关闭端口当中. tty 驱动可以设置这个值.</P><DT><SPAN class=term><SPAN>struct tty_driver driver;</SPAN></SPAN> <DD><P>当前控制这个 tty 设备的 tty_driver 结构.</P><DT><SPAN class=term><SPAN>void *driver_data;</SPAN></SPAN> <DD><P>指针, tty_driver 可以用来存储对于 tty 驱动本地的数据. 这个变量不被 tty 核心修改.</P></DD></DL></DIV><P>&nbsp;</P><DIV class=sect1 lang=zh-cn><DIV class=titlepage><DIV><DIV><H2 class=title style="CLEAR: both"><A name=TTYDriverqr.sect></A>18.9.&nbsp;快速参考</H2></DIV></DIV></DIV><P>本节提供了对本章介绍的概念的参考. 它还解释了每个 tty 驱动需要包含的头文件的角色. 在 tty_driver 和 tty_device 结构中的成员变量的列表, 但是, 在这里不重复.</P><DIV class=variablelist><DL><DT><SPAN class=term><SPAN>#include &lt;linux/tty_driver.h&gt;</SPAN></SPAN> <DD><P>头文件, 包含 struct tty_driver 的定义和声明一些在这个结构中的不同的标志.</P><DT><SPAN class=term><SPAN>#include &lt;linux/tty.h&gt;</SPAN></SPAN> <DD><P>头文件, 包含 tty_struct 结构的定义和几个不同的宏定义来易于存取 struct termios 的成员的单个值. 它还含有 tty 驱动核心的函数声明.</P><DT><SPAN class=term><SPAN>#include &lt;linux/tty_flip.h&gt;</SPAN></SPAN> <DD><P>头文件, 包含几个 tty flip 缓冲内联函数, 使得易于操作 flip 缓冲结构.</P><DT><SPAN class=term><SPAN>#include &lt;asm/termios.h&gt;</SPAN></SPAN> <DD><P>头文件, 包含 struct termio 的定义, 用于内核所建立的特定硬件平台.</P><DT><SPAN class=term><SPAN>struct tty_driver *alloc_tty_driver(int lines);</SPAN></SPAN> <DD><P>函数, 创建一个 struct tty_driver, 可之后传递给 tty_register_driver 和 tty_unregister_driver 函数.</P><DT><SPAN class=term><SPAN>void put_tty_driver(struct tty_driver *driver);</SPAN></SPAN> <DD><P>函数, 清理尚未成功注册到 tty 内核的 struct tty_driver 结构.</P><DT><SPAN class=term><SPAN>void tty_set_operations(struct tty_driver *driver, struct tty_operations *op);</SPAN></SPAN> <DD><P>函数, 初始化 struct tty_driver 的函数回调. 有必要在 tty_register_driver 可被调用前调用.</P><DT><SPAN class=term><SPAN>int tty_register_driver(struct tty_driver *driver);</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>int tty_unregister_driver(struct tty_driver *driver);</SPAN></SPAN> <DD><P>函数, 从 tty 核心注册和注销一个 tty 驱动.</P><DT><SPAN class=term><SPAN>void tty_register_device(struct tty_driver *driver, unsigned minor, struct device *device);</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>void tty_unregister_device(struct tty_driver *driver, unsigned minor);</SPAN></SPAN> <DD><P>对 tty 核心注册和注销一个单个 tty 设备的函数.</P><DT><SPAN class=term><SPAN>void tty_insert_flip_char(struct tty_struct *tty, unsigned char ch, char flag);</SPAN></SPAN> <DD><P>插入字符到 tty 设备的要被用户读的 flip 缓冲的函数.</P><DT><SPAN class=term><SPAN>TTY_NORMAL</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>TTY_BREAK</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>TTY_FRAME</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>TTY_PARITY</SPAN></SPAN> <DD><DT><SPAN class=term><SPAN>TTY_OVERRUN </SPAN></SPAN><DD><P>flag 参数的不同值, 用在 tty_insert_flip_char 函数.</P><DT><SPAN class=term><SPAN>int tty_get_baud_rate(struct tty_struct *tty);</SPAN></SPAN> <DD><P>函数, 获取当前为特定 tty 设备设置的波特率.</P><DT><SPAN class=term><SPAN>void tty_flip_buffer_push(struct tty_struct *tty);</SPAN></SPAN> <DD><P>函数, 将当前 flip 缓冲中的数据推给用户.</P><DT><SPAN class=term><SPAN>tty_std_termios </SPAN></SPAN><DD><P>变量, 使用一套通用的缺省线路设置来初始化一个 termios 结构.</P></DD></DL></DIV></DIV></DIV></DIV></DIV></DIV></PRE></DIV></PRE></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:38，已浏览84次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270161">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270161">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（18）第 18 章 TTY 驱动 - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>

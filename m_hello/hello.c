@@ -5,9 +5,13 @@
 
 static char *name = "Paul";
 static int old = 18;
-
 module_param(name, charp, S_IRUGO);
 module_param(old, int, S_IRUGO);
+// parmaters shall be noted at /sys/module/hello/parameters
+
+// description of parameters
+MODULE_PARM_DESC(name, "your name");    // check modinfo
+MODULE_PARM_DESC(old, "your age");
 
 static int __init hello_int(void)
 {

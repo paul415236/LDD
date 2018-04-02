@@ -1,0 +1,1505 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270089 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时" name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（5）并发和竞争情况</B></FONT> 
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>第&nbsp;5&nbsp;章&nbsp;并发和竞争情况</DIV>
+                        <DIV>
+                        <P>迄今, 我们未曾关心并发的问题 -- 就是说, 当系统试图一次做多件事时发生的情况. 然而, 
+                        并发的管理是操作系统编程的核心问题之一. 并发相关的错误是一些最易出现又最难发现的问题. 即便是专家级 
+                        Linux 内核程序员偶尔也会出现并发相关的错误.</P>
+                        <P>早期的 Linux 内核, 较少有并发的源头. 内核不支持对称多处理器(SMP)系统, 
+                        并发执行的唯一原因是硬件中断服务. 那个方法提供了简单性, 
+                        但是在有越来越多处理器的系统上注重性能并且坚持系统要快速响应事件的世界中它不再可行了. 
+                        为响应现代硬件和应用程序的要求, Linux 内核已经发展为很多事情在同时进行. 
+                        这个进步已经产生了很大的性能和可扩展性. 然而, 它也很大地使内核编程任务复杂化. 
+                        设备启动程序员现在必须从一开始就将并发作为他们设计的要素, 
+                        并且他们必须对内核提供的并发管理设施有很强的理解.</P>
+                        <P>本章的目的是开始建立那种理解的过程. 为此目的, 我们介绍一些设施来立刻应用到第 3 章的 scull 
+                        驱动. 展示的其他设施暂时还不使用. 但是首先, 我们看一下我们的简单 scull 
+                        驱动可能哪里出问题并且如何避免这些潜在的问题.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=Pitfallsinscull.sect></A>5.1.&nbsp;scull 
+                        中的缺陷</H2></DIV></DIV></DIV>
+                        <P>让我们快速看一段 scull 内存管理代码. 在写逻辑的深处, scull 
+                        必须决定它请求的内存是否已经分配. 处理这个任务的代码是:</P><PRE class=programlisting>if (!dptr-&gt;data[s_pos]) {
+    dptr-&gt;data[s_pos] = kmalloc(quantum, GFP_KERNEL);
+    if (!dptr-&gt;data[s_pos])
+        goto out;
+}
+</PRE>
+                        <P>假设有 2 个进程( 我们会称它们为"A"和"B" ) 独立地试图写入同一个 schull 
+                        设备的相同偏移. 每个进程同时到达上面片段的第一行的 if 测试. 如果被测试的指针是 NULL, 
+                        每个进程都会决定分配内存, 并且每个都会复制结果指针给 dptr-&gt;datat[s_pos]. 因为 2 
+                        个进程都在赋值给同一个位置, 显然只有一个赋值可以成功.</P>
+                        <P>当然, 发生的是第 2 个完成赋值的进程将"胜出". 如果进程 A 先赋值, 它的赋值将被进程 B 覆盖. 
+                        在此, scull 将完全忘记 A 分配的内存; 它只有指向 B 的内存的指针. A 所分配的指针, 因此, 
+                        将被丢掉并且不再返回给系统.</P>
+                        <P>事情的这个顺序是一个竞争情况的演示. 竞争情况是对共享数据的无控制存取的结果. 当错误的存取模式发生了, 
+                        产生了不希望的东西. 对于这里讨论的竞争情况, 结果是内存泄漏. 这已经足够坏了, 
+                        但是竞争情况常常导致系统崩溃和数据损坏. 程序员可能被诱惑而忽视竞争情况为相当低可能性的事件. 但是, 
+                        在计算机世界, 百万分之一的事件会每隔几秒发生, 并且后果会是严重的.</P>
+                        <P>很快我们将去掉 scull 的竞争情况, 但是首先我们需要对并发做一个更普遍的回顾.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=ConcurrencyandItsManagement.sect></A>5.2.&nbsp;并发和它的管理</H2></DIV></DIV></DIV>
+                        <P>在现代 Linux 系统, 有非常多的并发源, 并且因此而来的可能竞争情况. 多个用户空间进程在运行, 
+                        它们可能以令人惊讶的方式组合存取你的代码. SMP 系统能够同时在不同处理器上执行你的代码. 
+                        内核代码是可抢占的; 你的驱动代码可能在任何时间失去处理器, 代替它的进程可能也在你的驱动中运行. 
+                        设备中断是能够导致你的代码并发执行的异步事件. 内核也提供各种延迟代码执行的机制, 例如 workqueue, 
+                        tasklet, 以及定时器, 这些能够使你的代码在任何时间以一种与当前进程在做的事情无关的方式运行. 
+                        在现代的, 热插拔的世界中, 你的设备可能在你使用它们的时候轻易地消失.</P>
+                        <P>避免竞争情况可能是一个令人害怕的工作. 在一个任何时候可能发生任何事的世界, 
+                        驱动程序员如何避免产生绝对的混乱? 事实证明, 大部分竞争情况可以避免, 通过一些想法, 内核并发控制原语, 
+                        以及几个基本原则的应用. 我们会先从原则开始, 接着进入如何使用它们的细节中</P>
+                        <P>竞争情况来自对资源的共享存取的结果. 当 2 个执行的线路<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch05s02.html#ftn.id426884" 
+                        name=id426884><FONT 
+                        color=#0000ff>17</FONT></A>]</SUP>有机会操作同一个数据结构(或者硬件资源), 
+                        混合的可能性就一直存在. 因此第一个经验法则是在你设计驱动时在任何可能的时候记住避免共享的资源. 
+                        如果没有并发存取, 就没有竞争情况. 因此小心编写的内核代码应当有最小的共享. 
+                        这个想法的最明显应用是避免使用全局变量. 如果你将一个资源放在多个执行线路能够找到它的地方, 
+                        应当有一个很强的理由这样做.</P>
+                        <P>事实是, 然而, 这样的共享常常是需要的. 硬件资源是, 由于它们的特性, 共享的, 
+                        软件资源也必须常常共享给多个线程. 也要记住全局变量远远不是共享数据的唯一方式; 
+                        任何时候你的代码传递一个指针给内核的其他部分, 潜在地它创造了一个新的共享情形. 共享是生活的事实.</P>
+                        <P>这是资源共享的硬规则: 任何时候一个硬件或软件资源被超出一个单个执行线程共享, 
+                        并且可能存在一个线程看到那个资源的不一致时, 你必须明确地管理对那个资源的存取. 在上面的 scull 例子, 
+                        这个情况在进程 B 看来是不一致的; 不知道进程 A 已经为( 共享的 ) 设备分配了内存, 
+                        它做它自己的分配并且覆盖了 A 的工作. 在这个例子里, 我们必须控制对 scull 数据结构的存取. 
+                        我们需要安排, 这样代码或者看到内存已经分配了, 或者知道没有内存已经或者将要被其他人分配. 
+                        存取管理的常用技术是加锁或者互斥 -- 确保在任何时间只有一个执行线程可以操作一个共享资源. 
+                        本章剩下的大部分将专门介绍加锁.</P>
+                        <P>然而, 首先, 我们必须简短考虑一下另一个重要规则. 当内核代码创建一个会被内核其他部分共享的对象时, 
+                        这个对象必须一直存在(并且功能正常)到它知道没有对它的外部引用存在为止. scull 使它的设备可用的瞬间, 
+                        它必须准备好处理对那些设备的请求. 并且 scull 
+                        必须一直能够处理对它的设备的请求直到它知道没有对这些设备的引用(例如打开的用户空间文件)存在. 2 
+                        个要求出自这个规则: 除非它处于可以正确工作的状态, 不能有对象能对内核可用, 对这样的对象的引用必须被跟踪. 
+                        在大部分情况下, 你将发现内核为你处理引用计数, 但是常常有例外.</P>
+                        <P>遵照上面的规则需要计划和对细节小心注意. 容易被对资源的并发存取而吃惊, 你事先并没有认识到被共享. 
+                        通过一些努力, 然而, 大部分竞争情况能够在它们咬到你或者你的用户前被消灭.</P>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch05s02.html#id426884" 
+                        name=ftn.id426884><FONT color=#0000ff>17</FONT></A>] 
+                        </SUP>本章的意图, 一个执行"线程"是任何运行代码的上下文. 每个进程显然是一个执行线程, 
+                        但是一个中断处理也是, 或者其他响应一个异步内核事件的代码.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=SemaphoresandMutexes.sect></A>5.3.&nbsp;旗标和互斥体</H2></DIV></DIV></DIV>
+                        <P>让我们看看我们如何给 scull 加锁. 我们的目标是使我们对 scull 数据结构的操作原子化, 
+                        就是在有其他执行线程的情况下这个操作一次发生. 对于我们的内存泄漏例子, 我们需要保证, 
+                        如果一个线程发现必须分配一个特殊的内存块, 它有机会进行这个分配在其他线程可做测试之前. 为此, 
+                        我们必须建立临界区: 在任何给定时间只有一个线程可以执行的代码.</P>
+                        <P>不是所有的临界区是同样的, 因此内核提供了不同的原语适用不同的需求. 在这个例子中, 每个对 scull 
+                        数据结构的存取都发生在由一个直接用户请求所产生的进程上下文中; 没有从中断处理或者其他异步上下文中的存取. 
+                        没有特别的周期(响应时间)要求; 应用程序程序员理解 I/O 请求常常不是马上就满足的. 进一步讲, scull 
+                        没有持有任何其他关键系统资源, 在它存取它自己的数据结构时. 所有这些意味着如果 scull 
+                        驱动在等待轮到它存取数据结构时进入睡眠, 没人介意.</P>
+                        <P>"去睡眠" 在这个上下文中是一个明确定义的术语. 当一个 Linux 
+                        进程到了一个它无法做进一步处理的地方时, 它去睡眠(或者 "阻塞"), 
+                        让出处理器给别人直到以后某个时间它能够再做事情. 进程常常在等待 I/O 完成时睡眠. 随着我们深入内核, 
+                        我们会遇到很多情况我们不能睡眠. 然而 scull 中的 write 方法不是其中一个情况. 
+                        因此我们可使用一个加锁机制使进程在等待存取临界区时睡眠.</P>
+                        <P>正如重要地, 我们将进行一个可能会睡眠的操作( 使用 kmalloc 分配内存 ) -- 
+                        因此睡眠是一个在任何情况下的可能性. 如果我们的临界区要正确工作, 
+                        我们必须使用一个加锁原语在一个拥有锁的进程睡眠时起作用. 不是所有的加锁机制都能够在可能睡眠的地方使用( 
+                        我们在本章后面会看到几个不可以的 ). 然而, 对我们现在的需要, 最适合的机制时一个旗标. </P>
+                        <P>旗标在计算机科学中是一个被很好理解的概念. 在它的核心, 一个旗标是一个单个整型值, 结合有一对函数, 
+                        典型地称为 P 和 V. 一个想进入临界区的进程将在相关旗标上调用 P; 如果旗标的值大于零, 这个值递减 1 
+                        并且进程继续. 相反, 如果旗标的值是 0 ( 或更小 ), 进程必须等待直到别人释放旗标. 
+                        解锁一个旗标通过调用 V 完成; 这个函数递增旗标的值, 并且, 如果需要, 唤醒等待的进程.</P>
+                        <P>当旗标用作互斥 -- 阻止多个进程同时在同一个临界区内运行 -- 它们的值将初始化为 1. 
+                        这样的旗标在任何给定时间只能由一个单个进程或者线程持有. 以这种模式使用的旗标有时称为一个互斥锁, 就是, 
+                        当然, "互斥"的缩写. 几乎所有在 Linux 内核中发现的旗标都是用作互斥.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheLinuxSemaphoreImplementation.sect></A>5.3.1.&nbsp;Linux 
+                        旗标实现</H3></DIV></DIV></DIV>
+                        <P>Linux 内核提供了一个遵守上面语义的旗标实现, 尽管术语有些不同. 为使用旗标, 内核代码必须包含 
+                        &lt;asm/semaphore.h&gt;. 相关的类型是 struct semaphore; 
+                        实际旗标可以用几种方法来声明和初始化. 一种是直接创建一个旗标, 接着使用 sema_init 
+来设定它:</P><PRE class=programlisting>void sema_init(struct semaphore *sem, int val);
+</PRE>
+                        <P>这里 val 是安排给旗标的初始值.</P>
+                        <P>然而, 通常旗标以互斥锁的模式使用. 为使这个通用的例子更容易些, 内核提供了一套帮助函数和宏定义. 
+                        因此, 一个互斥锁可以声明和初始化, 使用下面的一种:</P><PRE class=programlisting>DECLARE_MUTEX(name); 
+DECLARE_MUTEX_LOCKED(name);
+</PRE>
+                        <P>这里, 结果是一个旗标变量( 称为 name ), 初始化为 1 ( 使用 DECLARE_MUTEX ) 
+                        或者 0 (使用 DECLARE_MUTEX_LOCKED ). 在后一种情况, 互斥锁开始于上锁的状态; 
+                        在允许任何线程存取之前将不得不显式解锁它.</P>
+                        <P>如果互斥锁必须在运行时间初始化( 这是如果动态分配它的情况, 举例来说), 使用下列中的一个:</P><PRE class=programlisting>void init_MUTEX(struct semaphore *sem);
+void init_MUTEX_LOCKED(struct semaphore *sem);
+</PRE>
+                        <P>在 Linux 世界中, P 函数称为 down -- 或者这个名子的某个变体. 这里, "down" 
+                        指的是这样的事实, 这个函数递减旗标的值, 并且, 也许在使调用者睡眠一会儿来等待旗标变可用之后, 
+                        给予对被保护资源的存取. 有 3 个版本的 down:</P><PRE class=programlisting>void down(struct semaphore *sem);
+int down_interruptible(struct semaphore *sem);
+int down_trylock(struct semaphore *sem);
+</PRE>
+                        <P>down 递减旗标值并且等待需要的时间. down_interruptible 同样, 
+                        但是操作是可中断的. 这个可中断的版本几乎一直是你要的那个; 它允许一个在等待一个旗标的用户空间进程被用户中断. 
+                        作为一个通用的规则, 你不想使用不可中断的操作, 除非实在是没有选择. 不可中断操作是一个创建不可杀死的进程( 
+                        在 ps 中见到的可怕的 "D 状态" )和惹恼你的用户的好方法, 使用 down_interruptible 
+                        需要一些格外的小心, 但是, 如果操作是可中断的, 函数返回一个非零值, 并且调用者不持有旗标. 正确的使用 
+                        down_interruptible 需要一直检查返回值并且针对性地响应.</P>
+                        <P>最后的版本 ( down_trylock ) 从不睡眠; 如果旗标在调用时不可用, 
+                        down_trylock 立刻返回一个非零值.</P>
+                        <P>一旦一个线程已经成功调用 down 各个版本中的一个, 
+                        就说它持有着旗标(或者已经"取得"或者"获得"旗标). 这个线程现在有权力存取这个旗标保护的临界区. 
+                        当这个需要互斥的操作完成时, 旗标必须被返回. V 的 Linux 对应物是 up:</P><PRE class=programlisting>void up(struct semaphore *sem); 
+</PRE>
+                        <P>一旦 up 被调用, 调用者就不再拥有旗标.</P>
+                        <P>如你所愿, 要求获取一个旗标的任何线程, 使用一个(且只能一个)对 up 的调用释放它. 
+                        在错误路径中常常需要特别的小心; 如果在持有一个旗标时遇到一个错误, 
+                        旗标必须在返回错误状态给调用者之前释放旗标. 没有释放旗标是容易犯的一个错误; 这个结果( 
+                        进程挂在看来无关的地方 )可能是难于重现和跟踪的.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=UsingSemaphoresinscull.sect></A>5.3.2.&nbsp;在 scull 
+                        中使用旗标</H3></DIV></DIV></DIV>
+                        <P>旗标机制给予 scull 一个工具, 可以在存取 scull_dev 数据结构时用来避免竞争情况. 
+                        但是正确使用这个工具是我们的责任. 
+                        正确使用加锁原语的关键是严密地指定要保护哪个资源并且确认每个对这些资源的存取都使用了正确的加锁方法. 
+                        在我们的例子驱动中, 感兴趣的所有东西都包含在 scull_dev 结构里面, 
+                        因此它是我们的加锁体制的逻辑范围.</P>
+                        <P>让我们在看看这个结构:</P><PRE class=programlisting>struct scull_dev {
+    struct scull_qset *data; /* Pointer to first quantum set */
+    int quantum; /* the current quantum size */
+    int qset; /* the current array size */
+    unsigned long size; /* amount of data stored here */
+    unsigned int access_key; /* used by sculluid and scullpriv */
+    struct semaphore sem; /* mutual exclusion semaphore */
+    struct cdev cdev; /* Char device structure */
+};
+</PRE>
+                        <P>到结构的底部是一个称为 sem 的成员, 当然, 它是我们的旗标. 我们已经选择为每个虚拟 scull 
+                        设备使用单独的旗标. 使用一个单个的全局的旗标也可能会是同样正确. 通常各种 scull 设备不共享资源, 
+                        然而, 并且没有理由使一个进程等待, 而另一个进程在使用不同 scull 设备. 
+                        不同设备使用单独的旗标允许并行进行对不同设备的操作, 因此, 提高了性能.</P>
+                        <P>旗标在使用前必须初始化. scull 在加载时进行这个初始化, 在这个循环中:</P><PRE class=programlisting>for (i = 0; i &lt; scull_nr_devs; i++) {
+    scull_devices[i].quantum = scull_quantum;
+    scull_devices[i].qset = scull_qset;
+    init_MUTEX(&amp;scull_devices[i].sem);
+    scull_setup_cdev(&amp;scull_devices[i], i);
+}
+</PRE>
+                        <P>注意, 旗标必须在 scull 设备对系统其他部分可用前初始化. 因此, init_MUTEX 在 
+                        scull_setup_cdev 前被调用. 以相反的次序进行这个操作可能产生一个竞争情况, 
+                        旗标可能在它准备好之前被存取.</P>
+                        <P>下一步, 我们必须浏览代码, 并且确认在没有持有旗标时没有对 scull_dev 数据结构的存取. 因此, 
+                        例如, scull_write 以这个代码开始:</P><PRE class=programlisting>if (down_interruptible(&amp;dev-&gt;sem))
+    return -ERESTARTSYS;
+</PRE>
+                        <P>注意对 down_interruptible 返回值的检查; 如果它返回非零, 操作被打断了. 
+                        在这个情况下通常要做的是返回 -ERESTARTSYS. 看到这个返回值后, 
+                        内核的高层要么从头重启这个调用要么返回这个错误给用户. 如果你返回 -ERESTARTSYS, 
+                        你必须首先恢复任何用户可见的已经做了的改变, 以保证当重试系统调用时正确的事情发生. 如果你不能以这个方式恢复, 
+                        你应当替之返回 -EINTR. </P>
+                        <P>scull_write 必须释放旗标, 不管它是否能够成功进行它的其他任务. 如果事事都顺利, 
+                        执行落到这个函数的最后几行:</P><PRE class=programlisting>out:
+ up(&amp;dev-&gt;sem);
+ return retval; 
+</PRE>
+                        <P>这个代码释放旗标并且返回任何需要的状态. 在 scull_write 中有几个地方可能会出错; 
+                        这些地方包括内存分配失败或者在试图从用户空间拷贝数据时出错. 在这些情况中, 代码进行了一个 goto out, 
+                        以确保进行正确的清理.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ReaderWriterSemphores.sect></A>5.3.3.&nbsp;读者/写者旗标</H3></DIV></DIV></DIV>
+                        <P>旗标为所有调用者进行互斥, 不管每个线程可能想做什么. 然而, 很多任务分为 2 种清楚的类型: 
+                        只需要读取被保护的数据结构的类型, 和必须做改变的类型. 允许多个并发读者常常是可能的, 
+                        只要没有人试图做任何改变. 这样做能够显著提高性能; 
+                        只读的任务可以并行进行它们的工作而不必等待其他读者退出临界区.</P>
+                        <P>Linux 内核为这种情况提供一个特殊的旗标类型称为 rwsem (或者" reader/writer 
+                        semaphore"). rwsem 在驱动中的使用相对较少, 但是有时它们有用.</P>
+                        <P>使用 rwsem 的代码必须包含 &lt;linux/rwsem.h&gt;. 读者写者旗标 
+                        的相关数据类型是 struct rw_semaphore; 一个 rwsem 必须在运行时显式初始化:</P><PRE class=programlisting>void init_rwsem(struct rw_semaphore *sem); 
+</PRE>
+                        <P>一个新初始化的 rwsem 对出现的下一个任务( 读者或者写者 )是可用的. 
+                        对需要只读存取的代码的接口是:</P><PRE class=programlisting>void down_read(struct rw_semaphore *sem);
+int down_read_trylock(struct rw_semaphore *sem);
+void up_read(struct rw_semaphore *sem);
+</PRE>
+                        <P>对 down_read 的调用提供了对被保护资源的只读存取, 与其他读者可能地并发地存取. 注意 
+                        down_read 可能将调用进程置为不可中断的睡眠. down_read_trylock 
+                        如果读存取是不可用时不会等待; 如果被准予存取它返回非零, 否则是 0. 注意 
+                        down_read_trylock 的惯例不同于大部分的内核函数, 返回值 0 指示成功. 一个使用 
+                        down_read 获取的 rwsem 必须最终使用 up_read 释放.</P>
+                        <P>读者的接口类似:</P><PRE class=programlisting>void down_write(struct rw_semaphore *sem);
+int down_write_trylock(struct rw_semaphore *sem);
+void up_write(struct rw_semaphore *sem);
+void downgrade_write(struct rw_semaphore *sem);
+</PRE>
+                        <P>down_write, down_write_trylock, 和 up_write 
+                        全部就像它们的读者对应部分, 除了, 当然, 它们提供写存取. 如果你处于这样的情况, 
+                        需要一个写者锁来做一个快速改变, 接着一个长时间的只读存取, 你可以使用 downgrade_write 
+                        在一旦你已完成改变后允许其他读者进入.</P>
+                        <P>一个 rwsem 允许一个读者或者不限数目的读者来持有旗标. 写者有优先权; 当一个写者试图进入临界区, 
+                        就不会允许读者进入直到所有的写者完成了它们的工作. 这个实现可能导致读者饥饿 -- 读者被长时间拒绝存取 -- 
+                        如果你有大量的写者来竞争旗标. 由于这个原因, rwsem 最好用在很少请求写的时候, 
+                        并且写者只占用短时间.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=Completions.sect></A>5.4.&nbsp;Completions 
+                        机制</H2></DIV></DIV></DIV>
+                        <P>内核编程的一个普通模式包括在当前线程之外初始化某个动作, 接着等待这个动作结束. 
+                        这个动作可能是创建一个新内核线程或者用户空间进程, 对一个存在着的进程的请求, 或者一些基于硬件的动作. 
+                        在这些情况中, 很有诱惑去使用一个旗标来同步 2 个任务, 使用这样的代码:</P><PRE class=programlisting>struct semaphore sem; 
+init_MUTEX_LOCKED(&amp;sem);
+start_external_task(&amp;sem);
+down(&amp;sem);
+</PRE>
+                        <P>外部任务可以接着调用 up(??sem), 在它的工作完成时.</P>
+                        <P>事实证明, 这种情况旗标不是最好的工具. 正常使用中, 
+                        试图加锁一个旗标的代码发现旗标几乎在所有时间都可用; 如果对旗标有很多竞争, 
+                        性能会受损并且加锁方案需要重新审视. 因此旗标已经对"可用"情况做了很多的优化. 
+                        当用上面展示的方法来通知任务完成, 然而, 调用 down 的线程将几乎是一直不得不等待; 因此性能将受损. 
+                        旗标还可能易于处于一个( 困难的 ) 竞争情况, 如果它们表明为自动变量以这种方式使用时. 在一些情况中, 
+                        旗标可能在调用 up 的进程用完它之前消失.</P>
+                        <P>这些问题引起了在 2.4.7 内核中增加了 "completion" 接口. completion 
+                        是任务使用的一个轻量级机制: 允许一个线程告诉另一个线程工作已经完成. 为使用 completion, 
+                        你的代码必须包含 &lt;linux/completion.h&gt;. 一个 completion 可被创建, 
+                        使用:</P><PRE class=programlisting>DECLARE_COMPLETION(my_completion); 
+</PRE>
+                        <P>或者, 如果 completion 必须动态创建和初始化:</P><PRE class=programlisting>struct completion my_completion;
+/* ... */
+init_completion(&amp;my_completion);
+</PRE>
+                        <P>等待 completion 是一个简单事来调用:</P><PRE class=programlisting>void wait_for_completion(struct completion *c); 
+</PRE>
+                        <P>注意这个函数进行一个不可打断的等待. 如果你的代码调用 wait_for_completion 
+                        并且没有人完成这个任务, 结果会是一个不可杀死的进程.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch05s04.html#ftn.id427688" 
+                        name=id427688><FONT 
+                        color=#0000ff>18</FONT></A>]</SUP></P>
+                        <P>另一方面, 真正的 completion 事件可能通过调用下列之一来发出:</P><PRE class=programlisting>void complete(struct completion *c);
+void complete_all(struct completion *c);
+</PRE>
+                        <P>如果多于一个线程在等待同一个 completion 事件, 这 2 个函数做法不同. complete 
+                        只唤醒一个等待的线程, 而 complete_all 允许它们所有都继续. 在大部分情况下, 只有一个等待者, 
+                        这 2 个函数将产生一致的结果.</P>
+                        <P>一个 completion 正常地是一个单发设备; 使用一次就放弃. 然而, 如果采取正确的措施重新使用 
+                        completion 结构是可能的. 如果没有使用 complete_all, 重新使用一个 
+                        completion 结构没有任何问题, 只要对于发出什么事件没有模糊. 如果你使用 complete_all, 
+                        然而, 你必须在重新使用前重新初始化 completion 结构. 宏定义:</P><PRE class=programlisting>INIT_COMPLETION(struct completion c); 
+</PRE>
+                        <P>可用来快速进行这个初始化.</P>
+                        <P>作为如何使用 completion 的一个例子, 考虑 complete 模块, 它包含在例子源码里. 
+                        这个模块使用简单的语义定义一个设备: 任何试图从一个设备读的进程将等待(使用 
+                        wait_for_completion)直到其他进程向这个设备写. 实现这个行为的代码是:</P><PRE class=programlisting>DECLARE_COMPLETION(comp);
+ssize_t complete_read (struct file *filp, char __user *buf, size_t count, loff_t *pos)
+{
+    printk(KERN_DEBUG "process %i (%s) going to sleep\n",current-&gt;pid, current-&gt;comm);
+    wait_for_completion(&amp;comp);
+    printk(KERN_DEBUG "awoken %i (%s)\n", current-&gt;pid, current-&gt;comm);
+    return 0; /* EOF */
+}
+
+ssize_t complete_write (struct file *filp, const char __user *buf, size_t count, loff_t *pos)
+{
+    printk(KERN_DEBUG "process %i (%s) awakening the readers...\n", current-&gt;pid, current-&gt;comm);
+    complete(&amp;comp);
+    return count; /* succeed, to avoid retrial */
+}
+</PRE>
+                        <P>有多个进程同时从这个设备"读"是有可能的. 每个对设备的写将确切地使一个读操作完成, 
+                        但是没有办法知道会是哪个.</P>
+                        <P>completion 机制的典型使用是在模块退出时与内核线程的终止一起. 在这个原型例子里, 
+                        一些驱动的内部工作是通过一个内核线程在一个 while(1) 循环中进行的. 当模块准备好被清理时, exit 
+                        函数告知线程退出并且等待结束. 为此目的, 内核包含一个特殊的函数给线程使用:</P><PRE class=programlisting>void complete_and_exit(struct completion *c, long retval); 
+</PRE>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch05s04.html#id427688" 
+                        name=ftn.id427688><FONT color=#0000ff>18</FONT></A>] 
+                        </SUP>在本书编写时, 添加可中断版本的补丁已经流行但是还没有合并到主线中.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=Spinlocks.sect></A>5.5.&nbsp;自旋锁</H2></DIV></DIV></DIV>
+                        <P>对于互斥, 旗标是一个有用的工具, 但是它们不是内核提供的唯一这样的工具. 相反, 
+                        大部分加锁是由一种称为自旋锁的机制来实现. 不象旗标, 自旋锁可用在不能睡眠的代码中, 例如中断处理. 
+                        当正确地使用了, 通常自旋锁提供了比旗标更高的性能. 然而, 它们确实带来对它们用法的一套不同的限制.</P>
+                        <P>自旋锁概念上简单. 一个自旋锁是一个互斥设备, 只能有 2 个值:"上锁"和"解锁". 
+                        它常常实现为一个整数值中的一个单个位. 想获取一个特殊锁的代码测试相关的位. 如果锁是可用的, 
+                        这个"上锁"位被置位并且代码继续进入临界区. 相反, 如果这个锁已经被别人获得, 
+                        代码进入一个紧凑的循环中反复检查这个锁, 直到它变为可用. 这个循环就是自旋锁的"自旋"部分.</P>
+                        <P>当然, 一个自旋锁的真实实现比上面描述的复杂一点. 这个"测试并置位"操作必须以原子方式进行, 
+                        以便只有一个线程能够获得锁, 就算如果有多个进程在任何给定时间自旋. 必须小心以避免在超线程处理器上死锁 -- 
+                        实现多个虚拟 CPU 以共享一个单个处理器核心和缓存的芯片. 因此实际的自旋锁实现在每个 Linux 
+                        支持的体系上都不同. 核心的概念在所有系统上相同, 然而, 当有对自旋锁的竞争, 
+                        等待的处理器在一个紧凑循环中执行并且不作有用的工作.</P>
+                        <P>它们的特性上, 自旋锁是打算用在多处理器系统上, 尽管一个运行一个抢占式内核的单处理器工作站的行为如同 
+                        SMP, 如果只考虑到并发. 如果一个非抢占的单处理器系统进入一个锁上的自旋, 它将永远自旋; 
+                        没有其他的线程再能够获得 CPU 来释放这个锁. 因此, 
+                        自旋锁在没有打开抢占的单处理器系统上的操作被优化为什么不作, 除了改变 IRQ 屏蔽状态的那些. 由于抢占, 
+                        甚至如果你从不希望你的代码在一个 SMP 系统上运行, 你仍然需要实现正确的加锁.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=IntroductiontotheSpinlockAPI.sect></A>5.5.1.&nbsp;自旋锁 
+                        API 简介</H3></DIV></DIV></DIV>
+                        <P>自旋锁原语要求的包含文件是 &lt;linux/spinlock.h&gt;. 一个实际的锁有类型 
+                        spinlock_t. 象任何其他数据结构, 一个 自旋锁必须初始化. 这个初始化可以在编译时完成, 
+                        如下:</P><PRE class=programlisting>spinlock_t my_lock = SPIN_LOCK_UNLOCKED; 
+</PRE>
+                        <P>或者在运行时使用:</P><PRE class=programlisting>void spin_lock_init(spinlock_t *lock); 
+</PRE>
+                        <P>在进入一个临界区前, 你的代码必须获得需要的 lock , 用:</P><PRE class=programlisting>void spin_lock(spinlock_t *lock); 
+</PRE>
+                        <P>注意所有的自旋锁等待是, 由于它们的特性, 不可中断的. 一旦你调用 spin_lock, 
+                        你将自旋直到锁变为可用.</P>
+                        <P>为释放一个你已获得的锁, 传递它给:</P><PRE class=programlisting>void spin_unlock(spinlock_t *lock); 
+</PRE>
+                        <P>有很多其他的自旋锁函数, 我们将很快都看到. 但是没有一个背离上面列出的函数所展示的核心概念. 
+                        除了加锁和释放, 没有什么可对一个锁所作的. 但是, 有几个规则关于你必须如何使用自旋锁. 
+                        我们将用一点时间来看这些, 在进入完整的自旋锁接口之前.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=SpinlocksandAtomicContext.sect></A>5.5.2.&nbsp;自旋锁和原子上下文</H3></DIV></DIV></DIV>
+                        <P>想象一会儿你的驱动请求一个自旋锁并且在它的临界区里做它的事情. 在中间某处, 你的驱动失去了处理器. 
+                        或许它已调用了一个函数( copy_from_user, 假设) 使进程进入睡眠. 或者, 也许, 
+                        内核抢占发威, 一个更高优先级的进程将你的代码推到一边. 你的代码现在持有一个锁, 
+                        在可见的将来的如何时间不会释放这个锁. 如果某个别的线程想获得同一个锁, 它会, 在最好的情况下, 等待( 
+                        在处理器中自旋 )很长时间. 最坏的情况, 系统可能完全死锁.</P>
+                        <P>大部分读者会同意这个场景最好是避免. 因此, 应用到自旋锁的核心规则是任何代码必须, 在持有自旋锁时, 
+                        是原子性的. 它不能睡眠; 事实上, 它不能因为任何原因放弃处理器, 
+                        除了服务中断(并且有时即便此时也不行)</P>
+                        <P>内核抢占的情况由自旋锁代码自己处理. 内核代码持有一个自旋锁的任何时间, 抢占在相关处理器上被禁止. 
+                        即便单处理器系统必须以这种方式禁止抢占以避免竞争情况. 这就是为什么需要正确的加锁, 
+                        即便你从不期望你的代码在多处理器机器上运行.</P>
+                        <P>在持有一个锁时避免睡眠是更加困难; 很多内核函数可能睡眠, 并且这个行为不是都被明确记录了. 
+                        拷贝数据到或从用户空间是一个明显的例子: 请求的用户空间页可能需要在拷贝进行前从磁盘上换入, 
+                        这个操作显然需要一个睡眠. 必须分配内存的任何操作都可能睡眠. kmalloc 能够决定放弃处理器, 
+                        并且等待更多内存可用除非它被明确告知不这样做. 睡眠可能发生在令人惊讶的地方; 
+                        编写会在自旋锁下执行的代码需要注意你调用的每个函数.</P>
+                        <P>这有另一个场景: 你的驱动在执行并且已经获取了一个锁来控制对它的设备的存取. 当持有这个锁时, 
+                        设备发出一个中断, 使得你的中断处理运行. 中断处理, 在存取设备之前, 必须获得锁. 
+                        在一个中断处理中获取一个自旋锁是一个要做的合法的事情; 这是自旋锁操作不能睡眠的其中一个理由. 
+                        但是如果中断处理和起初获得锁的代码在同一个处理器上会发生什么? 当中断处理在自旋, 非中断代码不能运行来释放锁. 
+                        这个处理器将永远自旋.</P>
+                        <P>避免这个陷阱需要在持有自旋锁时禁止中断( 只在本地 CPU ). 有各种自旋锁函数会为你禁止中断( 
+                        我们将在下一节见到它们 ). 但是, 一个完整的中断讨论必须等到第 10 章了.</P>
+                        <P>关于自旋锁使用的最后一个重要规则是自旋锁必须一直是尽可能短时间的持有. 你持有一个锁越长, 
+                        另一个进程可能不得不自旋等待你释放它的时间越长, 它不得不完全自旋的机会越大. 
+                        长时间持有锁也阻止了当前处理器调度, 意味着高优先级进程 -- 真正应当能获得 CPU 的 -- 
+                        可能不得不等待. 内核开发者尽了很大努力来减少内核反应时间( 一个进程可能不得不等待调度的时间 )在 2.5 
+                        开发系列. 一个写的很差的驱动会摧毁所有的进程, 仅仅通过持有一个锁太长时间. 为避免产生这类问题, 
+                        重视使你的锁持有时间短.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheSpinlockFunctions.sect></A>5.5.3.&nbsp;自旋锁函数</H3></DIV></DIV></DIV>
+                        <P>我们已经看到 2 个函数, spin_lock 和 spin_unlock, 可以操作自旋锁. 
+                        有其他几个函数, 然而, 有类似的名子和用途. 我们现在会展示全套. 
+                        这个讨论将带我们到一个我们无法在几章内适当涵盖的地方; 自旋锁 API 
+                        的完整理解需要对中断处理和相关概念的理解.</P>
+                        <P>实际上有 4 个函数可以加锁一个自旋锁:</P><PRE class=programlisting>void spin_lock(spinlock_t *lock);
+void spin_lock_irqsave(spinlock_t *lock, unsigned long flags);
+void spin_lock_irq(spinlock_t *lock);
+void spin_lock_bh(spinlock_t *lock)
+</PRE>
+                        <P>我们已经看到自旋锁如何工作. spin_loc_irqsave 
+                        禁止中断(只在本地处理器)在获得自旋锁之前; 之前的中断状态保存在 flags 里. 
+                        如果你绝对确定在你的处理器上没有禁止中断的(或者, 换句话说, 你确信你应当在你释放你的自旋锁时打开中断), 
+                        你可以使用 spin_lock_irq 代替, 并且不必保持跟踪 flags. 最后, spin_lock_bh 
+                        在获取锁之前禁止软件中断, 但是硬件中断留作打开的.</P>
+                        <P>如果你有一个可能被在(硬件或软件)中断上下文运行的代码获得的自旋锁, 你必须使用一种 spin_lock 
+                        形式来禁止中断. 其他做法可能死锁系统, 迟早. 如果你不在硬件中断处理里存取你的锁, 
+                        但是你通过软件中断(例如, 在一个 tasklet 运行的代码, 在第 7 章涉及的主题 ), 你可以使用 
+                        spin_lock_bh 来安全地避免死锁, 而仍然允许硬件中断被服务.</P>
+                        <P>也有 4 个方法来释放一个自旋锁; 你用的那个必须对应你用来获取锁的函数.</P><PRE class=programlisting>void spin_unlock(spinlock_t *lock);
+void spin_unlock_irqrestore(spinlock_t *lock, unsigned long flags);
+void spin_unlock_irq(spinlock_t *lock);
+void spin_unlock_bh(spinlock_t *lock);
+</PRE>
+                        <P>每个 spin_unlock 变体恢复由对应的 spin_lock 函数锁做的工作. 传递给 
+                        spin_unlock_irqrestore 的 flags 参数必须是传递给 
+                        spin_lock_irqsave 的同一个变量. 你必须也调用 spin_lock_irqsave 和 
+                        spin_unlock_irqrestore 在同一个函数里. 否则, 你的代码可能破坏某些体系.</P>
+                        <P>还有一套非阻塞的自旋锁操作:</P><PRE class=programlisting>int spin_trylock(spinlock_t *lock);
+int spin_trylock_bh(spinlock_t *lock);
+</PRE>
+                        <P>这些函数成功时返回非零( 获得了锁 ), 否则 0. 没有"try"版本来禁止中断.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ReaderWriterSpinlocks.sect></A>5.5.4.&nbsp;读者/写者自旋锁</H3></DIV></DIV></DIV>
+                        <P>内核提供了一个自旋锁的读者/写者形式, 直接模仿我们在本章前面见到的读者/写者旗标. 
+                        这些锁允许任何数目的读者同时进入临界区, 但是写者必须是排他的存取. 读者写者锁有一个类型 rwlock_t, 
+                        在 &lt;linux/spinlokc.h&gt; 中定义. 它们可以以 2 种方式被声明和被初始化:</P><PRE class=programlisting>rwlock_t my_rwlock = RW_LOCK_UNLOCKED; /* Static way */ 
+rwlock_t my_rwlock;
+rwlock_init(&amp;my_rwlock); /* Dynamic way */
+</PRE>
+                        <P>可用函数的列表现在应当看来相当类似. 对于读者, 下列函数是可用的:</P><PRE class=programlisting>void read_lock(rwlock_t *lock);
+void read_lock_irqsave(rwlock_t *lock, unsigned long flags);
+void read_lock_irq(rwlock_t *lock);
+void read_lock_bh(rwlock_t *lock);
+
+void read_unlock(rwlock_t *lock);
+void read_unlock_irqrestore(rwlock_t *lock, unsigned long flags);
+void read_unlock_irq(rwlock_t *lock);
+void read_unlock_bh(rwlock_t *lock);
+</PRE>
+                        <P>有趣地, 没有 read_trylock. 对于写存取的函数是类似的:</P><PRE class=programlisting>void write_lock(rwlock_t *lock);
+void write_lock_irqsave(rwlock_t *lock, unsigned long flags);
+void write_lock_irq(rwlock_t *lock);
+void write_lock_bh(rwlock_t *lock);
+int write_trylock(rwlock_t *lock);
+
+void write_unlock(rwlock_t *lock);
+void write_unlock_irqrestore(rwlock_t *lock, unsigned long flags);
+void write_unlock_irq(rwlock_t *lock);
+void write_unlock_bh(rwlock_t *lock);
+</PRE>
+                        <P>读者/写者锁能够饿坏读者, 就像 rwsem 一样. 这个行为很少是一个问题; 然而, 
+                        如果有足够的锁竞争来引起饥饿, 性能无论如何都不行.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=LockingTraps.sect></A>5.6.&nbsp;锁陷阱</H2></DIV></DIV></DIV>
+                        <P>多年使用锁的经验 -- 早于 Linux 的经验 -- 已经表明加锁可能是非常难于正确的. 
+                        管理并发是一个固有的技巧性的事情, 有很多出错的方式. 在这一节, 我们快速看一下可能出错的东西.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AmbiguousRules.sect></A>5.6.1.&nbsp;模糊的规则</H3></DIV></DIV></DIV>
+                        <P>如同上面已经说过的, 一个正确的加锁机制需要清晰和明确的规则. 当你创建一个可以被并发存取的资源时, 
+                        你应当定义哪个锁将控制存取. 加锁应当真正在开始处进行; 事后更改会是难的事情. 
+                        开始时花费的时间常常在调试时获得回报.</P>
+                        <P>当你编写你的代码, 你会毫无疑问遇到几个函数需要存取通过一个特定锁保护的结构. 在此, 你必须小心: 
+                        如果一个函数需要一个锁并且接着调用另一个函数也试图请求这个锁, 你的代码死锁. 
+                        不论旗标还是自旋锁都不允许一个持锁者第 2 次请求锁; 如果你试图这样做, 事情就简单地完了.</P>
+                        <P>为使的加锁正确工作, 你不得不编写一些函数, 假定它们的调用者已经获取了相关的锁. 常常地, 
+                        只有你的内部的, 静态函数能够这样编写; 从外部调用的函数必须明确处理加锁. 当你编写内部函数对加锁做了假设, 
+                        方便自己(和其他使用你的代码的人)并且明确记录这些假设. 
+                        在几个月后可能很难回来并记起是否你需要持有一个锁来调用一个特殊函数.</P>
+                        <P>在 sucll 的例子里, 采用的设计决定是要求所有的函数直接从系统调用里调用, 
+                        来请求应用到被存取的设备结构上的旗标. 所有的内部函数, 那些只是从其他 scull 函数里调用的, 
+                        可以因此假设旗标已经正确获得.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=LockOrderingRules.sect></A>5.6.2.&nbsp;加锁顺序规则</H3></DIV></DIV></DIV>
+                        <P>在有大量锁的系统中(并且内核在成为这样一个系统), 一次需要持有多于一个锁, 对代码是不寻常的. 
+                        如果某类计算必须使用 2 个不同的资源进行, 每个有它自己的锁, 常常没有选择只能获取 2 个锁.</P>
+                        <P>获得多个锁可能是危险的, 然而. 如果你有 2 个锁, 称为 Lock1 和 Lock2, 
+                        代码需要同时都获取, 你有一个潜在的死锁. 仅仅想象一个线程锁住 Lock1 而另一个同时获得 Lock2. 
+                        接着每个线程试图得到它没有的那个. 2 个线程都会死锁.</P>
+                        <P>这个问题的解决方法常常是简单的: 当多个锁必须获得时, 它们应当一直以同样顺序获得. 只要遵照这个惯例, 
+                        象上面描述的简单死锁能够避免. 然而, 遵照加锁顺序规则是做比说难. 非常少见这样的规则真正在任何地方被写下. 
+                        常常你能做的最好的是看看别的代码如何做的.</P>
+                        <P>一些经验规则能帮上忙. 如果你必须获得一个对你的代码来说的本地锁(假如, 一个设备锁), 
+                        以及一个属于内核更中心部分的锁, 先获取你的. 如果你有一个旗标和自旋锁的组合, 你必须, 当然, 先获得旗标; 
+                        调用 down (可能睡眠) 在持有一个自旋锁时是一个严重的错误. 但是最重要的, 
+                        尽力避免需要多于一个锁的情况.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=FineVersusCoarseGrainedLocking.sect></A>5.6.3.&nbsp;细 
+                        -粗- 粒度加锁</H3></DIV></DIV></DIV>
+                        <P>第一个支持多处理器系统的 Linux 内核是 2.0; 它只含有一个自旋锁. 
+                        这个大内核锁将整个内核变为一个大的临界区; 在任何时候只有一个 CPU 能够执行内核代码. 
+                        这个锁足够好地解决了并发问题以允许内核开发者从事所有其他的开发 SMP 所包含的问题. 但是它不是扩充地很好. 
+                        甚至一个 2 个处理器的系统可能花费可观数量的时间只是等待这个大内核锁. 一个 4 
+                        个处理器的系统的性能甚至不接近 4 个独立的机器的性能.</P>
+                        <P>因此, 后续的内核发布已经包含了更细粒度的加锁. 在 2.2 中, 一个自旋锁控制对块 I/O 
+                        子系统的存取; 另一个为网络而工作, 等等. 一个现代的内核能包含几千个锁, 每个保护一个小的资源. 
+                        这种细粒度的加锁可能对伸缩性是好的; 它允许每个处理器在它自己特定的任务上工作而不必竞争其他处理器使用的锁. 
+                        很少人忘记大内核锁.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch05s06.html#ftn.id428542" 
+                        name=id428542><FONT 
+                        color=#0000ff>19</FONT></A>]</SUP></P>
+                        <P>但是, 细粒度加锁带有开销. 在有几千个锁的内核中, 很难知道你需要那个锁 -- 
+                        以及你应当以什么顺序获取它们 -- 来进行一个特定的操作. 记住加锁错误可能非常难发现; 
+                        更多的锁提供了更多的机会使真正有害的加锁 bug 钻进内核中. 细粒度加锁能带来一定水平的复杂性, 长期来, 
+                        对内核的可维护性有一个大的, 不利的效果.</P>
+                        <P>在一个设备驱动中加锁常常是相对直接的; 你可以用一个锁来涵盖你做的所有东西, 
+                        或者你可以给你管理的每个设备创建一个锁. 作为一个通用的规则, 你应当从相对粗的加锁开始, 
+                        除非你有确实的理由相信竞争可能是一个问题. 忍住怂恿去过早地优化; 
+真实地性能约束常常表现在想不到的地方.</P>
+                        <P>如果你确实怀疑锁竞争在损坏性能, 你可能发现 lockmeter 工具有用. 这个补丁(从 
+                        http://oss.sgi.com/projects/lockmeter/ 可得到) 
+                        装备内核来测量在锁等待花费的时间. 通过看这个报告, 你能够很快知道是否锁竞争真的是问题.</P></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch05s06.html#id428542" 
+                        name=ftn.id428542><FONT color=#0000ff>19</FONT></A>] 
+                        </SUP>这个锁仍然存在于 2.6, 几个它现在覆盖内核非常小的部分. 如果你偶然发现一个 
+                        lock_kernel 调用, 你已找到了这个大内核锁. 但是, 想都不要想在任何新代码中使用它.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=AlternativestoLocking.sect></A>5.7.&nbsp;加锁的各种选择</H2></DIV></DIV></DIV>
+                        <P>Linux 内核提供了不少有力的加锁原语能够用来使内核避免被自己绊倒. 但是, 如同我们已见到的, 
+                        一个加锁机制的设计和实现不是没有缺陷. 常常对于旗标和自旋锁没有选择; 它们可能是唯一的方法来正确地完成工作. 
+                        然而, 有些情况, 可以建立原子的存取而不用完整的加锁. 本节看一下做事情的其他方法.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=LockFreeAlgorithms.sect></A>5.7.1.&nbsp;不加锁算法</H3></DIV></DIV></DIV>
+                        <P>有时, 你可以重新打造你的算法来完全避免加锁的需要. 许多读者/写者情况 -- 如果只有一个写者 -- 
+                        常常能够在这个方式下工作. 如果写者小心使数据结构的视图, 由读者所见的, 是一直一致的, 
+                        有可能创建一个不加锁的数据结构.</P>
+                        <P>常常可以对无锁的生产者/消费者任务有用的数据结构是环形缓存. 
+                        这个算法包含一个生产者安放数据到一个数组的尾端, 而消费者从另一端移走数据. 当到达数组末端, 
+                        生产者绕回到开始. 因此一个环形缓存需要一个数组和 2 个索引值来跟踪下一个新值放到哪里, 
+                        以及哪个值在下一次应当从缓存中移走.</P>
+                        <P>当小心地实现了, 一个环形缓存在没有多个生产者或消费者时不需要加锁. 
+                        生产者是唯一允许修改写索引和它所指向的数组位置的线程. 只要写者在更新写索引之前存储一个新值到缓存中, 
+                        读者将一直看到一个一致的视图. 读者, 轮换地, 是唯一存取读索引和它指向的值的线程. 加一点小心到确保 2 
+                        个指针不相互覆盖, 生产者和消费者可以并发存取缓存而没有竞争情况.</P>
+                        <P>图<A title=图&nbsp;5.1.&nbsp;环形缓冲 
+                        href="http://www.deansys.com/doc/ldd3/ch05s07.html#ldd3-5-1.fig"><FONT 
+                        color=#0000ff>环形缓冲</FONT></A>展示了在几个填充状态的环形缓存. 
+                        这个缓存被定义成一个空情况由读写指针相同来指示, 而满情况发生在写指针紧跟在读指针后面的时候(小心解决绕回!). 
+                        当小心地编程, 这个缓存能够不必加锁地使用.</P>
+                        <DIV class=figure><A name=ldd3-5-1.fig></A>
+                        <P class=title><B>图&nbsp;5.1.&nbsp;环形缓冲</B></P>
+                        <DIV><IMG alt=环形缓冲 
+                        src="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/ldd3-5-1.png"></DIV></DIV>
+                        <P>在设备驱动中环形缓存出现相当多. 网络适配器, 特别地, 常常使用环形缓存来与处理器交换数据(报文). 
+                        注意, 对于 2.6.10, 有一个通用的环形缓存实现在内核中可用; 如何使用它的信息看 
+                        &lt;linux/kfifo.h&gt;.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AtomicVariables.sect></A>5.7.2.&nbsp;原子变量</H3></DIV></DIV></DIV>
+                        <P>有时, 一个共享资源是一个简单的整数值. 假设你的驱动维护一个共享变量 n_op, 
+                        它告知有多少设备操作目前未完成. 正常地, 即便一个简单的操作例如:</P><PRE class=programlisting>n_op++; 
+</PRE>
+                        <P>可能需要加锁. 某些处理器可能以原子的方式进行那种递减, 但是你不能依赖它. 
+                        但是一个完整的加锁体制对于一个简单的整数值看来过分了. 对于这样的情况, 内核提供了一个原子整数类型称为 
+                        atomic_t, 定义在 &lt;asm/atomic.h&gt;.</P>
+                        <P>一个 atomic_t 持有一个 int 值在所有支持的体系上. 但是, 
+                        因为这个类型在某些处理器上的工作方式, 整个整数范围可能不是都可用的; 因此, 你不应当指望一个 
+                        atomic_t 持有多于 24 位. 下面的操作为这个类型定义并且保证对于一个 SMP 
+                        计算机的所有处理器来说是原子的. 操作是非常快的, 因为它们在任何可能时编译成一条单个机器指令.</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>void atomic_set(atomic_t 
+                          *v, int i);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>atomic_t v = 
+                          ATOMIC_INIT(0);</SPAN></SPAN> 
+                          <DD>
+                          <P>设置原子变量 v 为整数值 i. 你也可在编译时使用宏定义 ATOMIC_INIT 
+                          初始化原子值.</P>
+                          <DT><SPAN class=term><SPAN>int atomic_read(atomic_t 
+                          *v);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回 v 的当前值.</P>
+                          <DT><SPAN class=term><SPAN>void atomic_add(int i, 
+                          atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <P>由 v 指向的原子变量加 i. 返回值是 void, 因为有一个额外的开销来返回新值, 
+                          并且大部分时间不需要知道它.</P>
+                          <DT><SPAN class=term><SPAN>void atomic_sub(int i, 
+                          atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <P>从 *v 减去 i.</P>
+                          <DT><SPAN class=term><SPAN>void atomic_inc(atomic_t 
+                          *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void atomic_dec(atomic_t 
+                          *v);</SPAN></SPAN> 
+                          <DD>
+                          <P>递增或递减一个原子变量.</P>
+                          <DT><SPAN class=term><SPAN>int 
+                          atomic_inc_and_test(atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          atomic_dec_and_test(atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int atomic_sub_and_test(int 
+                          i, atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <P>进行一个特定的操作并且测试结果; 如果, 在操作后, 原子值是 0, 那么返回值是真; 否则, 
+                          它是假. 注意没有 atomic_add_and_test.</P>
+                          <DT><SPAN class=term><SPAN>int atomic_add_negative(int 
+                          i, atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <P>加整数变量 i 到 v. 如果结果是负值返回值是真, 否则为假.</P>
+                          <DT><SPAN class=term><SPAN>int atomic_add_return(int 
+                          i, atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int atomic_sub_return(int 
+                          i, atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          atomic_inc_return(atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          atomic_dec_return(atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <P>就像 atomic_add 和其类似函数, 
+                        除了它们返回原子变量的新值给调用者.</P></DD></DL></DIV>
+                        <P>如同它们说过的, atomic_t 数据项必须通过这些函数存取. 
+                        如果你传递一个原子项给一个期望一个整数参数的函数, 你会得到一个编译错误.</P>
+                        <P>你还应当记住, atomic_t 值只在当被置疑的量真正是原子的时候才起作用. 需要多个 atomic_t 
+                        变量的操作仍然需要某种其他种类的加锁. 考虑一下下面的代码:</P><PRE class=programlisting>atomic_sub(amount, &amp;first_atomic); 
+atomic_add(amount, &amp;second_atomic);
+</PRE>
+                        <P>从第一个原子值中减去 amount, 但是还没有加到第二个时, 存在一段时间. 
+                        如果事情的这个状态可能产生麻烦给可能在这 2 个操作之间运行的代码, 某种加锁必须采用.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=BitOperations.sect></A>5.7.3.&nbsp;位操作</H3></DIV></DIV></DIV>
+                        <P>atomic_t 类型在进行整数算术时是不错的. 但是, 它无法工作的好, 
+                        当你需要以原子方式操作单个位时. 为此, 内核提供了一套函数来原子地修改或测试单个位. 
+                        因为整个操作在单步内发生, 没有中断(或者其他处理器)能干扰.</P>
+                        <P>原子位操作非常快, 因为它们使用单个机器指令来进行操作, 而在任何时候低层平台做的时候不用禁止中断. 
+                        函数是体系依赖的并且在 &lt;asm/bitops.h&gt; 中声明. 它们保证是原子的, 即便在 SMP 
+                        计算机上, 并且对于跨处理器保持一致是有用的.</P>
+                        <P>不幸的是, 键入这些函数中的数据也是体系依赖的. nr 参数(描述要操作哪个位)常常定义为 int, 
+                        但是在几个体系中是 unsigned long. 要修改的地址常常是一个 unsigned long 指针, 
+                        但是几个体系使用 void * 代替.</P>
+                        <P>各种位操作是:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>void set_bit(nr, void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>设置第 nr 位在 addr 指向的数据项中.</P>
+                          <DT><SPAN class=term><SPAN>void clear_bit(nr, void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>清除指定位在 addr 处的无符号长型数据. 它的语义与 set_bit 的相反.</P>
+                          <DT><SPAN class=term><SPAN>void change_bit(nr, void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>翻转这个位.</P>
+                          <DT><SPAN class=term><SPAN>test_bit(nr, void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数是唯一一个不需要是原子的位操作; 它简单地返回这个位的当前值.</P>
+                          <DT><SPAN class=term><SPAN>int test_and_set_bit(nr, 
+                          void *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int test_and_clear_bit(nr, 
+                          void *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int test_and_change_bit(nr, 
+                          void *addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>原子地动作如同前面列出的, 除了它们还返回这个位以前的值.</P></DD></DL></DIV>
+                        <P>当这些函数用来存取和修改一个共享的标志, 除了调用它们不用做任何事; 它们以原子发生进行它们的操作. 
+                        使用位操作来管理一个控制存取一个共享变量的锁变量, 另一方面, 是有点复杂并且应该有个例子. 
+                        大部分现代的代码不以这种方法来使用位操作, 但是象下面的代码仍然在内核中存在.</P>
+                        <P>一段需要存取一个共享数据项的代码试图原子地请求一个锁, 使用 test_and_set_bit 或者 
+                        test_and_clear_bit. 通常的实现展示在这里; 它假定锁是在地址 addr 的 nr 位. 
+                        它还假定当锁空闲是这个位是 0, 忙为 非零.</P><PRE class=programlisting>/* try to set lock */
+while (test_and_set_bit(nr, addr) != 0)
+    wait_for_a_while(); 
+
+/* do your work */ 
+
+/* release lock, and check... */
+if (test_and_clear_bit(nr, addr) == 0)
+    something_went_wrong(); /* already released: error */ 
+
+</PRE>
+                        <P>如果你通读内核源码, 你会发现象这个例子的代码. 但是, 最好在新代码中使用自旋锁; 自旋锁很好地调试过, 
+                        它们处理问题如同中断和内核抢占, 并且别人读你代码时不必努力理解你在做什么.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=seqlocks.sect></A>5.7.4.&nbsp;seqlock 
+                        锁</H3></DIV></DIV></DIV>
+                        <P>2.6内核包含了一对新机制打算来提供快速地, 无锁地存取一个共享资源. seqlock 在这种情况下工作, 
+                        要保护的资源小, 简单, 并且常常被存取, 并且很少写存取但是必须要快. 基本上, 
+                        它们通过允许读者释放对资源的存取, 但是要求这些读者来检查与写者的冲突而工作, 并且当发生这样的冲突时, 
+                        重试它们的存取. seqlock 通常不能用在保护包含指针的数据结构, 
+                        因为读者可能跟随着一个无效指针而写者在改变数据结构.</P>
+                        <P>seqlock 定义在 &lt;linux/seqlock.h&gt;. 有 2 个通常的方法来初始化一个 
+                        seqlock( 有 seqlock_t 类型 ):</P><PRE class=programlisting>seqlock_t lock1 = SEQLOCK_UNLOCKED;
+
+seqlock_t lock2;
+seqlock_init(&amp;lock2);
+</PRE>
+                        <P>读存取通过在进入临界区入口获取一个(无符号的)整数序列来工作. 在退出时, 那个序列值与当前值比较; 
+                        如果不匹配, 读存取必须重试. 结果是, 读者代码象下面的形式:</P><PRE class=programlisting>unsigned int seq;
+
+do {
+    seq = read_seqbegin(&amp;the_lock);
+    /* Do what you need to do */
+} while read_seqretry(&amp;the_lock, seq);
+</PRE>
+                        <P>这个类型的锁常常用在保护某种简单计算, 需要多个一致的值. 如果这个计算最后的测试表明发生了一个并发的写, 
+                        结果被简单地丢弃并且重新计算.</P>
+                        <P>如果你的 seqlock 可能从一个中断处理里存取, 你应当使用 IRQ 安全的版本来代替:</P><PRE class=programlisting>unsigned int read_seqbegin_irqsave(seqlock_t *lock, unsigned long flags);
+int read_seqretry_irqrestore(seqlock_t *lock, unsigned int seq, unsigned long flags);
+</PRE>
+                        <P>写者必须获取一个排他锁来进入由一个 seqlock 保护的临界区. 为此, 调用:</P><PRE class=programlisting>void write_seqlock(seqlock_t *lock); 
+</PRE>
+                        <P>写锁由一个自旋锁实现, 因此所有的通常的限制都适用. 调用:</P><PRE class=programlisting>void write_sequnlock(seqlock_t *lock); 
+</PRE>
+                        <P>来释放锁. 因为自旋锁用来控制写存取, 所有通常的变体都可用:</P><PRE class=programlisting>void write_seqlock_irqsave(seqlock_t *lock, unsigned long flags);
+void write_seqlock_irq(seqlock_t *lock);
+void write_seqlock_bh(seqlock_t *lock);
+
+void write_sequnlock_irqrestore(seqlock_t *lock, unsigned long flags);
+void write_sequnlock_irq(seqlock_t *lock);
+void write_sequnlock_bh(seqlock_t *lock);
+</PRE>
+                        <P>还有一个 write_tryseqlock 在它能够获得锁时返回非零.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ReadCopyUpdate.sect></A>5.7.5.&nbsp;读取-拷贝-更新</H3></DIV></DIV></DIV>
+                        <P>读取-拷贝-更新(RCU) 是一个高级的互斥方法, 能够有高效率在合适的情况下. 
+                        它在驱动中的使用很少但是不是没人知道, 因此这里值得快速浏览下. 那些感兴趣 RCU 
+                        算法的完整细节的人可以在由它的创建者出版的白皮书中找到( 
+                        http://www.rdrop.com/users/paulmck/rclock/intro/rclock_intro.html).</P>
+                        <P>RCU 对它所保护的数据结构设置了不少限制. 它对经常读而极少写的情况做了优化. 
+                        被保护的资源应当通过指针来存取, 并且所有对这些资源的引用必须由原子代码持有. 当数据结构需要改变, 
+                        写线程做一个拷贝, 改变这个拷贝, 接着使相关的指针对准新的版本 -- 因此, 有了算法的名子. 
+                        当内核确认没有留下对旧版本的引用, 它可以被释放.</P>
+                        <P>作为在真实世界中使用 RCU 的例子, 考虑一下网络路由表. 
+                        每个外出的报文需要请求检查路由表来决定应当使用哪个接口. 这个检查是快速的, 并且, 一旦内核发现了目标接口, 
+                        它不再需要路由表入口项. RCU 允许路由查找在没有锁的情况下进行, 具有相当多的性能好处. 内核中的 
+                        Startmode 无线 IP 驱动也使用 RCU 来跟踪它的设备列表.</P>
+                        <P>使用 RCU 的代码应当包含 &lt;linux/rcupdate.h&gt;.</P>
+                        <P>在读这一边, 使用一个 RCU-保护的数据结构的代码应当用 rcu_read_lock 和 
+                        rcu_read_unlock 调用将它的引用包含起来. 结果就是, RCU 代码往往是象这样:</P><PRE class=programlisting>struct my_stuff *stuff; 
+rcu_read_lock();
+stuff = find_the_stuff(args...);
+do_something_with(stuff);
+rcu_read_unlock();
+</PRE>
+                        <P>rcu_read_lock 调用是快的; 它禁止内核抢占但是没有等待任何东西. 
+                        在读"锁"被持有时执行的代码必须是原子的. 在对 rcu_read_unlock 调用后, 
+                        没有使用对被保护的资源的引用.</P>
+                        <P>需要改变被保护的结构的代码必须进行几个步骤. 第一步是容易的; 它分配一个新结构, 
+                        如果需要就从旧的拷贝数据, 接着替换读代码所看到的指针. 在此, 对于读一边的目的, 改变结束了. 
+                        任何进入临界区的代码看到数据的新版本.</P>
+                        <P>剩下的是释放旧版本. 当然, 问题是在其他处理器上运行的代码可能仍然有对旧数据的一个引用, 
+                        因此它不能立刻释放. 相反, 写代码必须等待直到它知道没有这样的引用存在了. 
+                        因为所有持有对这个数据结构引用的代码必须(规则规定)是原子的, 
+                        我们知道一旦系统中的每个处理器已经被调度了至少一次, 所有的引用必须消失. 这就是 RCU 所做的; 
+                        它留下了一个等待直到所有处理器已经调度的回调; 那个回调接下来被运行来进行清理工作.</P>
+                        <P>改变一个 RCU-保护的数据结构的代码必须通过分配一个 struct rcu_head 
+                        来获得它的清理回调, 尽管不需要以任何方式初始化这个结构. 常常, 那个结构被简单地嵌入在 RCU 
+                        所保护的大的资源里面. 在改变资源完成后, 应当调用:</P><PRE class=programlisting>void call_rcu(struct rcu_head *head, void (*func)(void *arg), void *arg);
+</PRE>
+                        <P>给定的 func 在释放资源是安全的时候调用; 传递给 call_rcu的是给同一个 arg. 常常, 
+                        func 需要的唯一的东西是调用 kfree.</P>
+                        <P>全部 RCU 接口比我们已见的要更加复杂; 它包括, 例如, 辅助函数来使用被保护的链表. 
+                        全部内容见相关的头文件.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=ConcurrencyandRaceConditionsQR.sect></A>5.8.&nbsp;快速参考</H2></DIV></DIV></DIV>
+                        <P>本章已介绍了很多符号给并发的管理. 最重要的这些在此总结:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/semaphore.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <P>定义旗标和其上操作的包含文件.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>DECLARE_MUTEX(name);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>DECLARE_MUTEX_LOCKED(name);</SPAN></SPAN> 
+
+                          <DD>
+                          <P>2 个宏定义, 用来声明和初始化一个在互斥模式下使用的旗标.</P>
+                          <DT><SPAN class=term><SPAN>void init_MUTEX(struct 
+                          semaphore *sem);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          init_MUTEX_LOCKED(struct semaphore 
+                          *sem);</SPAN></SPAN> 
+                          <DD>
+                          <P>这 2 函数用来在运行时初始化一个旗标.</P>
+                          <DT><SPAN class=term><SPAN>void down(struct semaphore 
+                          *sem);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          down_interruptible(struct semaphore 
+                          *sem);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int down_trylock(struct 
+                          semaphore *sem);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void up(struct semaphore 
+                          *sem);</SPAN></SPAN> 
+                          <DD>
+                          <P>加锁和解锁旗标. down 使调用进程进入不可打断睡眠, 如果需要; 
+                          down_interruptible, 相反, 可以被信号打断. down_trylock 不睡眠; 相反, 
+                          它立刻返回如果旗标不可用. 加锁旗标的代码必须最终使用 up 解锁它.</P>
+                          <DT><SPAN class=term><SPAN>struct 
+                          rw_semaphore;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>init_rwsem(struct 
+                          rw_semaphore *sem);</SPAN></SPAN> 
+                          <DD>
+                          <P>旗标的读者/写者版本和初始化它的函数.</P>
+                          <DT><SPAN class=term><SPAN>void down_read(struct 
+                          rw_semaphore *sem);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          down_read_trylock(struct rw_semaphore 
+                          *sem);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void up_read(struct 
+                          rw_semaphore *sem);</SPAN></SPAN> 
+                          <DD>
+                          <P>获得和释放对读者/写者旗标的读存取的函数.</P>
+                          <DT><SPAN class=term><SPAN>void down_write(struct 
+                          rw_semaphore *sem);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          down_write_trylock(struct rw_semaphore 
+                          *sem);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void up_write(struct 
+                          rw_semaphore *sem);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void downgrade_write(struct 
+                          rw_semaphore *sem);</SPAN></SPAN> 
+                          <DD>
+                          <P>管理对读者/写者旗标写存取的函数.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/completion.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>DECLARE_COMPLETION(name);</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN class=term><SPAN>init_completion(struct 
+                          completion *c);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>INIT_COMPLETION(struct 
+                          completion c);</SPAN></SPAN> 
+                          <DD>
+                          <P>描述 Linux completion 机制的包含文件, 已经初始化 completion 
+                          的正常方法. INIT_COMPLETION 应当只用来重新初始化一个之前已经使用过的 
+                          completion. </P>
+                          <DT><SPAN class=term><SPAN>void 
+                          wait_for_completion(struct completion 
+                          *c);</SPAN></SPAN> 
+                          <DD>
+                          <P>等待一个 completion 事件发出.</P>
+                          <DT><SPAN class=term><SPAN>void complete(struct 
+                          completion *c);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void complete_all(struct 
+                          completion *c);</SPAN></SPAN> 
+                          <DD>
+                          <P>发出一个 completion 事件. completion 唤醒, 最多, 一个等待着的线程, 而 
+                          complete_all 唤醒全部等待者.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          complete_and_exit(struct completion *c, long 
+                          retval);</SPAN></SPAN> 
+                          <DD>
+                          <P>通过调用 complete 来发出一个 completion 事件, 并且为当前线程调用 
+                          exit.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/spinlock.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>spinlock_t lock = 
+                          SPIN_LOCK_UNLOCKED;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>spin_lock_init(spinlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>定义自旋锁接口的包含文件, 以及初始化锁的 2 个方法.</P>
+                          <DT><SPAN class=term><SPAN>void spin_lock(spinlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          spin_lock_irqsave(spinlock_t *lock, unsigned long 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          spin_lock_irq(spinlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          spin_lock_bh(spinlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>加锁一个自旋锁的各种方法, 并且, 可能地, 禁止中断.</P>
+                          <DT><SPAN class=term><SPAN>int spin_trylock(spinlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          spin_trylock_bh(spinlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>上面函数的非自旋版本; 在获取锁失败时返回 0, 否则非零.</P>
+                          <DT><SPAN class=term><SPAN>void spin_unlock(spinlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          spin_unlock_irqrestore(spinlock_t *lock, unsigned long 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          spin_unlock_irq(spinlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          spin_unlock_bh(spinlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>释放一个自旋锁的相应方法.</P>
+                          <DT><SPAN class=term><SPAN>rwlock_t lock = 
+                          RW_LOCK_UNLOCKED</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>rwlock_init(rwlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>初始化读者/写者锁的 2 个方法.</P>
+                          <DT><SPAN class=term><SPAN>void read_lock(rwlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          read_lock_irqsave(rwlock_t *lock, unsigned long 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void read_lock_irq(rwlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void read_lock_bh(rwlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>获得一个读者/写者锁的读存取的函数.</P>
+                          <DT><SPAN class=term><SPAN>void read_unlock(rwlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          read_unlock_irqrestore(rwlock_t *lock, unsigned long 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          read_unlock_irq(rwlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          read_unlock_bh(rwlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>释放一个读者/写者自旋锁的读存取.</P>
+                          <DT><SPAN class=term><SPAN>void write_lock(rwlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_lock_irqsave(rwlock_t *lock, unsigned long 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_lock_irq(rwlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void write_lock_bh(rwlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>获得一个读者/写者锁的写存取的函数.</P>
+                          <DT><SPAN class=term><SPAN>void write_unlock(rwlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_unlock_irqrestore(rwlock_t *lock, unsigned long 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_unlock_irq(rwlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_unlock_bh(rwlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>释放一个读者/写者自旋锁的写存取的函数.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/atomic.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>atomic_t v = 
+                          ATOMIC_INIT(value);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void atomic_set(atomic_t 
+                          *v, int i);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int atomic_read(atomic_t 
+                          *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void atomic_add(int i, 
+                          atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void atomic_sub(int i, 
+                          atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void atomic_inc(atomic_t 
+                          *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void atomic_dec(atomic_t 
+                          *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          atomic_inc_and_test(atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          atomic_dec_and_test(atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int atomic_sub_and_test(int 
+                          i, atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int atomic_add_negative(int 
+                          i, atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int atomic_add_return(int 
+                          i, atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int atomic_sub_return(int 
+                          i, atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          atomic_inc_return(atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          atomic_dec_return(atomic_t *v);</SPAN></SPAN> 
+                          <DD>
+                          <P>原子地存取整数变量. atomic_t 变量必须只通过这些函数存取.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/bitops.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void set_bit(nr, void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void clear_bit(nr, void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void change_bit(nr, void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>test_bit(nr, void 
+                          *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int test_and_set_bit(nr, 
+                          void *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int test_and_clear_bit(nr, 
+                          void *addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int test_and_change_bit(nr, 
+                          void *addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>原子地存取位值; 它们可用做标志或者锁变量. 
+                          使用这些函数阻止任何与并发存取这个位相关的竞争情况.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/seqlock.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>seqlock_t lock = 
+                          SEQLOCK_UNLOCKED;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>seqlock_init(seqlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>定义 seqlock 的包含文件, 已经初始化它们的 2 个方法.</P>
+                          <DT><SPAN class=term><SPAN>unsigned int 
+                          read_seqbegin(seqlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned int 
+                          read_seqbegin_irqsave(seqlock_t *lock, unsigned long 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int read_seqretry(seqlock_t 
+                          *lock, unsigned int seq);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          read_seqretry_irqrestore(seqlock_t *lock, unsigned int 
+                          seq, unsigned long flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>获得一个 seqlock-保护 的资源的读权限的函数.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_seqlock(seqlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_seqlock_irqsave(seqlock_t *lock, unsigned long 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_seqlock_irq(seqlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_seqlock_bh(seqlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>获取一个 seqlock-保护的资源的写权限的函数.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_sequnlock(seqlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_sequnlock_irqrestore(seqlock_t *lock, unsigned 
+                          long flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_sequnlock_irq(seqlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          write_sequnlock_bh(seqlock_t *lock);</SPAN></SPAN> 
+                          <DD>
+                          <P>释放一个 seqlock-保护的资源的写权限的函数.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/rcupdate.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <P>需要使用读取-拷贝-更新(RCU)机制的包含文件.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          rcu_read_lock;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          rcu_read_unlock;</SPAN></SPAN> 
+                          <DD>
+                          <P>获取对由 RCU 保护的资源的原子读权限的宏定义.</P>
+                          <DT><SPAN class=term><SPAN>void call_rcu(struct 
+                          rcu_head *head, void (*func)(void *arg), void 
+                          *arg);</SPAN></SPAN> 
+                          <DD>
+                          <P>安排一个回调在所有处理器已经被调度以及一个 
+                          RCU-保护的资源可用被安全的释放之后运行.</P></DD></DL></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:28，已浏览42次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270089">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270089">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（5）并发和竞争情况 - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>

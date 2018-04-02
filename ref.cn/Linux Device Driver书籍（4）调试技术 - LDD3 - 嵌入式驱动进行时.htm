@@ -1,0 +1,1533 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270087 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时" name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（4）调试技术</B></FONT> 
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>第&nbsp;4&nbsp;章&nbsp;调试技术</DIV>
+                        <DIV>
+                        <P>内核编程带有它自己的, 独特的调试挑战性. 内核代码无法轻易地在一个调试器下运行, 也无法轻易的被跟踪, 
+                        因为它是一套没有与特定进程相关连的功能的集合. 内核代码错误也特别难以重现, 它们会牵连整个系统与它们一起失效, 
+                        从而破坏了大量的能用来追踪错误的证据.</P>
+                        <P>本章介绍了在如此艰难情况下能够用以监视内核代码和跟踪错误的技术. </P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=DebuggingSupportintheKernel.sect></A>4.1.&nbsp;内核中的调试支持</H2></DIV></DIV></DIV>
+                        <P>在第 2 章, 我们建议你建立并安装你自己的内核, 而不是运行来自你的发布商的现成的内核. 
+                        运行你自己的内核的最充分的理由之一是内核开发者已经在内核自身中构建了多个调试特性. 
+                        这些特性能产生额外的输出并降低性能, 因此发布商的产品内核中往往不会使能它们. 作为一个内核开发者, 但是, 
+                        你有不同的优先权并且会乐于接收这些格外的内核调试支持带来的开销.</P>
+                        <P>这里, 我们列出用来开发的内核应当激活的配置选项. 除了另外指出的, 所有的这些选项都在 "kernel 
+                        hacking" 菜单, 不管什么样的你喜欢的内核配置工具. 注意有些选项不是所有体系都支持. </P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_DEBUG_KERNEL</SPAN></SPAN> 
+                          <DD>
+                          <P>这个选项只是使其他调试选项可用; 它应当打开, 但是它自己不激活任何的特性.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_DEBUG_SLAB</SPAN></SPAN> 
+                          <DD>
+                          <P>这个重要的选项打开了内核内存分配函数的几类检查; 激活这些检查, 
+                          就可能探测到一些内存覆盖和遗漏初始化的错误. 被分配的每一个字节在递交给调用者之前都设成 0xa5, 
+                          随后在释放时被设成 0x6b. 
+                          你在任何时候如果见到任一个这种"坏"模式重复出现在你的驱动输出(或者常常在一个 oops 的列表), 
+                          你会确切知道去找什么类型的错误. 当激活调试, 内核还会在每个分配的内存对象的前后放置特别的守护值; 
+                          如果这些值曾被改动, 内核知道有人已覆盖了一个内存分配区, 它大声抱怨. 
+                          各种的对更模糊的问题的检查也给激活了.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_DEBUG_PAGEALLOC</SPAN></SPAN> 
+                          <DD>
+                          <P>满的页在释放时被从内核地址空间去除. 这个选项会显著拖慢系统, 
+                          但是它也能快速指出某些类型的内存损坏错误.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_DEBUG_SPINLOCK</SPAN></SPAN> 
+                          <DD>
+                          <P>激活这个选项, 内核捕捉对未初始化的自旋锁的操作, 以及各种其他的错误( 例如 2 次解锁同一个锁 
+                          ).</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_DEBUG_SPINLOCK_SLEEP</SPAN></SPAN> 
+
+                          <DD>
+                          <P>这个选项激活对持有自旋锁时进入睡眠的检查. 实际上, 如果你调用一个可能会睡眠的函数, 它就抱怨, 
+                          即便这个有疑问的调用没有睡眠.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_INIT_DEBUG</SPAN></SPAN> 
+                          <DD>
+                          <P>用__init (或者 __initdata) 标志的项在系统初始化或者模块加载后都被丢弃. 
+                          这个选项激活了对代码的检查, 这些代码试图在初始化完成后存取初始化时内存.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_DEBUG_INFO</SPAN></SPAN> 
+                          <DD>
+                          <P>这个选项使得内核在建立时包含完整的调试信息. 如果你想使用 gdb 调试内核, 你将需要这些信息. 
+                          如果你打算使用 gdb, 你还要激活 CONFIG_FRAME_POINTER.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_MAGIC_SYSRQ</SPAN></SPAN> 
+                          <DD>
+                          <P>激活"魔术 SysRq"键. 我们在本章后面的"系统挂起"一节查看这个键.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_DEBUG_STACKOVERFLOW</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_DEBUG_STACK_USAGE</SPAN></SPAN> 
+
+                          <DD>
+                          <P>这些选项能帮助跟踪内核堆栈溢出. 堆栈溢出的确证是一个 oops 输出, 
+                          但是没有任何形式的合理的回溯. 第一个选项给内核增加了明确的溢出检查; 第 2 
+                          个使得内核监测堆栈使用并作一些统计, 这些统计可以用魔术 SysRq 键得到.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_KALLSYMS</SPAN></SPAN> 
+                          <DD>
+                          <P>这个选项(在"Generl setup/Standard 
+                          features"下)使得内核符号信息建在内核中; 缺省是激活的. 符号选项用在调试上下文中; 没有它, 
+                          一个 oops 列表只能以 16 进制格式给你一个内核回溯, 这不是很有用.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_IKCONFIG</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_IKCONFIG_PROC</SPAN></SPAN> 
+                          <DD>
+                          <P>这些选项(在"Generl setup"菜单)使得完整的内核配置状态被建立到内核中, 可以通过 
+                          /proc 来使其可用. 大部分内核开发者知道他们使用的哪个配置, 并不需要这些选项(会使得内核更大). 
+                          但是如果你试着调试由其他人建立的内核中的问题, 它们可能有用.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_ACPI_DEBUG</SPAN></SPAN> 
+                          <DD>
+                          <P>在"Power management/ACPI"下. 这个选项打开详细的 ACPI (Advanced 
+                          Configuration and Power Interface) 调试信息, 
+                          它可能有用如果你怀疑一个问题和 ACPI 相关.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_DEBUG_DRIVER</SPAN></SPAN> 
+                          <DD>
+                          <P>在"Device drivers"下. 打开了驱动核心的调试信息, 可用以追踪低层支持代码的问题. 
+                          我们在第 14 章查看驱动核心.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_SCSI_CONSTANTS</SPAN></SPAN> 
+                          <DD>
+                          <P>这个选项, 在"Device drivers/SCSI device support"下, 建立详细的 
+                          SCSI 错误消息的信息. 如果你在使用 SCSI 驱动, 你可能需要这个选项.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_INPUT_EVBUG</SPAN></SPAN> 
+                          <DD>
+                          <P>这个选项(在"Device drivers/Input device 
+                          support"下)打开输入事件的详细日志. 如果你使用一个输入设备的驱动, 这个选项可能会有用. 
+                          然而要小心这个选项的安全性的隐含意义: 它记录了你键入的任何东西, 包括你的密码.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>CONFIG_PROFILING</SPAN></SPAN> 
+                          <DD>
+                          <P>这个选项位于"Profiling support"之下. 剖析通常用在系统性能调整, 
+                          但是在追踪一些内核挂起和相关问题上也有用.</P></DD></DL></DIV>
+                        <P>我们会再次遇到一些上面的选项, 当我们查看各种方法来追踪内核问题时. 但是首先, 
+                        我们要看一下经典的调试技术: print 语句.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=DebuggingbyPrinting></A>4.2.&nbsp;用打印调试</H2></DIV></DIV></DIV>
+                        <P>最常用的调试技术是监视, 在应用程序编程当中是通过在合适的地方调用 printf 来实现. 
+                        在你调试内核代码时, 你可以通过 printk 来达到这个目的.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=printk></A>4.2.1.&nbsp;printk</H3></DIV></DIV></DIV>
+                        <P>我们在前面几章中使用 printk 函数, 简单地假设它如同 printf 一样使用. 
+                        现在到时候介绍一些不同的地方了.</P>
+                        <P>一个不同是 printk 允许你根据消息的严重程度对其分类, 通过附加不同的记录级别或者优先级在消息上. 
+                        你常常用一个宏定义来指示记录级别. 例如, KERN_INFO, 我们之前曾在一些打印语句的前面看到过, 
+                        是消息记录级别的一种可能值. 记录宏定义扩展成一个字串, 在编译时与消息文本连接在一起; 
+                        这就是为什么下面的在优先级和格式串之间没有逗号的原因. 这里有 2 个 printk 命令的例子, 
+                        一个调试消息, 一个紧急消息:</P><PRE class=programlisting>printk(KERN_DEBUG "Here I am: %s:%i\n", __FILE__, __LINE__);
+printk(KERN_CRIT "I'm trashed; giving up on %p\n", ptr);
+</PRE>
+                        <P>有 8 种可能的记录字串, 在头文件 &lt;linux/kernel.h&gt; 里定义; 
+                        我们按照严重性递减的顺序列出它们:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>KERN_EMERG</SPAN></SPAN> 
+                          <DD>
+                          <P>用于紧急消息, 常常是那些崩溃前的消息.</P>
+                          <DT><SPAN class=term><SPAN>KERN_ALERT</SPAN></SPAN> 
+                          <DD>
+                          <P>需要立刻动作的情形.</P>
+                          <DT><SPAN class=term><SPAN>KERN_CRIT</SPAN></SPAN> 
+                          <DD>
+                          <P>严重情况, 常常与严重的硬件或者软件失效有关.</P>
+                          <DT><SPAN class=term><SPAN>KERN_ERR</SPAN></SPAN> 
+                          <DD>
+                          <P>用来报告错误情况; 设备驱动常常使用 KERN_ERR 来报告硬件故障.</P>
+                          <DT><SPAN class=term><SPAN>KERN_WARNING</SPAN></SPAN> 
+                          <DD>
+                          <P>有问题的情况的警告, 这些情况自己不会引起系统的严重问题.</P>
+                          <DT><SPAN class=term><SPAN>KERN_NOTICE</SPAN></SPAN> 
+                          <DD>
+                          <P>正常情况, 但是仍然值得注意. 在这个级别一些安全相关的情况会报告.</P>
+                          <DT><SPAN class=term><SPAN>KERN_INFO</SPAN></SPAN> 
+                          <DD>
+                          <P>信息型消息. 在这个级别, 很多驱动在启动时打印它们发现的硬件的信息.</P>
+                          <DT><SPAN class=term><SPAN>KERN_DEBUG</SPAN></SPAN> 
+                          <DD>
+                          <P>用作调试消息.</P></DD></DL></DIV>
+                        <P>每个字串( 在宏定义扩展里 )代表一个在角括号中的整数. 整数的范围从 0 到 7, 
+                        越小的数表示越大的优先级.</P>
+                        <P>一条没有指定优先级的 printk 语句缺省是 DEFAULT_MESSAGE_LOGLEVEL, 在 
+                        kernel/printk.c 里指定作为一个整数. 在 2.6.10 内核中, 
+                        DEFAULT_MESSAGE_LOGLEVEL 是 KERN_WARNING, 
+但是在过去已知是改变的.</P>
+                        <P>基于记录级别, 内核可能打印消息到当前控制台, 可能是一个文本模式终端, 串口, 或者是一台并口打印机. 
+                        如果优先级小于整型值 console_loglevel, 消息被递交给控制台, 一次一行( 
+                        除非提供一个新行结尾, 否则什么都不发送 ). 如果 klogd 和 syslogd 都在系统中运行, 
+                        内核消息被追加到 /var/log/messages (或者另外根据你的 syslogd 配置处理), 独立于 
+                        console_loglevel. 如果 klogd 没有运行, 你只有读 /proc/kmsg ( 用 
+                        dmsg 命令最易做到 )将消息取到用户空间. 当使用 klogd 时, 你应当记住, 
+                        它不会保存连续的同样的行; 它只保留第一个这样的行, 随后是, 它收到的重复行数.</P>
+                        <P>变量 console_loglevel 初始化成 DEFAULT_CONSOLE_LOGLEVEL, 
+                        并且可通过 sys_syslog 系统调用修改. 一种修改它的方法是在调用 klogd 时指定 -c 开关, 在 
+                        klogd 的 manpage 里有指定. 注意要改变当前值, 你必须先杀掉 klogd, 接着使用 -c 
+                        选项重启它. 另外, 你可写一个程序来改变控制台记录级别. 你会发现这样一个程序的版本在由 O' Reilly 
+                        提供的 FTP 站点上的 miscprogs/setlevel.c. 新的级别指定未一个整数, 在 1 和 8 
+                        之前, 包含 1 和 8. 如果它设为 1, 只有 0 级消息( KERN_EMERG )到达控制台; 
+                        如果它设为 8, 所有消息, 包括调试消息, 都显示.</P>
+                        <P>也可以通过文本文件 /proc/sys/kernel/printk 读写控制台记录级别. 这个文件有 4 
+                        个整型值: 当前记录级别, 适用没有明确记录级别的消息的缺省级别, 允许的最小记录级别, 
+                        以及启动时缺省记录级别. 写一个单个值到这个文件就改变当前记录级别成这个值; 因此, 例如, 
+                        你可以使所有内核消息出现在控制台, 通过简单地输入:</P><PRE class=screen> # echo 8 &gt; /proc/sys/kernel/printk </PRE>
+                        <P>现在应当清楚了为什么 hello.c 例子使用 KERN_ALERT 标志; 
+                        它们是要确保消息会出现在控制台上.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=RedirectingConsoleMessages></A>4.2.2.&nbsp;重定向控制台消息</H3></DIV></DIV></DIV>
+                        <P>Linux 在控制台记录策略上允许一些灵活性, 
+                        它允许你发送消息到一个指定的虚拟控制台(如果你的控制台使用的是文本屏幕). 缺省地, 
+                        这个"控制台"是当前虚拟终端. 为了选择一个不同地虚拟终端来接收消息, 你可对任何控制台设备调用 
+                        ioctl(TIOCLINUX). 下面的程序, setconsole, 可以用来选择哪个控制台接收内核消息; 
+                        它必须由超级用户运行, 可以从 misc-progs 目录得到.</P>
+                        <P>下面是全部程序. 应当使用一个参数来指定用以接收消息的控制台的编号.</P><PRE class=programlisting>int main(int argc, char **argv)
+{
+    char bytes[2] = {11,0}; /* 11 is the TIOCLINUX cmd number */
+    if (argc==2) bytes[1] = atoi(argv[1]); /* the chosen console */
+    else {
+
+        fprintf(stderr, "%s: need a single arg\n",argv[0]); exit(1); } if (ioctl(STDIN_FILENO, TIOCLINUX, bytes)&lt;0) { /* use stdin */
+        fprintf(stderr,"%s: ioctl(stdin, TIOCLINUX): %s\n",
+                argv[0], strerror(errno));
+        exit(1);
+    }
+    exit(0);
+}
+</PRE>
+                        <P>setconsole 使用特殊的 ioctl 命令 TIOCLINUX, 来实现特定于 linux 
+                        的功能. 为使用 TIOCLINUX, 你传递它一个指向字节数组的指针作为参数. 数组的第一个字节是一个数, 
+                        指定需要的子命令, 下面的字节是特对于子命令的. 在 setconsole 里, 使用子命令 11, 
+                        下一个字节(存于 bytes[1])指定虚拟控制台. TIOCLINUX 的完整描述在内核源码的 
+                        drivers/char/tty_io.c 里.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=HowMessageGetLogged></A>4.2.3.&nbsp;消息是如何记录的</H3></DIV></DIV></DIV>
+                        <P>printk 函数将消息写入一个 __LOG_BUF_LEN 字节长的环形缓存, 长度值从 4 KB 到 
+                        1 MB, 由配置内核时选择. 这个函数接着唤醒任何在等待消息的进程, 就是说, 任何在系统调用中睡眠或者在读取 
+                        /proc/kmsg 的进程. 这 2 个日志引擎的接口几乎是等同的, 但是注意, 从 /proc/kmsg 
+                        中读取是从日志缓存中消费数据, 然而 syslog 系统调用能够选择地在返回日志数据地同时保留它给其他进程. 
+                        通常, 读取 /proc 文件容易些并且是 klogd 的缺省做法. dmesg 命令可用来查看缓存的内容, 
+                        不会冲掉它; 实际上, 这个命令将缓存区的整个内容返回给 stdout, 不管它是否已经被读过.</P>
+                        <P>在停止 klogd 后, 如果你偶尔手工读取内核消息, 你会发现 /proc 看起来象一个 FIFO, 
+                        读者阻塞在里面, 等待更多数据. 显然, 你无法以这种方式读消息, 如果 klogd 
+                        或者其他进程已经在读同样的数据, 因为你要竞争它.</P>
+                        <P>如果环形缓存填满, printk 绕回并在缓存的开头增加新数据, 覆盖掉最老的数据. 因此, 
+                        这个记录过程会丢失最老的数据. 这个问题相比于使用这样一个环形缓存的优点是可以忽略的. 例如, 
+                        环形缓存允许系统即便没有一个日志进程也可运行, 在没有人读它的时候可以通过覆盖旧数据浪费最少的内存. Linux 
+                        对于消息的解决方法的另一个特性是, printk 可以从任何地方调用, 甚至从一个中断处理里面, 
+                        没有限制能打印多少数据. 唯一的缺点是可能丢失一些数据.</P>
+                        <P>如果 klogd 进程在运行, 它获取内核消息并分发给 syslogd, syslogd 接着检查 
+                        /etc/syslog.conf 来找出如何处理它们. syslogd 根据一个设施和一个优先级来区分消息; 
+                        这个设施和优先级的允许值在 &lt;sys/syslog.h&gt; 中定义. 内核消息由 LOG_KERN 
+                        设施来记录, 在一个对应于 printk 使用的优先级上(例如, LOG_ERR 用于 KERN_ERR 
+                        消息). 如果 klogd 没有运行, 数据保留在环形缓存中直到有人读它或者缓存被覆盖.</P>
+                        <P>如果你要避免你的系统被来自你的驱动的监视消息击垮, 你或者给 klogd 指定一个 -f (文件) 
+                        选项来指示它保存消息到一个特定的文件, 或者定制 /etc/syslog.conf 来适应你的要求. 
+                        但是另外一种可能性是采用粗暴的方式: 杀掉 klogd 
+                        和详细地打印消息在一个没有用到的虚拟终端上,<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch04s02.html#ftn.id420973" 
+                        name=id420973><FONT color=#0000ff>13</FONT></A>]</SUP> 
+                        或者从一个没有用到的 xterm 上发出命令 cat /proc/kmsg.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TurningtheMessagesOnandOff></A>4.2.4.&nbsp;打开和关闭消息</H3></DIV></DIV></DIV>
+                        <P>在驱动开发的早期, printk 非常有助于调试和测试新代码. 当你正式发行驱动时, 换句话说, 
+                        你应当去掉, 或者至少关闭, 这些打印语句. 不幸的是, 你很可能会发现, 
+                        就在你认为你不再需要这些消息并去掉它们时, 你要在驱动中实现一个新特性(或者有人发现了一个 bug), 
+                        你想要至少再打开一个消息. 有几个方法来解决这 2 个问题, 
+                        全局性地打开或关闭你地调试消息和打开或关闭单个消息.</P>
+                        <P>这里我们展示一种编码 printk 调用的方法, 你可以单独或全局地打开或关闭它们; 
+                        这个技术依靠定义一个宏, 在你想使用它时就转变成一个 printk (或者 printf)调用.</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>每个 printk 语句可以打开或关闭, 通过去除或添加单个字符到宏定义的名子.</P>
+                          <LI>
+                          <P>所有消息可以马上关闭, 通过在编译前改变 CFLAGS 变量的值.</P>
+                          <LI>
+                          <P>同一个 print 语句可以在内核代码和用户级代码中使用, 因此对于格外的消息, 
+                          驱动和测试程序能以同样的方式被管理.</P></LI></UL></DIV>
+                        <P>下面的代码片断实现了这些特性, 直接来自头文件 scull.h:</P><PRE class=programlisting>#undef PDEBUG /* undef it, just in case */
+#ifdef SCULL_DEBUG
+# ifdef __KERNEL__
+
+/* This one if debugging is on, and kernel space */
+# define PDEBUG(fmt, args...) printk( KERN_DEBUG "scull: " fmt, ## args)
+# else
+
+/* This one for user space */
+# define PDEBUG(fmt, args...) fprintf(stderr, fmt, ## args)
+# endif
+#else
+# define PDEBUG(fmt, args...) /* not debugging: nothing */
+#endif
+
+#undef PDEBUGG #define PDEBUGG(fmt, args...) /* nothing: it's a placeholder */
+</PRE>
+                        <P>符号 PDEBUG 定义和去定义, 取决于 SCULL_DEBUG 是否定义, 
+                        和以何种方式显示消息适合代码运行的环境: 当它在内核中就使用内核调用 printk, 在用户空间运行就使用 
+                        libc 调用 fprintf 到标准错误输出. PDEBUGG 符号, 换句话说, 什么不作; 
+                        他可用来轻易地"注释" print 语句, 而不用完全去掉它们.</P>
+                        <P>为进一步简化过程, 添加下面的行到你的 makfile 里:</P><PRE class=screen># Comment/uncomment the following line to disable/enable debugging
+DEBUG = y
+
+# Add your debugging flag (or not) to CFLAGS
+ifeq ($(DEBUG),y)
+ DEBFLAGS = -O -g -DSCULL_DEBUG # "-O" is needed to expand inlines
+else
+ DEBFLAGS = -O2
+endif
+
+CFLAGS += $(DEBFLAGS) 
+</PRE>
+                        <P>本节中出现的宏定义依赖 gcc 对 ANSI C 预处理器的扩展, 支持带可变个数参数的宏定义. 这个 
+                        gcc 依赖不应该是个问题, 因为无论如何内核固有的非常依赖于 gcc 特性. 另外, makefile 依赖 
+                        GNU 版本的 make; 再一次, 内核也依赖 GNU make, 所以这个依赖不是问题.</P>
+                        <P>如果你熟悉 C 预处理器, 你可以扩展给定的定义来实现一个"调试级别"的概念, 定义不同的级别, 
+                        安排一个整数(或者位掩码)值给每个级别, 以便决定它应当多么详细.</P>
+                        <P>但是每个驱动有它自己的特性和监视需求. 好的编程技巧是在灵活性和效率之间选择最好的平衡, 
+                        我们无法告诉你什么是最好的. 记住, 预处理器条件(连同代码中的常数表达式)在编译时执行, 
+                        因此你必须重新编译来打开或改变消息. 一个可能的选择是使用 C 条件句, 它在运行时执行, 因而, 
+                        能允许你在出现执行时打开或改变消息机制. 这是一个好的特性, 但是它在每次代码执行时需要额外的处理, 
+                        这样即便消息给关闭了也会影响效率. 有时这个效率损失无法接受.</P>
+                        <P>本节出现的宏定义已经证明在多种情况下是有用的, 
+                        唯一的缺点是要求在任何对它的消息改变后重新编译.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=RateLimiting></A>4.2.5.&nbsp;速率限制</H3></DIV></DIV></DIV>
+                        <P>如果你不小心, 你会发现自己用 printk 产生了上千条消息, 压倒了控制台并且, 可能地, 
+                        使系统日志文件溢出. 当使用一个慢速控制台设备(例如, 一个串口), 
+                        过量的消息速率也能拖慢系统或者只是使它不反应了. 非常难于着手于系统出错的地方, 当控制台不停地输出数据. 
+                        因此, 你应当非常注意你打印什么, 特别在驱动的产品版本以及特别在初始化完成后. 通常, 
+                        产品代码在正常操作时不应当打印任何东西; 打印的输出应当是指示需要注意的异常情况.</P>
+                        <P>另一方面, 你可能想发出一个日志消息, 如果你驱动的设备停止工作. 但是你应当小心不要做过了头. 
+                        一个面对失败永远继续的傻瓜进程能产生每秒上千次的尝试; 如果你的驱动每次都打印"my device is 
+                        broken", 它可能产生大量的输出, 如果控制台设备慢就有可能霸占 CPU -- 没有中断用来驱动控制台, 
+                        就算是一个串口或者一个行打印机.</P>
+                        <P>在很多情况下, 最好的做法是设置一个标志说, "我已经抱怨过这个了", 
+                        并不打印任何后来的消息只要这个标志设置着. 然而, 有几个理由偶尔发出一个"设备还是坏的"的提示. 
+                        内核已经提供了一个函数帮助这个情况:</P><PRE class=programlisting>int printk_ratelimit(void); 
+</PRE>
+                        <P>这个函数应当在你认为打印一个可能会常常重复的消息之前调用. 如果这个函数返回非零值, 继续打印你的消息, 
+                        否则跳过它. 这样, 典型的调用如这样:</P><PRE class=programlisting>if (printk_ratelimit())
+    printk(KERN_NOTICE "The printer is still on fire\n");
+</PRE>
+                        <P>printk_ratelimit 通过跟踪多少消息发向控制台而工作. 当输出级别超过一个限度, 
+                        printk_ratelimit 开始返回 0 并使消息被扔掉.</P>
+                        <P>printk_ratelimit 的行为可以通过修改 
+                        /proc/sys/kern/printk_ratelimit( 在重新使能消息前等待的秒数 ) 和 
+                        /proc/sys/kernel/printk_ratelimit_burst(限速前可接收的消息数)来定制.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=PrintingDeviceNumbers></A>4.2.6.&nbsp;打印设备编号</H3></DIV></DIV></DIV>
+                        <P>偶尔地, 当从一个驱动打印消息, 你会想打印与感兴趣的硬件相关联的设备号. 打印主次编号不是特别难, 
+                        但是, 为一致性考虑, 内核提供了一些实用的宏定义( 在 &lt;linux/kdev_t.h&gt; 
+                        中定义)用于这个目的:</P><PRE class=programlisting>int print_dev_t(char *buffer, dev_t dev); 
+char *format_dev_t(char *buffer, dev_t dev);
+</PRE>
+                        <P>两个宏定义都将设备号编码进给定的缓冲区; 唯一的区别是 print_dev_t 返回打印的字符数, 而 
+                        format_dev_t 返回缓存区; 因此, 它可以直接用作 printk 调用的参数, 但是必须记住 
+                        printk 只有提供一个结尾的新行才会刷行. 缓冲区应当足够大以存放一个设备号; 如果 64 
+                        位编号在以后的内核发行中明显可能, 这个缓冲区应当可能至少是 20 字节长.</P></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch04s02.html#id420973" 
+                        name=ftn.id420973><FONT color=#0000ff>13</FONT></A>] 
+                        </SUP>* 例如, 使用 setlevel 8; setconsole 10 来配置终端 10 
+                        来显示消息.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=DebuggingbyQuerying></A>4.3.&nbsp;用查询来调试</H2></DIV></DIV></DIV>
+                        <P>前面一节描述了 printk 是任何工作的以及怎样使用它. 没有谈到的是它的缺点.</P>
+                        <P>大量使用 printk 能够显著地拖慢系统, 即便你降低 cosole_loglevel 
+                        来避免加载控制台设备, 因为 syslogd 会不停地同步它的输出文件; 因此, 
+                        要打印的每一行都引起一次磁盘操作. 从 syslogd 的角度这是正确的实现. 它试图将所有东西写到磁盘上, 
+                        防止系统刚好在打印消息后崩溃; 然而, 你不想只是为了调试信息的原因而拖慢你的系统. 可以在出现于 
+                        /etc/syslogd.conf 中的你的日志文件名前加一个连字号来解决这个问题<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch04s03.html#ftn.id421348" 
+                        name=id421348><FONT color=#0000ff>14</FONT></A>]</SUP>. 
+                        改变配置文件带来的问题是, 这个改变可能在你结束调试后保留在那里, 
+                        即便在正常系统操作中你确实想尽快刷新消息到磁盘. 这样永久改变的另外的选择是运行一个非 klogd 程序( 例如 
+                        cat /proc/kmsg, 如之前建议的), 但是这可能不会提供一个合适的环境给正常的系统操作.</P>
+                        <P>经常地, 最好的获得相关信息的方法是查询系统, 在你需要消息时, 不是连续地产生数据. 实际上, 每个 
+                        Unix 系统提供许多工具来获取系统消息: ps, netstat, vmstat, 等等.</P>
+                        <P>有几个技术给驱动开发者来查询系统: 创建一个文件在 /proc 文件系统下, 使用 ioctl 驱动方法, 
+                        借助 sysfs 输出属性. 使用 sysfs 需要不少关于驱动模型的背景知识. 在 14 章讨论.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=UsingtheprocFilesystem></A>4.3.1.&nbsp;使用 /proc 
+                        文件系统</H3></DIV></DIV></DIV>
+                        <P>/proc文件系统是一个特殊的软件创建的文件系统, 内核用来输出消息到外界. /proc 
+                        下的每个文件都绑到一个内核函数上, 当文件被读的时候即时产生文件内容. 我们已经见到一些这样的文件起作用; 
+                        例如, /proc/modules, 常常返回当前已加载的模块列表.</P>
+                        <P>/proc 在 Linux 系统中非常多地应用. 很多现代 Linux 发布中的工具, 例如 ps, 
+                        top, 以及 uptime, 从 /proc 中获取它们的信息. 一些设备驱动也通过 /proc 输出信息, 
+                        你的也可以这样做. /proc 文件系统是动态的, 因此你的模块可以在任何时候添加或去除条目.</P>
+                        <P>完全特性的 /proc 条目可能是复杂的野兽; 另外, 它们可写也可读, 但是, 大部分时间, /proc 
+                        条目是只读的文件. 本节只涉及简单的只读情况. 那些感兴趣于实现更复杂的东西的人可以从这里获取基本知识; 
+                        接下来可参考内核源码来获知完整的信息.</P>
+                        <P>在我们继续之前, 我们应当提及在 /proc 下添加文件是不鼓励的. /proc 
+                        文件系统在内核开发者看作是有点无法控制的混乱, 它已经远离它的本来目的了(是提供关于系统中运行的进程的信息). 
+                        建议新代码中使信息可获取的方法是利用 sysfs. 如同建议的, 使用 sysfs 需要对 Linux 
+                        设备模型的理解, 然而, 我们直到 14 章才接触它. 同时, /proc 下的文件稍稍容易创建, 
+                        并且它们完全适合调试目的, 所以我们在这里包含它们.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Implementingfileinproc></A>4.3.1.1.&nbsp;在 /proc 
+                        里实现文件</H4></DIV></DIV></DIV>
+                        <P>所有使用 /proc 的模块应当包含 &lt;linux/proc_fs.h&gt; 
+                        来定义正确的函数.</P>
+                        <P>要创建一个只读 /proc 文件, 你的驱动必须实现一个函数来在文件被读时产生数据. 
+                        当某个进程读文件时(使用 read 系统调用), 这个请求通过这个函数到达你的模块. 
+                        我们先看看这个函数并在本章后面讨论注册接口.</P>
+                        <P>当一个进程读你的 /proc 文件, 内核分配了一页内存(就是说, PAGE_SIZE 字节), 
+                        驱动可以写入数据来返回给用户空间. 那个缓存区传递给你的函数, 是一个称为 read_proc 的方法:</P><PRE class=programlisting>				int (*read_proc)(char *page, char **start, off_t offset, int count, int *eof, void *data);
+</PRE>
+                        <P>page 指针是你写你的数据的缓存区; start 
+                        是这个函数用来说有关的数据写在页中哪里(下面更多关于这个); offset 和 count 对于 read 
+                        方法有同样的含义. eof 参数指向一个整数, 必须由驱动设置来指示它不再有数据返回, data 
+                        是驱动特定的数据指针, 你可以用做内部用途.</P>
+                        <P>这个函数应当返回实际摆放于 page 缓存区的数据的字节数, 就象 read 方法对别的文件所作一样. 
+                        别的输出值是 *eof 和 *start. eof 是一个简单的标志, 但是 start 值的使用有些复杂; 
+                        它的目的是帮助实现大的(超过一页) /proc 文件.</P>
+                        <P>start 参数有些非传统的用法. 它的目的是指示哪里(哪一页)找到返回给用户的数据. 当调用你的 
+                        proc_read 方法, *start 将会是 NULL. 如果你保持它为 NULL, 内核假定数据已放进 
+                        page 偏移是 0; 换句话说, 它假定一个头脑简单的 proc_read 版本, 它安放虚拟文件的整个内容到 
+                        page, 没有注意 offset 参数. 如果, 相反, 你设置 *start 为一个 非NULL 值, 
+                        内核认为由 *start 指向的数据考虑了 offset, 并且准备好直接返回给用户. 通常, 
+                        返回少量数据的简单 proc_read 方法只是忽略 start. 更复杂的方法设置 *start 为 page 
+                        并且只从请求的 offset 那里开始安放数据.</P>
+                        <P>还有一段距离到 /proc 文件的另一个主要问题, 它也打算解答 start. 有时内核数据结构的 
+                        ASCII 表示在连续的 read 调用中改变, 因此读进程可能发现从一个调用到下一个有不一致的数据. 如果 
+                        *start 设成一个小的整数值, 调用者用它来递增 filp-&lt;f_pos 不依赖你返回的数据量, 
+                        因此使 f_pos 成为你的 read_proc 过程的一个内部记录数. 如果, 例如, 如果你的 
+                        read_proc 函数从一个大结构数组返回信息并且第一次调用返回了 5 个结构, *start可设成5. 
+                        下一个调用提供同一个数作为 offset; 驱动就知道从数组中第 6 个结构返回数据. 
+                        这是被它的作者承认的一个" hack ", 可以在 fs/proc/generic.c 见到.</P>
+                        <P>注意, 有更好的方法实现大的 /proc 文件; 它称为 seq_file, 我们很快会讨论它. 首先, 
+                        然而, 是时间举个例子了. 下面是一个简单的(有点丑陋) read_proc 实现, 为 scull 
+                        设备:</P><PRE class=programlisting>int scull_read_procmem(char *buf, char **start, off_t offset, int count, int *eof, void *data)
+{
+    int i, j, len = 0;
+    int limit = count - 80; /* Don't print more than this */
+
+    for (i = 0; i &lt; scull_nr_devs &amp;&amp; len &lt;= limit; i++) {
+        struct scull_dev *d = &amp;scull_devices[i];
+        struct scull_qset *qs = d-&gt;data;
+        if (down_interruptible(&amp;d-&gt;sem))
+            return -ERESTARTSYS;
+        len += sprintf(buf+len,"\nDevice %i: qset %i, q %i, sz %li\n", i, d-&gt;qset, d-&gt;quantum, d-&gt;size);
+        for (; qs &amp;&amp; len &lt;= limit; qs = qs-&gt;next) { /* scan the list */
+            len += sprintf(buf + len, " item at %p, qset at %p\n", qs, qs-&gt;data);
+            if (qs-&gt;data &amp;&amp; !qs-&gt;next) /* dump only the last item */
+                for (j = 0; j &lt; d-&gt;qset; j++) {
+                    if (qs-&gt;data[j])
+                        len += sprintf(buf + len, " % 4i: %8p\n", j, qs-&gt;data[j]);
+                }
+        }
+        up(&amp;scull_devices[i].sem);
+
+    }
+    *eof = 1;
+    return len;
+
+}
+</PRE>
+                        <P>这是一个相当典型的 read_proc 实现. 它假定不会有必要产生超过一页数据并且因此忽略了 start 
+                        和 offset 值. 它是, 但是, 小心地不覆盖它的缓存, 只是以防万一.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Anolderinterface></A>4.3.1.2.&nbsp;老接口</H4></DIV></DIV></DIV>
+                        <P>如果你阅览内核源码, 你会遇到使用老接口实现 /proc 的代码:</P><PRE class=programlisting>int (*get_info)(char *page, char **start, off_t offset, int count); 
+</PRE>
+                        <P>所有的参数的含义同 read_proc 的相同, 但是没有 eof 和 data 参数. 
+                        这个接口仍然支持, 但是将来会消失; 新代码应当使用 read_proc 接口来代替.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Creatingyourprocfile></A>4.3.1.3.&nbsp;创建你的 /proc 
+                        文件</H4></DIV></DIV></DIV>
+                        <P>一旦你有一个定义好的 read_proc 函数, 你应当连接它到 /proc 层次中的一个入口项. 
+                        使用一个 creat_proc_read_entry 调用:</P><PRE class=programlisting>struct proc_dir_entry *create_proc_read_entry(const char *name,mode_t mode, struct proc_dir_entry *base, read_proc_t *read_proc, void *data); 
+ </PRE>
+                        <P>这里, name 是要创建的文件名子, mod 是文件的保护掩码(缺省系统范围时可以作为 0 传递), 
+                        base 指出要创建的文件的目录( 如果 base 是 NULL, 文件在 /proc 根下创建 ), 
+                        read_proc 是实现文件的 read_proc 函数, data 被内核忽略( 但是传递给 
+                        read_proc). 这就是 scull 使用的调用, 来使它的 /proc 函数可用做 
+                        /proc/scullmem:</P><PRE class=programlisting>create_proc_read_entry("scullmem", 0 /* default mode */,
+                       NULL /* parent dir */, scull_read_procmem,
+                       NULL /* client data */);
+</PRE>
+                        <P>这里, 我们创建了一个名为 scullmem 的文件, 直接在 /proc 下, 带有缺省的, 
+                        全局可读的保护.</P>
+                        <P>目录入口指针可用来在 /proc 下创建整个目录层次. 但是, 注意, 一个入口放在 /proc 
+                        的子目录下会更容易, 通过简单地给出目录名子作为这个入口名子的一部分 -- 只要这个目录自身已经存在. 例如, 
+                        一个(常常被忽略)传统的是 /proc 中与设备驱动相连的入口应当在 driver/ 子目录下; scull 
+                        能够安放它的入口在那里, 简单地通过指定它为名子 driver/scullmem.</P>
+                        <P>/proc 中的入口, 当然, 应当在模块卸载后去除. remove_proc_entry 是恢复 
+                        create_proc_read_entry 所做的事情的函数:</P><PRE class=programlisting>remove_proc_entry("scullmem", NULL /* parent dir */); 
+</PRE>
+                        <P>去除入口失败会导致在不希望的时间调用, 或者, 如果你的模块已被卸载, 内核崩掉.</P>
+                        <P>当如展示的使用 /proc 文件, 你必须记住几个实现的麻烦事 -- 不要奇怪现在不鼓励使用它.</P>
+                        <P>最重要的问题是关于去除 /proc 入口. 这样的去除很可能在文件使用时发生, 因为没有所有者关联到 
+                        /proc 入口, 因此使用它们不会作用到模块的引用计数. 这个问题可以简单的触发, 例如通过运行 sleep 
+                        100 &lt; /proc/myfile, 刚好在去除模块之前.</P>
+                        <P>另外一个问题时关于用同样的名子注册两个入口. 内核信任驱动, 不会检查名子是否已经注册了, 
+                        因此如果你不小心, 你可能会使用同样的名子注册两个或多个入口. 这是一个已知发生在教室中的问题, 
+                        这样的入口是不能区分的, 不但在你存取它们时, 而且在你调用 remove_proc_entry 
+                        时.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Theseqfileinterface></A>4.3.1.4.&nbsp;seq_file 
+                        接口</H4></DIV></DIV></DIV>
+                        <P>如我们上面提到的, 在 /proc 下的大文件的实现有点麻烦. 一直以来, /proc 
+                        方法因为当输出数量变大时的错误实现变得声名狼藉. 作为一种清理 /proc 
+                        代码以及使内核开发者活得轻松些的方法, 添加了 seq_file 接口. 
+                        这个接口提供了简单的一套函数来实现大内核虚拟文件.</P>
+                        <P>set_file 接口假定你在创建一个虚拟文件, 它涉及一系列的必须返回给用户空间的项. 为使用 
+                        seq_file, 你必须创建一个简单的 "iterator" 对象, 它能在序列里建立一个位置, 向前进, 
+                        并且输出序列里的一个项. 它可能听起来复杂, 但是, 实际上, 过程非常简单. 我们一步步来创建 /proc 
+                        文件在 scull 驱动里, 来展示它是如何做的.</P>
+                        <P>第一步, 不可避免地, 是包含 &lt;linux/seq_file.h&gt;. 接着你必须创建 4 个 
+                        iterator 方法, 称为 start, next, stop, 和 show.</P>
+                        <P>start 方法一直是首先调用. 这个函数的原型是:</P><PRE class=programlisting>void *start(struct seq_file *sfile, loff_t *pos);
+</PRE>
+                        <P>sfile 参数可以几乎是一直被忽略. pos 是一个整型位置值, 指示应当从哪里读. 
+                        位置的解释完全取决于实现; 在结果文件里不需要是一个字节位置. 因为 seq_file 
+                        实现典型地步进一系列感兴趣的项, position 常常被解释为指向序列中下一个项的指针. scull 
+                        驱动解释每个设备作为系列中的一项, 因此进入的 pos 简单地是一个 scull_device 数组的索引. 
+                        因此, scull 使用的 start 方法是:</P><PRE class=programlisting>static void *scull_seq_start(struct seq_file *s, loff_t *pos)
+{
+    if (*pos &gt;= scull_nr_devs)
+        return NULL;  /* No more to read */
+    return scull_devices + *pos;
+}
+</PRE>
+                        <P>返回值, 如果非NULL, 是一个可以被 iterator 实现使用的私有值.</P>
+                        <P>next 函数应当移动 iterator 到下一个位置, 如果序列里什么都没有剩下就返回 NULL. 
+                        这个方法的原型是:</P><PRE class=programlisting>void *next(struct seq_file *sfile, void *v, loff_t *pos); 
+</PRE>
+                        <P>这里, v 是从前一个对 start 或者 next 的调用返回的 iterator, pos 
+                        是文件的当前位置. next 应当递增有 pos 指向的值; 根据你的 iterator 是如何工作的, 
+                        你可能(尽管可能不会)需要递增 pos 不止是 1. 这是 scull 所做的:</P><PRE class=programlisting>static void *scull_seq_next(struct seq_file *s, void *v, loff_t *pos)
+{
+    (*pos)++;
+    if (*pos &gt;= scull_nr_devs)
+        return NULL;
+    return scull_devices + *pos;
+}
+</PRE>
+                        <P>当内核处理完 iterator, 它调用 stop 来清理:</P><PRE class=programlisting>void stop(struct seq_file *sfile, void *v); 
+</PRE>
+                        <P>scull 实现没有清理工作要做, 所以它的 stop 方法是空的.</P>
+                        <P>设计上, 值得注意 seq_file 代码在调用 start 和 stop 
+                        之间不睡眠或者进行其他非原子性任务. 你也肯定会看到在调用 start 后马上有一个 stop 调用. 因此, 
+                        对你的 start 方法来说请求信号量或自旋锁是安全的. 只要你的其他 seq_file 方法是原子的, 
+                        调用的整个序列是原子的. (如果这一段对你没有意义, 在你读了下一章后再回到这.)</P>
+                        <P>在这些调用中, 内核调用 show 方法来真正输出有用的东西给用户空间. 这个方法的原型是:</P><PRE class=programlisting>int show(struct seq_file *sfile, void *v); 
+</PRE>
+                        <P>这个方法应当创建序列中由 iterator v 指示的项的输出. 不应当使用 printk, 但是; 
+                        有一套特殊的用作 seq_file 输出的函数:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>int seq_printf(struct 
+                          seq_file *sfile, const char *fmt, ...);</SPAN></SPAN> 
+                          <DD>
+                          <P>这是给 seq_file 实现的 printf 对等体; 它采用常用的格式串和附加值参数. 
+                          你必须也将给 show 函数的 set_file 结构传递给它, 然而. 如果seq_printf 
+                          返回非零值, 意思是缓存区已填充, 输出被丢弃. 大部分实现忽略了返回值, 但是.</P>
+                          <DT><SPAN class=term><SPAN>int seq_putc(struct 
+                          seq_file *sfile, char c);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int seq_puts(struct 
+                          seq_file *sfile, const char *s);</SPAN></SPAN> 
+                          <DD>
+                          <P>它们是用户空间 putc 和 puts 函数的对等体.</P>
+                          <DT><SPAN class=term><SPAN>int seq_escape(struct 
+                          seq_file *m, const char *s, const char 
+                          *esc);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数是 seq_puts 的对等体, 除了 s 中的任何也在 esc 
+                          中出现的字符以八进制格式打印. esc 的一个通用值是"\t\n\\", 
+                          它使内嵌的空格不会搞乱输出和可能搞乱 shell 脚本.</P>
+                          <DT><SPAN class=term><SPAN>int seq_path(struct 
+                          seq_file *sfile, struct vfsmount *m, struct dentry 
+                          *dentry, char *esc);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数能够用来输出和给定命令项关联的文件名子. 它在设备驱动中不可能有用; 
+                          我们是为了完整在此包含它.</P></DD></DL></DIV>
+                        <P>回到我们的例子; 在 scull 使用的 show 方法是:</P><PRE class=programlisting>static int scull_seq_show(struct seq_file *s, void *v)
+{
+    struct scull_dev *dev = (struct scull_dev *) v;
+    struct scull_qset *d;
+    int i;
+
+    if (down_interruptible (&amp;dev-&gt;sem))
+        return -ERESTARTSYS;
+
+    seq_printf(s, "\nDevice %i: qset %i, q %i, sz %li\n",
+               (int) (dev - scull_devices), dev-&gt;qset,
+               dev-&gt;quantum, dev-&gt;size);
+
+    for (d = dev-&gt;data; d; d = d-&gt;next) { /* scan the list */
+        seq_printf(s, " item at %p, qset at %p\n", d, d-&gt;data);
+        if (d-&gt;data &amp;&amp; !d-&gt;next) /* dump only the last item */
+
+            for (i = 0; i &lt; dev-&gt;qset; i++) {
+                if (d-&gt;data[i])
+                    seq_printf(s, " % 4i: %8p\n",
+                               i, d-&gt;data[i]);
+            }
+    }
+    up(&amp;dev-&gt;sem);
+    return 0;
+}
+</PRE>
+                        <P>这里, 我们最终解释我们的" iterator" 值, 简单地是一个 scull_dev 
+结构指针.</P>
+                        <P>现在已有了一个完整的 iterator 操作的集合, scull 必须包装起它们, 并且连接它们到 
+                        /proc 中的一个文件. 第一步是填充一个 seq_operations 结构:</P><PRE class=programlisting>static struct seq_operations scull_seq_ops = {
+ .start = scull_seq_start,
+ .next = scull_seq_next,
+ .stop = scull_seq_stop,
+ .show = scull_seq_show
+}; 
+</PRE>
+                        <P>有那个结构在, 我们必须创建一个内核理解的文件实现. 我们不使用前面描述过的 read_proc 方法; 
+                        在使用 seq_file 时, 最好在一个稍低的级别上连接到 /proc. 那意味着创建一个 
+                        file_operations 结构(是的, 和字符驱动使用的同样结构) 来实现所有内核需要的操作, 
+                        来处理文件上的读和移动. 幸运的是, 这个任务是简单的. 第一步是创建一个 open 方法连接文件到 
+                        seq_file 操作:</P><PRE class=programlisting>static int scull_proc_open(struct inode *inode, struct file *file)
+{
+    return seq_open(file, &amp;scull_seq_ops);
+}
+</PRE>
+                        <P>调用 seq_open 连接文件结构和我们上面定义的序列操作. 事实证明, open 
+                        是我们必须自己实现的唯一文件操作, 因此我们现在可以建立我们的 file_operations 结构:</P><PRE class=programlisting>static struct file_operations scull_proc_ops = {
+ .owner = THIS_MODULE,
+ .open = scull_proc_open,
+ .read = seq_read,
+ .llseek = seq_lseek,
+ .release = seq_release 
+}; 
+</PRE>
+                        <P>这里我们指定我们自己的 open 方法, 但是使用预装好的方法 seq_read, seq_lseek, 
+                        和 seq_release 给其他.</P>
+                        <P>最后的步骤是创建 /proc 中的实际文件:</P><PRE class=programlisting>entry = create_proc_entry("scullseq", 0, NULL);
+if (entry)
+    entry-&gt;proc_fops = &amp;scull_proc_ops;
+</PRE>
+                        <P>不是使用 create_proc_read_entry, 我们调用低层的 
+                        create_proc_entry, 我们有这个原型:</P><PRE class=programlisting>struct proc_dir_entry *create_proc_entry(const char *name,mode_t mode,struct proc_dir_entry *parent); 
+</PRE>
+                        <P>参数和它们的在 create_proc_read_entry 中的对等体相同: 文件名子, 它的位置, 
+                        以及父目录.</P>
+                        <P>有了上面代码, scull 有一个新的 /proc 入口, 看来很象前面的一个. 但是, 它是高级的, 
+                        因为它不管它的输出有多么大, 它正确处理移动, 并且通常它是易读和易维护的. 我们建议使用 seq_file , 
+                        来实现包含多个非常小数目的输出行数的文件.</P></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheioctlMethod.sect></A>4.3.2.&nbsp;ioctl 
+                        方法</H3></DIV></DIV></DIV>
+                        <P>ioctl, 我们在第 1 章展示给你如何使用, 是一个系统调用, 作用于一个文件描述符; 
+                        它接收一个确定要进行的命令的数字和(可选地)另一个参数, 常常是一个指针. 作为一个使用 /proc 
+                        文件系统的替代, 你可以实现几个用来调试用的 ioctl 命令. 
+                        这些命令可以从驱动拷贝相关的数据结构到用户空间, 这里你可以检查它们.</P>
+                        <P>这种方式使用 ioctl 来获取信息有些比使用 /proc 困难, 因为你需要另一个程序来发出 ioctl 
+                        并且显示结果. 必须编写这个程序, 编译, 并且与你在测试的模块保持同步. 另一方面, 
+                        驱动侧代码可能容易过需要实现一个 /proc 文件的代码.</P>
+                        <P>有时候 ioctl 是获取信息最好的方法, 因为它运行比读取 /proc 快. 
+                        如果在数据写到屏幕之前必须做一些事情, 获取二进制形式的数据比读取一个文本文件要更有效. 另外, ioctl 
+                        不要求划分数据为小于一页的片段.</P>
+                        <P>ioctl 方法的另一个有趣的优点是信息获取命令可留在驱动中, 当调试被禁止时. 
+                        不象对任何查看目录的人(并且太多人可能奇怪"这个怪文件是什么")都可见的 /proc 文件, 不记入文档的 
+                        ioctl 命令可能保持不为人知. 另外, 如果驱动发生了怪异的事情, 它们仍将在那里. 
+                        唯一的缺点是模块可能会稍微大些.</P></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch04s03.html#id421348" 
+                        name=ftn.id421348><FONT color=#0000ff>14</FONT></A>] 
+                        </SUP>连字号, 或者减号, 是一个"魔术"标识以阻止 syslogd 刷新文件到磁盘在每个新消息, 
+                        有关文档在 syslog.conf(5), 一个值得一读的 manpage.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=DebuggingbyWatching.sect></A>4.4.&nbsp;使用观察来调试</H2></DIV></DIV></DIV>
+                        <P>有时小问题可以通过观察用户空间的应用程序的行为来追踪. 监视程序也有助于建立对驱动正确工作的信心. 例如, 
+                        我们能够对 scull 感到有信心, 在看了它的读实现如何响应不同数量数据的读请求之后.</P>
+                        <P>有几个方法来监视用户空间程序运行. 你可以运行一个调试器来单步过它的函数, 增加打印语句, 或者在 
+                        strace 下运行程序. 这里, 我们将讨论最后一个技术, 当真正目的是检查内核代码时它是最有趣的.</P>
+                        <P>strace 命令时一个有力工具, 显示所有的用户空间程序发出的系统调用. 它不仅显示调用, 
+                        还以符号形式显示调用的参数和返回值. 当一个系统调用失败, 错误的符号值(例如, 
+                        ENOMEM)和对应的字串(Out of memory) 都显示. strace 有很多命令行选项; 
+                        其中最有用的是 -t 来显示每个调用执行的时间, -T 来显示调用中花费的时间, -e 来限制被跟踪调用的类型, 
+                        以及-o 来重定向输出到一个文件. 缺省地, strace 打印调用信息到 stderr.</P>
+                        <P>strace 从内核自身获取信息. 这意味着可以跟踪一个程序, 不管它是否带有调试支持编译(对 gcc 是 
+                        -g 选项)以及不管它是否 strip 过. 你也可以连接追踪到一个运行中的进程, 
+                        类似于一个调试器的方式连接到一个运行中的进程并控制它.</P>
+                        <P>跟踪信息常用来支持发给应用程序开发者的故障报告, 但是对内核程序员也是很有价值的. 
+                        我们已经看到驱动代码运行如何响应系统调用; strace 允许我们检查每个调用的输入和输出数据的一致性.</P>
+                        <P>例如, 下面的屏幕输出显示(大部分)运行命令 strace ls /dev &gt; 
+                        /dev/scull0 的最后的行:</P><PRE class=screen>open("/dev", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = 3
+fstat64(3, {st_mode=S_IFDIR|0755, st_size=24576, ...}) = 0
+
+fcntl64(3, F_SETFD, FD_CLOEXEC)  = 0  
+getdents64(3, /* 141 entries */, 4096)  = 4088  
+[...]  
+getdents64(3, /* 0 entries */, 4096)  = 0  
+close(3)  = 0  
+[...]  
+
+fstat64(1, {st_mode=S_IFCHR|0664, st_rdev=makedev(254, 0), ...}) = 0
+write(1, "MAKEDEV\nadmmidi0\nadmmidi1\nadmmid"..., 4096) = 4000
+write(1, "b\nptywc\nptywd\nptywe\nptywf\nptyx0\n"..., 96) = 96
+write(1, "b\nptyxc\nptyxd\nptyxe\nptyxf\nptyy0\n"..., 4096) = 3904
+write(1, "s17\nvcs18\nvcs19\nvcs2\nvcs20\nvcs21"..., 192) = 192
+write(1, "\nvcs47\nvcs48\nvcs49\nvcs5\nvcs50\nvc"..., 673) = 673
+close(1) = 0
+exit_group(0) = ?
+</PRE>
+                        <P>从第一个 write 调用看, 明显地, 在 ls 结束查看目标目录后, 它试图写 4KB. 
+                        奇怪地(对ls), 只有 4000 字节写入, 并且操作被重复. 但是, 我们知道 scull 
+                        中的写实现一次写一个单个量子, 因此我们本来就期望部分写. 几步之后, 所有东西清空, 程序成功退出.</P>
+                        <P>作为另一个例子, 让我们读取 scull 设备(使用 wc 命令):</P><PRE class=screen>[...]
+open("/dev/scull0", O_RDONLY|O_LARGEFILE) = 3
+fstat64(3, {st_mode=S_IFCHR|0664, st_rdev=makedev(254, 0), ...}) = 0
+read(3, "MAKEDEV\nadmmidi0\nadmmidi1\nadmmid"..., 16384) = 4000
+read(3, "b\nptywc\nptywd\nptywe\nptywf\nptyx0\n"..., 16384) = 4000
+read(3, "s17\nvcs18\nvcs19\nvcs2\nvcs20\nvcs21"..., 16384) = 865
+read(3, "", 16384) = 0
+fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 1), ...}) = 0
+write(1, "8865 /dev/scull0\n", 17) = 17
+close(3) = 0
+exit_group(0) = ?
+</PRE>
+                        <P>如同期望的, read 一次只能获取 4000 字节, 但是数据总量等同于前个例子写入的. 
+                        注意在这个例子里读取是如何组织的, 同前面跟踪的相反. wc 为快速读被优化过, 因此绕过了标准库, 
+                        试图一个系统调用读取更多数据. 你可从跟踪的读的行里看到 wc 是如何试图一次读取 16 KB.</P>
+                        <P>Linux 专家能够从 strace 的输出中发现更多有用信息. 如果你不想看到所有的符号, 你可使用 
+                        efile 标志来限制你自己仅查看文件方法是如何工作的.</P>
+                        <P>就个人而言, 我们发现 strace 对于查明系统调用的运行时错误是非常有用. 
+                        常常是应用程序或演示程序中的 perror 调用不足够详细, 
+                        并且能够确切说出哪个系统调用的哪个参数触发了错误是非常有帮助的.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=DebuggingSystemFaults.sect></A>4.5.&nbsp;调试系统故障</H2></DIV></DIV></DIV>
+                        <P>即便你已使用了所有的监视和调试技术, 有时故障还留在驱动里, 当驱动执行时系统出错. 当发生这个时, 
+                        能够收集尽可能多的信息来解决问题是重要的.</P>
+                        <P>注意"故障"不意味着"崩溃". Linux 
+                        代码是足够健壮地优雅地响应大部分错误:一个故障常常导致当前进程的破坏而系统继续工作. 系统可能崩溃, 
+                        如果一个故障发生在一个进程的上下文之外, 或者如果系统的一些至关重要的部分毁坏了. 
+                        但是当是一个驱动错误导致的问题, 它常常只会导致不幸使用驱动的进程的突然死掉. 
+                        当进程被销毁时唯一无法恢复的破坏是分配给进程上下文的一些内存丢失了; 例如, 驱动通过 kmalloc 
+                        分配的动态列表可能丢失. 但是, 因为内核为任何一个打开的设备在进程死亡时调用关闭操作, 你的驱动可以释放由 
+                        open 方法分配的东西.</P>
+                        <P>尽管一个 oops 常常都不会关闭整个系统, 你很有可能发现在发生一次后需要重启系统. 
+                        一个满是错误的驱动能使硬件处于不能使用的状态, 使内核资源处于不一致的状态, 或者, 最坏的情况, 
+                        在随机的地方破坏内核内存. 常常你可简单地卸载你的破驱动并且在一次 oops 后重试. 然而, 
+                        如果你看到任何东西建议说系统作为一个整体不太好了, 你最好立刻重启.</P>
+                        <P>我们已经说过, 当内核代码出错, 一个提示性的消息打印在控制台上. 下一节解释如何解释并利用这样的消息. 
+                        尽管它们对新手看来相当模糊, 处理器转储是很有趣的信息, 常常足够来查明一个程序错误而不需要附加的测试.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=OopsMessages.scet></A>4.5.1.&nbsp;oops 
+                        消息</H3></DIV></DIV></DIV>
+                        <P>大部分 bug 以解引用 NULL 指针或者使用其他不正确指针值来表现自己的. 此类 bug 
+                        通常的输出是一个 oops 消息.</P>
+                        <P>处理器使用的任何地址几乎都是一个虚拟地址, 
+                        通过一个复杂的页表结构映射为物理地址(例外是内存管理子系统自己使用的物理地址). 当解引用一个无效的指针, 
+                        分页机制无法映射指针到一个物理地址, 处理器发出一个页错误给操作系统. 如果地址无效, 
+                        内核无法"页入"缺失的地址; 它(常常)产生一个 oops 如果在处理器处于管理模式时发生这个情况.</P>
+                        <P>一个 oops 显示了出错时的处理器状态, 包括CPU 寄存器内容和其他看来不可理解的信息. 
+                        消息由错误处理的 printk 语句产生( arch/*/kernel/traps.c )并且如同前面 
+                        "printk" 一节中描述的被分派.</P>
+                        <P>我们看一个这样的消息. 这是来自在运行 2.6 内核的 PC 上一个 NULL 指针导致的结果. 
+                        这里最相关的信息是指令指针(EIP), 错误指令的地址.</P><PRE class=screen>Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:  
+d083a064  
+Oops: 0002 [#1]  
+SMP  
+CPU:  0  
+EIP:  0060:[&lt;d083a064&gt;]  Not tainted  
+EFLAGS: 00010246  (2.6.6)  
+EIP is at faulty_write+0x4/0x10 [faulty]  
+eax: 00000000  ebx: 00000000  ecx: 00000000  edx: 00000000  
+esi: cf8b2460  edi: cf8b2480  ebp: 00000005  esp: c31c5f74  
+ds: 007b  es: 007b  ss: 0068  
+
+Process bash (pid: 2086, threadinfo=c31c4000 task=cfa0a6c0) 
+Stack: c0150558 cf8b2460 080e9408 00000005 cf8b2480 00000000 cf8b2460 cf8b2460 fffffff7 080e9408 c31c4000 c0150682 cf8b2460 080e9408 00000005 cf8b2480 00000000 00000001 00000005 c0103f8f 00000001 080e9408 00000005 00000005 
+Call Trace:
+ [&lt;c0150558&gt;] vfs_write+0xb8/0x130
+ [&lt;c0150682&gt;] sys_write+0x42/0x70
+ [&lt;c0103f8f&gt;] syscall_call+0x7/0xb
+
+Code: 89 15 00 00 00 00 c3 90 8d 74 26 00 83 ec 0c b8 00 a6 83 d0 
+</PRE>
+                        <P>写入一个由坏模块拥有的设备而产生的消息, 一个故意用来演示失效的模块. faulty.c 的 write 
+                        方法的实现是琐细的:</P><PRE class=programlisting>ssize_t faulty_write (struct file *filp, const char __user *buf, size_t count, loff_t *pos)
+{
+        /* make a simple fault by dereferencing a NULL pointer */
+        *(int *)0 = 0;
+        return 0;
+}
+</PRE>
+                        <P>如你能见, 我们这里做的是解引用一个 NULL 指针. 因为 0 一直是一个无效的指针值, 一个错误发生, 
+                        由内核转变为前面展示的 oops 消息. 调用进程接着被杀掉.</P>
+                        <P>错误模块有不同的错误情况在它的读实现中:</P><PRE class=programlisting>ssize_t faulty_read(struct file *filp, char __user *buf, size_t count, loff_t *pos)
+{
+    int ret;
+    char stack_buf[4];
+
+    /* Let's try a buffer overflow */
+    memset(stack_buf, 0xff, 20);
+    if (count &gt; 4)
+
+        count = 4; /* copy 4 bytes to the user */
+    ret = copy_to_user(buf, stack_buf, count);
+    if (!ret)
+
+        return count;
+    return ret;
+}
+</PRE>
+                        <P>这个方法拷贝一个字串到一个本地变量; 不幸的是, 字串长于目的数组. 当函数返回时导致的缓存区溢出引起一次 
+                        oops . 因为返回指令使指令指针到不知何处, 这类的错误很难跟踪, 并且你得到如下的:</P><PRE class=programlisting>EIP: 0010:[&lt;00000000&gt;]
+Unable to handle kernel paging request at virtual address ffffffff
+
+ printing eip:  
+ffffffff  
+Oops: 0000 [#5]  
+SMP  
+CPU:  0  
+EIP:  0060:[&lt;ffffffff&gt;]  Not tainted  
+EFLAGS: 00010296  (2.6.6)  
+EIP is at 0xffffffff  
+eax: 0000000c  ebx: ffffffff  ecx: 00000000  edx: bfffda7c  
+esi: cf434f00  edi: ffffffff  ebp: 00002000  esp: c27fff78  
+ds: 007b  es: 007b  ss: 0068  
+
+Process head (pid: 2331, threadinfo=c27fe000 task=c3226150) 
+Stack: ffffffff bfffda70 00002000 cf434f20 00000001 00000286 cf434f00 fffffff7 bfffda70 c27fe000 c0150612 cf434f00 bfffda70 00002000 cf434f20 00000000 00000003 00002000 c0103f8f 00000003 bfffda70 00002000 00002000 bfffda70 
+Call Trace: [&lt;c0150612&gt;] sys_read+0x42/0x70 [&lt;c0103f8f&gt;] syscall_call+0x7/0xb 
+Code: Bad EIP value. 
+</PRE>
+                        <P>这个情况, 我们只看到部分的调用堆栈( vfs_read 和 faulty_read 丢失 ), 
+                        内核抱怨一个"坏 EIP 值". 这个抱怨和在开头列出的犯错的地址 ( ffffffff ) 
+                        都暗示内核堆栈已被破坏.</P>
+                        <P>通常, 当你面对一个 oops, 第一件事是查看发生问题的位置, 常常与调用堆栈分开列出. 
+                        在上面展示的第一个 oops, 相关的行是:</P><PRE class=screen>EIP is at faulty_write+0x4/0x10 [faulty] 
+</PRE>
+                        <P>这里我们看到, 我们曾在函数 faulty_write, 它位于 faulty 模块( 在方括号中列出的 
+                        ). 16 进制数指示指令指针是函数内 4 字节, 函数看来是 10 ( 16 进制 )字节长. 
+                        常常这就足够来知道问题是什么.</P>
+                        <P>如果你需要更多信息, 调用堆栈展示给你如何得知在哪里坏事的. 堆栈自己是 16 机制形式打印的; 
+                        做一点工作, 你经常可以从堆栈的列表中决定本地变量的值和函数参数. 
+                        有经验的内核开发者可以从这里的某些模式识别中获益; 例如, 如果你看来自 faulty_read oops 
+                        的堆栈列表:</P><PRE class=screen>Stack: ffffffff bfffda70 00002000 cf434f20 00000001 00000286 cf434f00 fffffff7
+ bfffda70 c27fe000 c0150612 cf434f00 bfffda70 00002000 cf434f20 00000000
+ 00000003 00002000 c0103f8f 00000003 bfffda70 00002000 00002000 bfffda70 
+</PRE>
+                        <P>堆栈顶部的 ffffffff 是我们坏事的字串的一部分. 在 x86 体系, 缺省地, 用户空间堆栈开始于 
+                        0xc0000000; 因此, 循环值 0xbfffda70 可能是一个用户堆栈地址; 实际上, 它是传递给 
+                        read 系统调用的缓存地址, 每次下传过系统调用链时都被复制. 在 x86 (又一次, 缺省地), 
+                        内核空间开始于 0xc0000000, 因此这个之上的值几乎肯定是内核空间的地址, 等等.</P>
+                        <P>最后, 当看一个 oops 列表, 一直监视本章开始讨论的"slab 毒害"值. 例如,如果你得到一个内核 
+                        oops, 里面的犯错地址时 0xa5a5a5a5a5, 你几乎肯定 - 某个地方在初始化动态内存.</P>
+                        <P>请注意, 只在你的内核是打开 CONFIG_KALLSYMS 选项而编译时可以看到符号的调用堆栈. 否则, 
+                        你见到一个裸的, 16 机制列表, 除非你以别的方式对其解码, 它是远远无用的.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=SystemHange.sect></A>4.5.2.&nbsp;系统挂起</H3></DIV></DIV></DIV>
+                        <P>尽管内核代码的大部分 bug 以 oops 消息结束, 有时候它们可能完全挂起系统. 如果系统挂起, 
+                        没有消息打印. 例如, 如果代码进入一个无限循环, 内核停止调度,<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch04s05.html#ftn.id422785" 
+                        name=id422785><FONT color=#0000ff>15</FONT></A>]</SUP> 
+                        并且系统不会响应任何动作, 包括魔术 Ctrl-Alt-Del 组合键. 你有 2 个选择来处理系统挂起-- 
+                        或者事先阻止它们, 或者能够事后调试它们.</P>
+                        <P>你可阻止无限循环通过插入 schedule 引用在战略点上. schedule 调用( 如你可能猜到的 
+                        )调度器, 因此, 允许别的进程从当前进程偷取 CPU 数据. 
+                        如果一个进程由于你的驱动的bug而在内核空间循环, schedule 
+                        调用使你能够杀掉进程在跟踪发生了什么之后.</P>
+                        <P>你应当知道, 当然, 如何对 schedule 的调用可能创造一个附加的重入调用源到你的驱动, 
+                        因为它允许别的进程运行. 这个重入正常地不应当是问题, 假定你在你的驱动中已经使用了合适的加锁. 然而, 
+                        要确认在你的驱动持有一个自旋锁的任何时间不能调用 schedule.</P>
+                        <P>如果你的驱动真正挂起了系统, 并且你不知道在哪里插入 schedule 调用, 
+                        最好的方式是加入一些打印消息并且写到控制台(如果需要, 改变 console_loglevel 值).</P>
+                        <P>有时候系统可能看来被挂起, 但是没有. 例如, 这可能发生在键盘以某个奇怪的方式保持锁住的时候. 
+                        这些假挂起可通过查看你为此目的运行的程序的输出来检测. 
+                        一个你的显示器上的时钟或者系统负载表是一个好的状态监控器; 只要他继续更新, 调度器就在工作.</P>
+                        <P>对许多的上锁一个必不可少的工具是"魔术 sysrq 键", 在大部分体系上都可用. 魔键 sysrq 是 
+                        PC 键盘上 alt 和 sysrq 键组合来发出的, 或者在别的平台上使用其他特殊键(详见 
+                        documentation/sysrq.txt), 在串口控制台上也可用. 一个第三键, 与这 2 个一起按下, 
+                        进行许多有用的动作中的一个:</P>
+                        <P>r 关闭键盘原始模式; 用在一个崩溃的应用程序( 例如 X 服务器 
+                        )可能将你的键盘搞成一个奇怪的状态.</P>
+                        <P>k 调用"安全注意键"( SAK ) 功能. SAK 杀掉在当前控制台的所有运行的进程, 
+                        给你一个干净的终端.</P>
+                        <P>s 进行一个全部磁盘的紧急同步.</P>
+                        <P>u umount. 试图重新加载所有磁盘在只读模式. 这个操作, 常常在 s 之后马上调用, 
+                        可以节省大量的文件系统检查时间, 在系统处于严重麻烦时.</P>
+                        <P>b boot. 立刻重启系统. 确认先同步和重新加载磁盘.</P>
+                        <P>p 打印处理器消息.</P>
+                        <P>t 打印当前任务列表.</P>
+                        <P>m 打印内存信息.</P>
+                        <P>有别的魔术 sysrq 功能存在; 完整内容看内核源码的文档目录中的 sysrq.txt. 注意魔术 
+                        sysrq 必须在内核配置中显式使能, 大部分的发布没有使能它, 因为明显的安全理由. 对于用来开发驱动的系统, 
+                        然而, 使能魔术 sysrq 值得为它自己建立一个新内核的麻烦. 魔术 sysrq 可能在运行时关闭, 
+                        使用如下的一个命令:</P>echo 0 &gt; /proc/sys/kernel/sysrq 
+                        <P>如果非特权用户能够接触你的系统键盘, 你应当考虑关闭它, 来阻止有意或无意的损坏. 
+                        一些以前的内核版本缺省关闭 sysrq, 因此你需要在运行时使能它, 通过向同样的 /proc/sys 文件写入 
+                        1.</P>
+                        <P>sysrq 操作是非常有用, 因此它们已经对不能接触到控制台的系统管理员可用. 文件 
+                        /proc/sysrq-trigger 是一个只写的入口点, 这里你可以触发一个特殊的 sysrq 动作, 
+                        通过写入关联的命令字符; 接着你可收集内核日志的任何输出数据. 这个 sysrq 的入口点是一直工作的, 即便 
+                        sysrq 在控制台上被关闭.</P>
+                        <P>如果你经历一个"活挂", 就是你的驱动粘在一个循环中, 但是系统作为一个整体功能正常, 
+                        有几个技术值得了解. 经常地, sysrq p 功能直接指向出错的函数. 如果这个不行, 
+                        你还可以使用内核剖析功能. 建立一个打开剖析的内核, 并且用命令行中 profile=2 来启动它. 使用 
+                        readprofile 工具复位剖析计数器, 接着使你的驱动进入它的循环. 一会儿后, 使用 
+                        readprofile 来看内核在哪里消耗它的时间. 另一个更高级的选择是 oprofile, 你可以也考虑下. 
+                        文件 documentation/basic_profiling.txt 
+                        告诉你启动剖析器所有需要知道的东西.</P>
+                        <P>在追逐系统挂起时一个值得使用的防范措施是以只读方式加载你的磁盘(或者卸载它们). 
+                        如果磁盘是只读或者卸载的, 就没有风险损坏文件系统或者使它处于不一致的状态. 另外的可能性是使用一个通过 
+                        NFS, 网络文件系统, 来加载它的全部文件系统的计算机, 内核的"NFS-Root"功能必须打开, 
+                        在启动时必须传递特殊的参数. 在这个情况下, 即便不依靠 sysrq 你也会避免文件系统破坏, 
+                        因为文件系统的一致有 NFS 服务器来管理, 你的设备驱动不会关闭它.</P></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch04s05.html#id422785" 
+                        name=ftn.id422785><FONT color=#0000ff>15</FONT></A>] 
+                        </SUP>实际上, 多处理器系统仍然在其他处理器上调度, 甚至一个单处理器的机器可能重新调度, 
+                        如果内核抢占被使能. 然而, 对于大部分的通常的情况( 单处理器不使能抢占), 系统一起停止调度.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=DebuggerandRelatedTools.sect></A>4.6.&nbsp;调试器和相关工具</H2></DIV></DIV></DIV>
+                        <P>调试模块的最后手段是使用调试器来单步调试代码, 查看变量值和机器寄存器. 这个方法费时, 应当尽量避免. 
+                        但是, 通过调试器获得的代码的细粒度视角有时是很有价值的.</P>
+                        <P>在内核上使用一个交互式调试器是一个挑战. 内核代表系统中的所有进程运行在自己的地址空间. 结果, 
+                        用户空间调试器所提供的一些普通功能, 例如断点和单步, 在内核中更难得到. 本节中, 
+                        我们看一下几个调试内核的方法; 每个都有缺点和优点.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A name=Usinggdb.sect></A>4.6.1.&nbsp;使用 
+                        gdb</H3></DIV></DIV></DIV>
+                        <P>gdb 对于看系统内部是非常有用. 在这个级别精通调试器的使用要求对 gdb 命令有信心, 
+                        需要理解目标平台的汇编代码, 以及对应源码和优化的汇编码的能力.</P>
+                        <P>调试器必须把内核作为一个应用程序来调用. 除了指定内核映象的文件名之外, 
+                        你需要在命令行提供一个核心文件的名子. 对于一个运行的内核, 核心文件是内核核心映象, /proc/kcore. 
+                        一个典型的 gdb 调用看来如下:</P><PRE class=screen>gdb /usr/src/linux/vmlinux /proc/kcore 
+</PRE>
+                        <P>第一个参数是非压缩的 ELF 内核可执行文件的名子, 不是 zImage 或者 bzImage 
+                        或者给启动环境特别编译的任何东东.</P>
+                        <P>gdb 命令行的第二个参数是核心文件的名子. 如同任何 /proc 中的文件, /proc/kcore 
+                        是在被读的时候产生的. 当 read 系统调用在 /proc 文件系统中执行时, 
+                        它映射到一个数据产生函数,而不是一个数据获取函数; 我们已经在本章"使用 /proc 
+                        文件系统"一节中利用了这个特点. kcore 用来代表内核"可执行文件", 以一个核心文件的形式; 
+                        它是一个巨大的文件, 因为他代表整个的内核地址空间, 对应于所有的物理内存. 从 gdb 中, 
+                        你可查看内核变量,通过发出标准 gdb 命令. 例如, p jiffies 
+                        打印时钟的从启动到当前时间的嘀哒数.</P>
+                        <P>当你从gdb打印数据, 内核仍然在运行, 各种数据项在不同时间有不同的值; 然而, gdb 
+                        通过缓存已经读取的数据来优化对核心文件的存取. 如果你试图再次查看 jiffies 变量, 
+                        你会得到和以前相同的答案. 缓存值来避免额外的磁盘存取对传统核心文件是正确的做法, 
+                        但是在使用一个"动态"核心映象时就不方便. 解决方法是任何时候你需要刷新 gdb 缓存时发出命令 
+                        core-file /proc/kcore; 调试器准备好使用新的核心文件并且丢弃任何旧信息. 然而, 
+                        你不会一直需要发出 core-file 在读取一个新数据时; gdb 读取核心以多个几KB的块的方式, 
+                        并且只缓存它已经引用的块.</P>
+                        <P>gdb 通常提供的不少功能在你使用内核时不可用. 例如, gdb 不能修改内核数据; 
+                        它希望在操作内存前在它自己的控制下运行一个被调试的程序. 也不可能设置断点或观察点, 
+或者单步过内核函数.</P>
+                        <P>注意, 为了给 gdb 符号信息, 你必须设置 CONFIG_DEBUG_INFO 来编译你的内核. 
+                        结果是一个很大的内核映象在磁盘上, 但是, 没有这个信息, 深入内核变量几乎不可能.</P>
+                        <P>有了调试信息, 你可以知道很多内核内部的事情. gdb 愉快地打印出结构, 跟随指针, 等等. 
+                        而有一个事情比较难, 然而, 是检查 modules. 因为模块不是传递给gdb 的 vmlinux 映象, 
+                        调试器对它们一无所知. 幸运的是, 作为 2.6.7 内核, 有可能教给 gdb 
+需要如何检查可加载模块.</P>
+                        <P>Linux 可加载模块是 ELF 格式的可执行映象; 这样, 它们被分成几个节. 
+                        一个典型的模块可能包含一打或更多节, 但是有 3 个典型的与一次调试会话相关:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term>.text<SPAN></SPAN></SPAN> 
+                          <DD>
+                          <P>这个节包含有模块的可执行代码. 调试器必须知道在哪里以便能够给出回溯或者设置断点.( 
+                          这些操作都不相关, 当运行一个调试器在 /proc/kcore 上, 但是它们在使用 kgdb 时可能有用, 
+                          下面描述).</P>
+                          <DT><SPAN class=term><SPAN>.bss</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term>.data <SPAN></SPAN></SPAN>
+                          <DD>
+                          <P>这 2 个节持有模块的变量. 在编译时不初始化的任何变量在 .bss 中, 而那些要初始化的在 
+                          .data 里.</P></DD></DL></DIV>
+                        <P>使 gdb 能够处理可加载模块需要通知调试器一个给定模块的节加载在哪里. 这个信息在 sysfs 中, 在 
+                        /sys/module 下. 例如, 在加载 scull 模块后, 目录 
+                        /sys/module/scull/sections 包含名子为 .text 的文件; 
+                        每个文件的内容是那个节的基地址.</P>
+                        <P>我们现在该发出一个 gdb 命令来告诉它关于我们的模块. 我们需要的命令是 
+                        add-symble-flile; 这个命令使用模块目标文件名, .text 基地址作为参数, 
+                        以及一系列描述任何其他感兴趣的节安放在哪里的参数. 在深入位于 sysfs 的模块节数据后, 
+                        我们可以构建这样一个命令:</P><PRE class=screen>(gdb) add-symbol-file .../scull.ko 0xd0832000 \
+-s .bss 0xd0837100 \
+ -s .data 0xd0836be0
+</PRE>
+                        <P>我们已经包含了一个小脚本在例子代码里( gdbline ), 它为给定的模块可以创建这个命令.</P>
+                        <P>我们现在使用 gdb 检查我们的可加载模块中的变量. 这是一个取自 scull 
+调试会话的快速例子:</P><PRE class=screen>(gdb) add-symbol-file scull.ko 0xd0832000 \
+-s .bss 0xd0837100 \
+ -s .data 0xd0836be0
+add symbol table from file "scull.ko" at
+ .text_addr = 0xd0832000
+ .bss_addr = 0xd0837100
+ .data_addr = 0xd0836be0
+(y or n) y
+Reading symbols from scull.ko...done.
+(gdb) p scull_devices[0]
+$1 = {data = 0xcfd66c50,
+ quantum = 4000,
+ qset = 1000,
+ size = 20881,
+ access_key = 0,
+ ...}
+</PRE>
+                        <P>这里我们看到第一个 scull 设备当前持有 20881 字节. 如果我们想, 我们可以跟随数据链, 
+                        或者查看其他任何感兴趣的模块中的东东.</P>
+                        <P>这是另一个值得知道的有用技巧:</P><PRE class=screen>(gdb) print *(address)
+</PRE>
+                        <P>这里, 填充 address 指向的一个 16 进制地址; 输出是对应那个地址的代码的文件和行号. 
+                        这个技术可能有用, 例如, 来找出一个函数指针真正指向哪里.</P>
+                        <P>我们仍然不能进行典型的调试任务, 如设置断点或者修改数据; 为进行这些操作, 我们需要使用象 kdb( 
+                        下面描述 ) 或者 kgdb ( 我们马上就到 )这样的工具.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ThekdbKernelDebugger.sect></A>4.6.2.&nbsp;kdb 
+                        内核调试器</H3></DIV></DIV></DIV>
+                        <P>许多读者可能奇怪为什么内核没有建立更多高级的调试特性在里面.答案, 非常简单, 是 Linus 
+                        不相信交互式的调试器. 他担心它们会导致不好的修改, 这些修改给问题打了补丁而不是找到问题的真正原因. 因此, 
+                        没有内嵌的调试器.</P>
+                        <P>其他内核开发者, 但是, 见到了交互式调试工具的一个临时使用. 一个这样的工具是 kdb 
+                        内嵌式内核调试器, 作为来自 oss.sgi.com 的一个非官方补丁. 要使用 kdb, 
+                        你必须获得这个补丁(确认获得一个匹配你的内核版本的版本), 应用它, 重建并重安装内核. 注意, 
+                        直到本书编写时, kdb 只在IA-32(x86)系统中运行(尽管一个给 IA-64 
+                        的版本在主线内核版本存在了一阵子, 在被去除之前.)</P>
+                        <P>一旦你运行一个使能了kdb的内核, 有几个方法进入调试器. 在控制台上按下 Pause(或者 Break) 
+                        键启动调试器. kdb 在一个内核 oops 发生时或者命中一个断点时也启动, 在任何一种情况下, 
+                        你看到象这样的一个消息:</P><PRE class=screen>Entering kdb (0xc0347b80) on processor 0 due to Keyboard Entry
+[0]kdb&gt;
+</PRE>
+                        <P>注意, 在kdb运行时内核停止任何东西. 在你调用 kdb 的系统中不应当运行其他东西; 特别, 
+                        你不应当打开网络 -- 除非, 当然, 你在调试一个网络驱动. 一般地以单用户模式启动系统是一个好主意, 
+                        如果你将使用 kdb.</P>
+                        <P>作为一个例子, 考虑一个快速 scull 调试会话. 假设驱动已经加载, 我们可以这样告诉 kdb 在 
+                        sucll_read 中设置一个断点:</P><PRE class=screen>[0]kdb&gt; bp scull_read
+Instruction(i) BP #0 at 0xcd087c5dc (scull_read)
+ is enabled globally adjust 1
+[0]kdb&gt; go
+</PRE>
+                        <P>bp 命令告诉 kdb 在下一次内核进入 scull_read 时停止. 你接着键入 go 来继续执行. 
+                        在将一些东西放入一个 scull 设备后, 我们可以试着通过在另一个终端的外壳下运行 cat 命令来读取它, 
+                        产生下面:</P><PRE class=screen>Instruction(i) breakpoint #0 at 0xd087c5dc (adjusted)
+0xd087c5dc scull_read: int3
+
+Entering kdb (current=0xcf09f890, pid 1575) on processor 0 due to
+Breakpoint @ 0xd087c5dc
+[0]kdb&gt;
+</PRE>
+                        <P>我们现在位于 scull_read 的开始. 为看到我们任何到那里的, 我们可以获得一个堆栈回溯:</P><PRE class=screen>[0]kdb&gt; bt
+ ESP EIP Function (args)
+0xcdbddf74 0xd087c5dc [scull]scull_read
+0xcdbddf78 0xc0150718 vfs_read+0xb8
+0xcdbddfa4 0xc01509c2 sys_read+0x42
+0xcdbddfc4 0xc0103fcf syscall_call+0x7
+[0]kdb&gt;
+</PRE>
+                        <P>kdb 试图打印出调用回溯中每个函数的参数. 然而, 它被编译器的优化技巧搞糊涂了. 因此, 它无法打印 
+                        scull_read 的参数.</P>
+                        <P>到时候查看一些数据了. mds 命令操作数据; 我们可以查询 schull_devices 指针的值, 
+                        使用这样一个命令:</P><PRE class=screen>[0]kdb&gt; mds scull_devices 1 
+0xd0880de8 cf36ac00 ....
+</PRE>
+                        <P>这里我们要求一个(4字节)字, 起始于 scull_devices 的位置; 答案告诉我们的设备数组在地址 
+                        0xd0880de8; 第一个设备结构自己在 0xcf36ac00. 为查看那个设备结构, 
+                        我们需要使用这个地址:</P><PRE class=screen>[0]kdb&gt; mds cf36ac00
+0xcf36ac00 ce137dbc ....
+0xcf36ac04 00000fa0 ....
+0xcf36ac08 000003e8 ....
+0xcf36ac0c 0000009b ....
+0xcf36ac10 00000000 ....
+0xcf36ac14 00000001 ....
+0xcf36ac18 00000000 ....
+0xcf36ac1c 00000001 ....
+</PRE>
+                        <P>这里的 8 行对应于 scull_dev 结构的开始部分. 因此, 我们看到第一个设备的内存位于 
+                        0xce137dbc, quantum 是 4000 (16进制 fa0), 量子集大小是 1000 (16进制 
+                        3e8 ), 当前有 155( 16进制 9b) 字节存于设备中.</P>
+                        <P>kdb 也可以改变数据. 假想我们要截短一些数据从设备中:</P><PRE class=screen>[0]kdb&gt; mm cf26ac0c 0x50
+0xcf26ac0c = 0x50
+</PRE>
+                        <P>在设备上一个后续的 cat 会返回比之前少的数据.</P>
+                        <P>kdb 有不少其他功能, 包括单步(指令, 不是 C 源码的一行), 在数据存取上设置断点, 反汇编代码, 
+                        步入链表, 存取寄存器数据, 还有更多. 在你应用了 kdb 补丁后, 一个完整的手册页集能够在你的源码树的 
+                        documentation/kdb 下发现.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ThekgdbPatches.sect></A>4.6.3.&nbsp;kgdb 
+                        补丁</H3></DIV></DIV></DIV>
+                        <P>目前为止我们看到的 2 个交互式调试方法( 使用 gdb 于 /proc/kcore 和 kdb) 
+                        都缺乏应用程序开发者已经熟悉的那种环境. 如果有一个真正的内核调试器支持改变变量, 断点等特色, 
+                        不是很好?</P>
+                        <P>确实, 有这样一个解决方案. 在本书编写时, 2 个分开的补丁在流通中, 它允许 gdb, 具备完全功能, 
+                        针对内核运行. 这 2 个补丁都称为 kgdb. 它们通过分开运行测试内核的系统和运行调试器的系统来工作; 这 
+                        2 个系统典型地是通过一个串口线连接起来. 因此, 开发者可以在稳定地桌面系统上运行 gdb, 
+                        而操作一个运行在专门测试的盒子中的内核. 这种方式建立 gdb 开始需要一些时间, 
+                        但是很快会得到回报,当一个难问题出现时.</P>
+                        <P>这些补丁目前处于健壮的状态, 在某些点上可能被合并, 因此我们避免说太多, 
+                        除了它们在哪里以及它们的基本特色. 鼓励感兴趣的读者去看这些的当前状态.</P>
+                        <P>第一个 kgdb 补丁当前在 -mm 内核树里 -- 补丁进入 2.6 主线的集结场. 补丁的这个版本支持 
+                        x86, SuperH, ia64, x86_64, 和 32位 PPC 体系. 除了通过串口操作的常用模式, 
+                        这个版本的 kgdb 可以通过一个局域网通讯. 使能以太网模式并且使用 kgdboe参数指定发出调试命令的 IP 
+                        地址来启动内核. 在 Documentation/i386/kgdb 下的文档描述了如何建立.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch04s06.html#ftn.id423580" 
+                        name=id423580><FONT 
+                        color=#0000ff>16</FONT></A>]</SUP></P>
+                        <P>作为一个选择, 你可使用位于 http://kgdb.sf.net 的kgdb补丁. 
+                        这个调试器的版本不支持网络通讯模式(尽管据说在开发中), 但是它确实有内嵌的使用可加载模块的支持. 它支持 
+                        x86, x86_64, PowerPC, 和 S/390 体系.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheUserModeLinuxPort.sect></A>4.6.4.&nbsp;用户模式 
+                        Linux 移植</H3></DIV></DIV></DIV>
+                        <P>用户模式 Linux (UML) 是一个有趣的概念. 它被构建为一个分开的 Linux 内核移植, 
+                        有它自己的 arch/um 子目录. 它不在一个新的硬件类型上运行, 但是; 相反, 它运行在一个由 Linux 
+                        系统调用接口实现的虚拟机上. 如此, UML 使用 Linux 内核来运行, 作为一个Linux 
+                        系统上的独立的用户模式进程.</P>
+                        <P>有一个作为用户进程运行的内核拷贝有几个优点. 因为它们运行在一个受限的虚拟的处理器上, 
+                        一个错误的内核不能破坏"真实的"系统. 可以在同一台盒子轻易的尝试不同的硬件和软件配置. 并且, 
+                        也许对内核开发者而言, 用户模式内核可容易地使用 gdb 和 其他调试器操作.</P>
+                        <P>毕竟, 它只是一个进程. UML 显然有加快内核开发的潜力.</P>
+                        <P>然而, UML 有个大的缺点,从驱动编写者的角度看: 用户模式内核无法存取主机系统的硬件. 因此, 
+                        虽然它对于调试大部分本书的例子驱动是有用的, UML 对于不得不处理真实硬件的驱动的调试还是没有用处.</P>
+                        <P>看 http://user-mode-linux.sf.net/ 关于 UML 
+                        的更多信息.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheLinuxTraceToolkit.sect></A>4.6.5.&nbsp;Linux 
+                        追踪工具</H3></DIV></DIV></DIV>
+                        <P>Linux Trace Toolkit (LTT) 是一个内核补丁以及一套相关工具, 
+                        允许追踪内核中的事件. 这个追踪包括时间信息, 可以创建一个给定时间段内发生事情的合理的完整图像. 因此, 
+                        它不仅用来调试也可以追踪性能问题.</P>
+                        <P>LTT, 同广泛的文档一起, 可以在 <A 
+                        href="http://www.opersys.com/LTT" target=_top><FONT 
+                        color=#0000ff>http://www.opersys.com/LTT</FONT></A> 
+                        找到.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=DynamicProbes.sect></A>4.6.6.&nbsp;动态探针</H3></DIV></DIV></DIV>
+                        <P>Dynamic Probes ( DProbes ) 是由 IBM 发行的(在 GPL 之下)为 
+                        IA-32 体系的 Linux 的调试工具. 它允许安放一个"探针"在几乎系统中任何地方, 
+                        用户空间和内核空间都可以. 探针由一些代码组成( 有一个特殊的,面向堆栈的语言写成), 
+                        当控制命中给定的点时执行. 这个代码可以报告信息给用户空间, 改变寄存器, 或者做其他很多事情. DProbes 
+                        的有用特性是, 一旦这个能力建立到内核中, 探针可以在任何地方插入在一个运行中的系统中, 不用内核建立或者重启. 
+                        DProbes 可以和 LTT 一起来插入一个新的跟踪事件在任意位置.</P>
+                        <P>DProbes 工具可以从 IBM 的开放源码网站:<A 
+                        href="http://oss.sof-ware.ibm.com/" target=_top><FONT 
+                        color=#0000ff>http://oss.sof-ware.ibm.com</FONT></A> 
+                        下载.</P></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch04s06.html#id423580" 
+                        name=ftn.id423580><FONT color=#0000ff>16</FONT></A>] 
+                        </SUP>确实是忽略了指出, 你应当使你的网络适配卡建立在内核中, 然而, 
+                        否则调试器在启动时找不到它会关掉它自己.</P>
+                        <P>&nbsp;</P></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:28，已浏览45次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270087">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270087">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（4）调试技术 - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>

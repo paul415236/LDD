@@ -1,0 +1,1456 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270132 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时" name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（10）中断处理</B></FONT> 
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>第&nbsp;10&nbsp;章&nbsp;中断处理</DIV>
+                        <DIV>
+                        <P>尽管一些设备可只使用它们的 I/O 区来控制, 大部分真实的设备比那个要复杂点. 
+                        设备不得不和外部世界打交道, 常常包括诸如旋转的磁盘, 移动的磁带, 连到远处的线缆, 等等. 
+                        很多必须在一个时间片中完成, 不同于, 并且远慢于处理器. 因为几乎一直是不希望使处理器等待外部事件, 
+                        对于设备必须有一种方法使处理器知道有事情发生了.</P>
+                        <P>当然, 那种方法是中断. 一个中断不过是一个硬件在它需要处理器的注意时能够发出的信号. Linux 
+                        处理中断非常类似它处理用户空间信号的方式. 对大部分来说, 一个驱动只需要为它的设备中断注册一个处理函数, 
+                        并且当它们到来时正确处理它们. 当然, 在这个简单图像之下有一些复杂; 特别地, 
+                        中断处理有些受限于它们能够进行的动作, 这是它们如何运行而导致的结果.</P>
+                        <P>没有一个真实的硬件设备来产生中断, 就难演示中断的使用. 因此, 本章使用的例子代码使用并口工作. 
+                        这些端口在现代硬件上开始变得稀少, 但是, 运气地, 大部分人仍然能够有一个有可用的端口的系统. 
+                        我们将使用来自上一章的简短模块; 添加一小部分它能够产生并处理来自并口的中断. 模块的名子, short, 
+                        实际上意味着 short int ( 它是 C, 对不?), 来提醒我们它处理中断.</P>
+                        <P>但是, 在我们进入主题之前, 是时候提出一个注意事项. 中断处理, 由于它们的特性, 
+                        与其他的代码并行地运行. 因此, 它们不可避免地引起并发问题和对数据结构和硬件的竞争. 如果你屈服于诱惑以越过第 
+                        5 章的讨论, 我们理解. 但是我们也建议你转回去并且现在看一下. 一个坚实的并发控制技术的理解是重要的, 
+                        在使用中断时.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=PreparingtheParallelPort.sect></A>10.1.&nbsp;准备并口</H2></DIV></DIV></DIV>
+                        <P>尽管并口简单, 它能够触发中断. 这个能力被打印机用来通知 lp 
+                        驱动它准备好接收缓存中的下一个字符.</P>
+                        <P>如同大部分设备, 并口实际上不产生中断, 在它被指示这样作之前; 并口标准规定设置 port 2 
+                        (0x37a, 0x27a, 或者任何)的 bit 4 就使能中断报告. short 
+                        在模块初始化时进行一个简单的 outb 调用来设置这个位.</P>
+                        <P>一旦中断使能, 任何时候在管脚 10 (所谓的 ACK 位)上的电信号从低变到高, 并口产生一个中断. 
+                        最简单的方法来强制接口产生中断( 没有挂一个打印机到端口 )是连接并口连接器的管脚 9 和 管脚 10. 
+                        一根短线, 插到你的系统后面的并口连接器的合适的孔中, 就建立这个连接. 并口外面的管脚图示于图<A 
+                        title=图&nbsp;9.1.&nbsp;并口的管脚 
+                        href="http://www.deansys.com/doc/ldd3/ch09s03.html#ldd3-9-1.fig"><FONT 
+                        color=#0000ff>并口的管脚</FONT></A></P>
+                        <P>管脚 9 是并口数据字节的最高位. 如果你写二进制数据到 /dev/short0, 你产生几个中断. 
+                        然而, 写 ASCII 文本到这个端口不会产生任何中断, 因为 ASCII 字符集没有最高位置位的项.</P>
+                        <P>如果你宁愿避免连接管脚到一起, 而你手上确实有一台打印机, 你可用使用一个真正的打印机来运行例子中断处理, 
+                        如同下面展示的. 但是, 注意我们介绍的探测函数依赖管脚 9 和管脚 10 之间的跳线在位置上, 
+                        并且你需要它使用你的代码来试验探测.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=InstallinganInterruptHandler.sect></A>10.2.&nbsp;安装一个中断处理</H2></DIV></DIV></DIV>
+                        <P>如果你想实际地"看到"产生的中断, 向硬件设备写不足够; 一个软件处理必须在系统中配置. 如果 Linux 
+                        内核还没有被告知来期待你的中断, 它简单地确认并忽略它.</P>
+                        <P>中断线是一个宝贵且常常有限的资源, 特别当它们只有 15 或者 16 个时. 内核保持了中断线的一个注册, 
+                        类似于 I/O 端口的注册. 一个模块被希望来请求一个中断通道(或者 IRQ, 对于中断请求), 在使用它之前, 
+                        并且当结束时释放它. 在很多情况下, 也希望模块能够与其他驱动共享中断线, 如同我们将看到的. 下面的函数, 
+                        声明在 &lt;linux/interrupt.h&gt;, 实现中断注册接口:</P><PRE class=programlisting>int request_irq(unsigned int irq,
+                irqreturn_t (*handler)(int, void *, struct pt_regs *),
+                unsigned long flags,
+
+                const char *dev_name,
+                void *dev_id);
+
+void free_irq(unsigned int irq, void *dev_id);
+</PRE>
+                        <P>从 request_irq 返回给请求函数的返回值或者是 0 指示成功, 或者是一个负的错误码, 
+                        如同平常. 函数返回 -EBUSY 来指示另一个驱动已经使用请求的中断线是不寻常的. 函数的参数如下:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>unsigned int irq 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>请求的中断号</P>
+                          <DT><SPAN class=term><SPAN>irqreturn_t 
+                          (*handler)</SPAN></SPAN> 
+                          <DD>
+                          <P>安装的处理函数指针. 我们在本章后面讨论给这个函数的参数以及它的返回值.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long flags 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>如你会希望的, 一个与中断管理相关的选项的位掩码(后面描述).</P>
+                          <DT><SPAN class=term><SPAN>const char *dev_name 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个传递给 request_irq 的字串用在 /proc/interrupts 
+                          来显示中断的拥有者(下一节看到)</P>
+                          <DT><SPAN class=term><SPAN>void *dev_id </SPAN></SPAN>
+                          <DD>
+                          <P>用作共享中断线的指针. 它是一个独特的标识, 
+                          用在当释放中断线时以及可能还被驱动用来指向它自己的私有数据区(来标识哪个设备在中断). 如果中断没有被共享, 
+                          dev_id 可以设置为 NULL, 但是使用这个项指向设备结构不管如何是个好主意. 
+                          我们将在"实现一个处理"一节中看到 dev_id 的一个实际应用.</P></DD></DL></DIV>
+                        <P>flags 中可以设置的位如下:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>SA_INTERRUPT </SPAN></SPAN>
+                          <DD>
+                          <P>当置位了, 这表示一个"快速"中断处理. 
+                          快速处理在当前处理器上禁止中断来执行(这个主题在"快速和慢速处理"一节涉及).</P>
+                          <DT><SPAN class=term><SPAN>SA_SHIRQ </SPAN></SPAN>
+                          <DD>
+                          <P>这个位表示中断可以在设备间共享. 共享的概念在"中断共享"一节中略述.</P>
+                          <DT><SPAN class=term><SPAN>SA_SAMPLE_RANDOM 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个位表示产生的中断能够有贡献给 /dev/random 和 /dev/urandom 使用的加密池. 
+                          这些设备在读取时返回真正的随机数并且设计来帮助应用程序软件为加密选择安全钥. 
+                          这样的随机数从一个由各种随机事件贡献的加密池中提取的. 如果你的设备以真正随机的时间产生中断, 
+                          你应当设置这个标志. 如果, 另一方面, 你的中断是可预测的( 例如, 一个帧抓取器的场消隐), 
+                          这个标志不值得设置 -- 它无论如何不会对系统加密有贡献. 可能被攻击者影响的设备不应当设置这个标志; 
+                          例如, 网络驱动易遭受从外部计时的可预测报文并且不应当对加密池有贡献. 更多信息看 
+                          drivers/char/random.c 的注释. </P></DD></DL></DIV>
+                        <P>中断处理可以在驱动初始化时安装或者在设备第一次打开时. 
+                        尽管从模块的初始化函数中安装中断处理可能听来是个好主意, 它常常不是, 特别当你的设备不共享中断. 
+                        因为中断线数目是有限的, 你不想浪费它们. 
+                        你可以轻易使你的系统中设备数多于中断数.如果一个模块在初始化时请求一个 IRQ, 
+                        它阻止了任何其他的驱动使用这个中断, 甚至这个持有它的设备从不被使用. 在设备打开时请求中断, 另一方面, 
+                        允许某些共享资源. </P>
+                        <P>例如, 可能与一个 modem 在同一个中断上运行一个帧抓取器, 只要你不同时使用这 2 个设备. 
+                        对用户来说是很普通的在系统启动时为一个特殊设备加载模块, 甚至这个设备很少用到. 
+                        一个数据获取技巧可能使用同一个中断作为第 2 个串口. 
+                        虽然不是太难避免在数据获取时联入你的互联网服务提供商(ISP), 被迫卸载一个模块为了使用 modem 
+                        确实令人不快.</P>
+                        <P>调用 request_irq 的正确位置是当设备第一次打开时, 在硬件被指示来产生中断前. 调用 
+                        free_irq 的位置是设备最后一次被关闭时, 在硬件被告知不要再中断处理器之后. 
+                        这个技术的缺点是你需要保持一个每设备的打开计数, 以便于你知道什么时候中断可以被禁止.</P>
+                        <P>尽管这个讨论, short 还在加载时请求它的中断线. 
+                        这样做是为了你可以运行测试程序而不必运行一个额外的进程来保持设备打开. short, 因此, 从它的初始化函数( 
+                        short_init )请求中断, 不是在 short_open 中做, 象一个真实设备驱动.</P>
+                        <P>下面代码请求的中断是 short_irq. 变量的真正赋值(即, 决定使用哪个 IRQ )在后面显示, 
+                        因为它和现在的讨论无关. short_base 是使用的并口 I/O 基地址; 接口的寄存器 2 
+                        被写入来使能中断报告.</P><PRE class=programlisting>if (short_irq &gt;= 0)
+{
+        result = request_irq(short_irq, short_interrupt,
+                             SA_INTERRUPT, "short", NULL);
+        if (result) {
+                printk(KERN_INFO "short: can't get assigned irq %i\n",
+                       short_irq);
+
+                short_irq = -1;
+        } else { /* actually enable it -- assume this *is* a parallel port */
+                outb(0x10,short_base+2);
+        }
+}
+</PRE>
+                        <P>代码显示, 安装的处理是一个快速处理(SA_INTERRUPT), 不支持中断共享(SA_SHIRQ 
+                        没有), 并且不对系统加密有贡献(SA_SAMPLE_RANDOM 也没有). outb 
+                        调用接着为并口使能中断报告.</P>
+                        <P>由于某些合理原因, i386 和 x86_64 体系定义了一个函数来询问一个中断线的能力:</P><PRE class=programlisting>int can_request_irq(unsigned int irq, unsigned long flags); 
+</PRE>
+                        <P>这个函数当试图分配一个给定中断成功时返回一个非零值. 但是, 注意, 在 can_request_irq 
+                        和 request_irq 的调用之间事情可能一直改变.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheprocInterface.sect></A>10.2.1.&nbsp;/proc 
+                        接口</H3></DIV></DIV></DIV>
+                        <P>无论何时一个硬件中断到达处理器, 一个内部的计数器递增, 提供了一个方法来检查设备是否如希望地工作. 
+                        报告的中断显示在 /proc/interrupts. 下面的快照取自一个双处理器 Pentium 系统:</P><PRE class=screen>root@montalcino:/bike/corbet/write/ldd3/src/short# m /proc/interrupts
+        CPU0     CPU1 
+ 0:  4848108       34   IO-APIC-edge  timer 
+ 2:        0        0         XT-PIC  cascade 
+ 8:        3        1   IO-APIC-edge  rtc 
+ 10:    4335        1  IO-APIC-level  aic7xxx 
+ 11:    8903        0  IO-APIC-level  uhci_hcd 
+ 12:      49        1   IO-APIC-edge  i8042  
+NMI:       0        0  
+LOC: 4848187  4848186  
+ERR:       0  
+MIS:       0  
+</PRE>
+                        <P>第一列是 IRQ 号. 你能够从没有的 IRQ 中看到这个文件只显示对应已安装处理的中断. 例如, 
+                        第一个串口(使用中断号 4)没有显示, 指示 modem 没在使用. 事实上, 即便如果 modem 
+                        已更早使用了, 但是在这个快照时间没有使用, 它不会显示在这个文件中; 
+                        串口表现很好并且在设备关闭时释放它们的中断处理.</P>
+                        <P>/proc/interrupts 的显示展示了有多少中断硬件递交给系统中的每个 CPU. 
+                        如同你可从输出看到的, Linux 内核常常在第一个 CPU 上处理中断, 作为一个使 cache 
+                        局部性最大化的方法.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch10s02.html#ftn.id461412" 
+                        name=id461412><FONT color=#0000ff>37</FONT></A>]</SUP> 
+                        最后 2 列给出关于处理中断的可编程中断控制器的信息(驱动编写者不必关心), 
+                        以及已注册的中断处理的设备的名子(如同在给 request_irq 的参数 dev_name 
+中指定的).</P>
+                        <P>/proc 树包含另一个中断有关的文件, /proc/stat; 
+                        有时你会发现一个文件更加有用并且有时你会喜欢另一个. /proc/stat 记录了几个关于系统活动的低级统计量, 
+                        包括(但是不限于)自系统启动以来收到的中断数. stat 的每一行以一个文本字串开始, 是该行的关键词; 
+                        intr 标志是我们在找的. 下列(截短了)快照是在前一个后马上取得的:</P><PRE class=screen>intr 5167833 5154006 2 0 2 4907 0 2 68 4 0 4406 9291 50 0 0 
+</PRE>
+                        <P>第一个数是所有中断的总数, 而其他每一个代表一个单个 IRQ 线, 从中断 0 开始. 
+                        所有的计数跨系统中所有处理器而汇总的. 这个快照显示, 中断号 4 已使用 4907 次, 
+                        尽管当前没有安装处理. 如果你在测试的驱动请求并释放中断在每个打开和关闭循环, 你可能发现 /proc/stat 
+                        比 /proc/interrupts 更加有用.</P>
+                        <P>2 个文件的另一个不同是, 中断不是体系依赖的(也许, 除了末尾几行), 而 stat 是; 
+                        字段数依赖内核之下的硬件. 可用的中断数目少到在 SPARC 上的 15 个, 多到 IA-64 上的 
+                        256个, 并且其他几个系统都不同. 有趣的是要注意, 定义在 x86 中的中断数当前是 224, 
+                        不是你可能期望的 16; 如同在 include/asm-i386/irq.h 中解释的, 这依赖 Linux 
+                        使用体系的限制, 而不是一个特定实现的限制( 例如老式 PC 中断控制器的 16 个中断源).</P>
+                        <P>下面是一个 /proc/interrupts 的快照, 取自一台 IA-64 系统. 如你所见, 
+                        除了不同硬件的通用中断源的路由, 输出非常类似于前面展示的 32-位 系统的输出.</P><PRE class=screen>         CPU0     CPU1 
+ 27:     1705    34141  IO-SAPIC-level  qla1280 
+ 40:        0        0  SAPIC  					perfmon 
+ 43:      913     6960  IO-SAPIC-level  eth0 
+ 47:    26722      146  IO-SAPIC-level  usb-uhci 
+ 64:        3        6  IO-SAPIC-edge   ide0 
+ 80:        4        2  IO-SAPIC-edge   keyboard 
+ 89:        0        0  IO-SAPIC-edge   PS/2 Mouse  
+239:  5606341  5606052          SAPIC   timer  
+
+254:  67575  52815  SAPIC  IPI  
+NMI:  0  0  
+ERR:  0  
+</PRE></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AutodetectingtheIRQNumber.sect></A>10.2.2.&nbsp;自动检测 
+                        IRQ 号</H3></DIV></DIV></DIV>
+                        <P>驱动在初始化时最有挑战性的问题中的一个是如何决定设备要使用哪个 IRQ 线. 驱动需要信息来正确安装处理. 
+                        尽管程序员可用请求用户在加载时指定中断号, 这是个坏做法, 因为大部分时间用户不知道这个号, 
+                        要么因为他不配置跳线要么因为设备是无跳线的. 大部分用户希望他们的硬件"仅仅工作"并且不感兴趣如中断号的问题. 
+                        因此自动检测中断号是一个驱动可用性的基本需求.</P>
+                        <P>有时自动探测依赖知道一些设备有很少改变的缺省动作的特性. 在这个情况下, 驱动可能假设缺省值适用. 
+                        这确切地就是 short 如何缺省对并口动作的. 实现是直接的, 如 short 自身显示的:</P><PRE class=programlisting>if (short_irq &lt; 0) /* not yet specified: force the default on */
+ switch(short_base) {
+ case 0x378: short_irq = 7; break;
+ case 0x278: short_irq = 2; break;
+ case 0x3bc: short_irq = 5; break;
+ } 
+</PRE>
+                        <P>代码根据选择的 I/O 基地址赋值中断号, 而允许用户在加载时覆盖缺省值, 使用如:</P><PRE class=screen>insmod ./short.ko irq=x 
+short_base defaults to 0x378, so short_irq defaults to 7. 
+</PRE>
+                        <P>有些设备设计得更高级并且简单地"宣布"它们要使用的中断. 在这个情况下, 驱动获取中断号通过从设备的一个 
+                        I/O 端口或者 PCI 配置空间读一个状态字节. 当目标设备是一个有能力告知驱动它要使用哪个中断的设备时, 
+                        自动探测中断号只是意味着探测设备, 探测中断没有其他工作要做. 幸运的是大部分现代硬件这样工作; 例如, PCI 
+                        标准解决了这个问题通过要求外设来声明它们要使用哪个中断线. PCI 标准在 12 章讨论.</P>
+                        <P>不幸的是, 不是每个设备是对程序员友好的, 并且自动探测可能需要一些探测. 这个技术非常简单: 
+                        驱动告知设备产生中断并且观察发生了什么. 如果所有事情进展地好, 只有一个中断线被激活.</P>
+                        <P>尽管探测在理论上简单的, 实际的实现可能不清晰. 我们看 2 种方法来进行这个任务: 
+                        调用内核定义的帮助函数和实现我们自己的版本.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Kernelassistedprobing.sect></A>10.2.2.1.&nbsp;内核协助的探测</H4></DIV></DIV></DIV>
+                        <P>Linux 内核提供了一个低级设施来探测中断号. 它只为非共享中断, 
+                        但是大部分能够在共享中断状态工作的硬件提供了更好的方法来尽量发现配置的中断号.这个设施包括 2 个函数, 
+                        在&lt;linux/interrupt.h&gt; 中声明( 也描述了探测机制 ).</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          probe_irq_on(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数返回一个未安排的中断的位掩码. 驱动必须保留返回的位掩码, 并且在后面传递给 
+                          probe_irq_off. 在这个调用之后, 驱动应当安排它的设备产生至少一次中断.</P>
+                          <DT><SPAN class=term><SPAN>int probe_irq_off(unsigned 
+                          long);</SPAN></SPAN> 
+                          <DD>
+                          <P>在设备已请求一个中断后, 驱动调用这个函数, 作为参数传递之前由 probe_irq_on 
+                          返回的位掩码. probe_irq_off 返回在"probe_on"之后发出的中断号. 如果没有中断发生, 
+                          返回 0 (因此, IRQ 0 不能探测, 但是没有用户设备能够在任何支持的体系上使用它). 
+                          如果多于一个中断发生( 模糊的探测 ), probe_irq_off 
+                        返回一个负值.</P></DD></DL></DIV>
+                        <P>程序员应当小心使能设备上的中断, 在调用 probe_irq_on 之后以及在调用 
+                        probe_irq_off 后禁止它们. 另外, 你必须记住服务你的设备中挂起的中断, 在 
+                        probe_irq_off 之后.</P>
+                        <P>short 模块演示了如何使用这样的探测. 如果你加载模块使用 probe=1, 
+                        下列代码被执行来探测你的中断线, 如果并口连接器的管脚 9 和 10 连接在一起:</P><PRE class=programlisting>int count = 0;
+do
+{
+        unsigned long mask;
+        mask = probe_irq_on();
+        outb_p(0x10,short_base+2); /* enable reporting */
+        outb_p(0x00,short_base); /* clear the bit */
+        outb_p(0xFF,short_base); /* set the bit: interrupt! */
+        outb_p(0x00,short_base+2); /* disable reporting */
+        udelay(5); /* give it some time */
+        short_irq = probe_irq_off(mask);
+
+        if (short_irq == 0) { /* none of them? */
+                printk(KERN_INFO "short: no irq reported by probe\n");
+                short_irq = -1;
+        }
+
+        /*
+         * if more than one line has been activated, the result is
+         * negative. We should service the interrupt (no need for lpt port)
+         * and loop over again. Loop at most five times, then give up
+         */
+} while (short_irq &lt; 0 &amp;&amp; count++ &lt; 5);
+if (short_irq &lt; 0)
+        printk("short: probe failed %i times, giving up\n", count);
+</PRE>
+                        <P>注意 udelay 的使用, 在调用 probe_irq_off 之前. 依赖你的处理器的速度, 
+                        你可能不得不等待一小段时间来给中断时间来真正被递交.</P>
+                        <P>探测可能是一个长时间的任务. 虽然对于 short 这不是真的, 例如, 探测一个帧抓取器, 需要一个至少 
+                        20 ms 的延时( 对处理器是一个时代 ), 并且其他的设备可能要更长. 因此, 最好只探测中断线一次, 
+                        在模块初始化时, 独立于你是否在设备打开时安装处理(如同你应当做的), 
+                        或者在初始化函数当中(这个不推荐).</P>
+                        <P>有趣的是注意在一些平台上(PoweerPC, M68K, 大部分 MIPS 实现, 以及 2 个 
+                        SPARC 版本)探测是不必要的, 并且, 因此, 之前的函数只是空的占位者, 有时称为"无用的 ISA 
+                        废话". 在其他平台上, 探测只为 ISA 设备实现. 无论如何, 大部分体系定义了函数( 即便它们是空的 
+                        )来简化移植现存的设备驱动.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Doityourselfprobing.sect></A>10.2.2.2.&nbsp;Do-it-yourself 
+                        探测</H4></DIV></DIV></DIV>
+                        <P>探测也可以在驱动自身实现没有太大麻烦. 它是一个少有的驱动必须实现它自己的探测, 
+                        但是看它是如何工作的能够给出对这个过程的内部认识. 为此目的, short 模块进行 
+                        do-it-yourself 的 IRQ 线探测, 如果它使用 probe=2 加载.</P>
+                        <P>这个机制与前面描述的相同: 使能所有未使用的中断, 接着等待并观察发生什么. 我们能够, 然而, 
+                        利用我们对设备的知识. 常常地一个设备能够配置为使用一个 IRQ 号从 3 个或者 4 个一套; 只探测这些 
+                        IRQ 使我们能够探测正确的一个, 不必测试所有的可能中断.</P>
+                        <P>short 实现假定 3, 5, 7, 和 9 是唯一可能的 IRQ 值. 
+                        这些数实际上是一些并口设备允许你选择的数.</P>
+                        <P>下面的代码通过测试所有"可能的"中断并且查看发生的事情来探测中断. trials 数组列出要尝试的中断, 
+                        以 0 作为结尾标志; tried 数组用来跟踪哪个处理实际上被这个驱动注册.</P><PRE class=programlisting>int trials[] =
+        {
+                3, 5, 7, 9, 0
+        };
+int tried[]  = {0, 0, 0, 0, 0};
+int i, count = 0;
+
+/*
+ * install the probing handler for all possible lines. Remember
+ * the result (0 for success, or -EBUSY) in order to only free
+ * what has been acquired */
+for (i = 0; trials[i]; i++)
+        tried[i] = request_irq(trials[i], short_probing,
+                               SA_INTERRUPT, "short probe", NULL);
+
+do
+{
+        short_irq = 0; /* none got, yet */
+        outb_p(0x10,short_base+2); /* enable */
+        outb_p(0x00,short_base);
+        outb_p(0xFF,short_base); /* toggle the bit */
+        outb_p(0x00,short_base+2); /* disable */
+        udelay(5); /* give it some time */
+
+        /* the value has been set by the handler */
+        if (short_irq == 0) { /* none of them? */
+
+                printk(KERN_INFO "short: no irq reported by probe\n");
+        }
+        /*
+        * If more than one line has been activated, the result is
+        * negative. We should service the interrupt (but the lpt port
+        * doesn't need it) and loop over again. Do it at most 5 times
+        */
+} while (short_irq &lt;=0 &amp;&amp; count++ &lt; 5);
+
+/* end of loop, uninstall the handler */
+for (i = 0; trials[i]; i++)
+        if (tried[i] == 0)
+                free_irq(trials[i], NULL);
+
+if (short_irq &lt; 0)
+        printk("short: probe failed %i times, giving up\n", count);
+</PRE>
+                        <P>你可能事先不知道"可能的" IRQ 值是什么. 在这个情况, 你需要探测所有空闲的中断, 
+                        不是限制你自己在几个 trials[]. 为探测所有的中断, 你不得不从 IRQ 0 到 IRQ 
+                        NR_IRQS-1 探测, 这里 NR_IRQS 在 &lt;asm/irq.h&gt; 
+                        中定义并且是独立于平台的.</P>
+                        <P>现在我们只缺少探测处理自己了. 处理者的角色是更新 short_irq, 根据实际收到哪个中断. 
+                        short_irq 中的 0 值意味着"什么没有", 而一个负值意味着"模糊的". 这些值选择来和 
+                        probe_irq_off 相一致并且允许同样的代码来调用任一种 short.c 中的探测.</P><PRE class=programlisting>irqreturn_t short_probing(int irq, void *dev_id, struct pt_regs *regs)
+{
+
+    if (short_irq == 0) short_irq = irq;  /* found */
+ if (short_irq != irq) short_irq = -irq; /* ambiguous */
+ return IRQ_HANDLED;
+}
+</PRE>
+                        <P>处理的参数在后面描述. 知道 irq 
+                        是在处理的中断应当是足够的来理解刚刚展示的函数.</P></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=FastandSlowHandlers.sect></A>10.2.3.&nbsp;快速和慢速处理</H3></DIV></DIV></DIV>
+                        <P>老版本的 Linux 内核尽了很大努力来区分"快速"和"慢速"中断. 快速中断是那些能够很快处理的, 
+                        而处理慢速中断要特别地长一些. 慢速中断可能十分苛求处理器, 并且它值得在处理的时候重新使能中断. 否则, 
+                        需要快速注意的任务可能被延时太长.</P>
+                        <P>在现代内核中, 快速和慢速中断的大部分不同已经消失. 剩下的仅仅是一个: 快速中断(那些使用 
+                        SA_INTERRUPT 被请求的)执行时禁止所有在当前处理器上的其他中断. 注意其他的处理器仍然能够处理中断, 
+                        尽管你从不会看到 2 个处理器同时处理同一个 IRQ.</P>
+                        <P>这样, 你的驱动应当使用哪个类型的中断? 在现代系统上, SA_INTERRUPT 只是打算用在几个, 
+                        特殊的情况例如时钟中断. 除非你有一个充足的理由来运行你的中断处理在禁止其他中断情况下, 你不应当使用 
+                        SA_INTERRUPT.</P>
+                        <P>这个描述应当满足大部分读者, 尽管有人喜好硬件并且对她的计算机有经验可能有兴趣深入一些. 
+                        如果你不关心内部的细节, 你可跳到下一节.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Theinteranlsofinterrupthandlingonthex86.sect></A>10.2.3.1.&nbsp;x86上中断处理的内幕</H4></DIV></DIV></DIV>
+                        <P>这个描述是从 arch/i386/kernel/irq.c, arch/i386/kernel/ 
+                        apic.c, arch/i386/kernel/entry.S, 
+                        arch/i386/kernel/i8259.c, 和 include/asm-i386/hw_irq.h 
+                        它们出现于 2.6 内核而推知的; 尽管一般的概念保持一致, 硬件细节在其他平台上不同.</P>
+                        <P>中断处理的最低级是在 entry.S, 一个汇编语言文件处理很多机器级别的工作. 
+                        通过一点汇编器的技巧和一些宏定义, 一点代码被安排到每个可能的中断. 在每个情况下, 
+                        这个代码将中断号压栈并且跳转到一个通用段, 称为 do_IRQ, 在 irq.c 中定义.</P>
+                        <P>do_IRQ 做的第一件事是确认中断以便中断控制器能够继续其他事情. 它接着获取给定 IRQ 
+                        号的一个自旋锁, 因此阻止任何其他 CPU 处理这个 IRQ. 它清除几个状态位(包括称为 
+                        IRQ_WAITING 的一个, 我们很快会看到它)并且接着查看这个特殊 IRQ 的处理者. 如果没有处理者, 
+                        什么不作; 自旋锁释放, 任何挂起的软件中断被处理, 最后 do_IRQ 返回.</P>
+                        <P>常常, 但是, 如果一个设备在中断, 至少也有一个处理者注册给它的 IRQ. 函数 
+                        handle_IRQ_event 被调用来实际调用处理者. 如果处理者是慢速的( SA_INTERRUPT 
+                        没有设置 ), 中断在硬件中被重新使能, 并且调用处理者. 接着仅仅是清理, 运行软件中断, 
+                        以及回到正常的工作. "常规工作"很可能已经由于中断而改变了(处理者可能唤醒一个进程, 例如), 
+                        因此从中断中返回的最后的事情是一个处理器的可能的重新调度.</P>
+                        <P>探测 IRQ 通过设置 IRQ_WAITING 状态位给每个当前缺乏处理者的 IRQ 来完成. 
+                        当中断发生, do_IRQ 清除这个位并且接着返回, 因为没有注册处理者. probe_irq_off, 
+                        当被一个函数调用, 需要只搜索不再有 IRQ_WAITING 设置的 IRQ.</P></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ImplementingaHandler.sect></A>10.2.4.&nbsp;实现一个处理</H3></DIV></DIV></DIV>
+                        <P>至今, 我们已学习了注册一个中断处理, 但是没有编写一个. 实际上, 对于一个处理者, 没什么不寻常的 
+                        -- 它是普通的 C 代码.</P>
+                        <P>唯一的特别之处是一个处理者在中断时运行, 因此, 它能做的事情遭受一些限制. 
+                        这些限制与我们在内核定时器上看到的相同. 一个处理者不能传递数据到或者从用户空间, 因为它不在进程上下文执行. 
+                        处理者也不能做任何可能睡眠的事情, 例如调用 wait_event, 使用除 GFP_ATOMIC 
+                        之外任何东西来分配内存, 或者加锁一个旗标. 最后, 处理者不能调用调度.</P>
+                        <P>一个中断处理的角色是给它的设备关于中断接收的回应并且读或写数据, 根据被服务的中断的含义. 
+                        第一步常常包括清除接口板上的一位; 大部分硬件设备不产生别的中断直到它们的"中断挂起"位被清除. 
+                        根据你的硬件如何工作的, 这一步可能需要在最后做而不是开始; 这里没有通吃的规则. 一些设备不需要这步, 
+                        因为它们没有一个"中断挂起"位; 这样的设备是一少数, 尽管并口是其中之一. 由于这个理由, short 
+                        不必清除这样一个位.</P>
+                        <P>一个中断处理的典型任务是唤醒睡眠在设备上的进程, 如果中断指示它们在等待的事件, 
+例如新数据的到达.</P>
+                        <P>为坚持帧抓取者的例子, 一个进程可能请求一个图像序列通过连续读设备; 读调用阻塞在读取每个帧之前, 
+                        而中断处理唤醒进程一旦每个新帧到达. 这个假定抓取器中断处理器来指示每个新帧的成功到达.</P>
+                        <P>程序员应当小心编写一个函数在最小量的时间内执行, 不管是一个快速或慢速处理者. 如果需要进行长时间计算, 
+                        最好的方法是使用一个 tasklet 或者 workqueue 
+                        来调度计算在一个更安全的时间(我们将在"上和下半部"一节中见到工作如何被延迟.).</P>
+                        <P>我们在 short 中的例子代码响应中断通过调用 do_gettimeofday 和 
+                        打印当前时间到一个页大小的环形缓存. 它接着唤醒任何读进程, 因为现在有数据可用来读取.</P><PRE class=programlisting>irqreturn_t short_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+         {
+                 struct timeval tv;
+                 int written;
+                 do_gettimeofday(&amp;tv);
+                 /* Write a 16 byte record. Assume PAGE_SIZE is a multiple of 16 */
+                 written = sprintf((char *)short_head,"%08u.%06u\n",
+                                   (int)(tv.tv_sec % 100000000), (int)(tv.tv_usec));
+                 BUG_ON(written != 16);
+                 short_incr_bp(&amp;short_head, written);
+                 wake_up_interruptible(&amp;short_queue); /* awake any reading process */
+                 return IRQ_HANDLED;
+         }
+</PRE>
+                        <P>这个代码, 尽管简单, 代表了一个中断处理的典型工作. 依次地, 它称为 short_incr_bp, 
+                        定义如下:</P><PRE class=programlisting>static inline void short_incr_bp(volatile unsigned long *index, int delta)
+{
+        unsigned long new = *index + delta;
+        barrier();  /* Don't optimize these two together */
+        *index = (new &gt;= (short_buffer + PAGE_SIZE)) ? short_buffer : new;
+}
+</PRE>
+                        <P>这个函数已经仔细编写来回卷指向环形缓存的指针, 没有暴露一个不正确的值. 这里的 barrier 
+                        调用来阻止编译器在这个函数的其他 2 行之间优化. 如果没有 barrier, 编译器可能决定优化掉 new 
+                        变量并且直接赋值给 *index. 这个优化可能暴露一个 index 的不正确值一段时间, 在它回卷的地方. 
+                        通过小心阻止对其他线程可见的不一致的值, 我们能够安全操作环形缓存指针而不用锁.</P>
+                        <P>用来读取中断时填充的缓存的设备文件是 /dev/shortint. 这个设备特殊文件, 同 
+                        /dev/shortprint 一起, 不在第 9 章介绍, 因为它的使用对中断处理是特殊的. 
+                        /dev/shortint 内部特别地为中断产生和报告剪裁过. 写到设备会每隔一个字节产生一个中断; 
+                        读取设备给出了每个中断被报告的时间.</P>
+                        <P>如果你连接并口连接器的管脚 9 和 10, 你可产生中断通过拉高并口数据字节的高位. 
+                        这可通过写二进制数据到 /dev/short0 或者通过写任何东西到 /dev/shortint 
+来完成.</P>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch10s02.html#ftn.id462191" 
+                        name=id462191><FONT 
+                        color=#0000ff>38</FONT></A>]</SUP>下列代码为 /dev/shortint 
+                        实现读和写:</P><PRE class=programlisting>ssize_t short_i_read (struct file *filp, char __user *buf, size_t count,
+                      loff_t *f_pos)
+{
+        int count0;
+        DEFINE_WAIT(wait);
+
+        while (short_head == short_tail)
+        {
+                prepare_to_wait(&amp;short_queue, &amp;wait, TASK_INTERRUPTIBLE);
+                if (short_head == short_tail)
+
+                        schedule();
+                finish_wait(&amp;short_queue, &amp;wait);
+                if (signal_pending (current)) /* a signal arrived */
+                        return -ERESTARTSYS; /* tell the fs layer to handle it */
+        } /* count0 is the number of readable data bytes */ count0 = short_head - short_tail;
+        if (count0 &lt; 0) /* wrapped */
+                count0 = short_buffer + PAGE_SIZE - short_tail;
+        if (count0 &lt; count)
+                count = count0;
+
+        if (copy_to_user(buf, (char *)short_tail, count))
+                return -EFAULT;
+        short_incr_bp (&amp;short_tail, count);
+        return count;
+
+}
+ssize_t short_i_write (struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
+{
+        int written = 0, odd = *f_pos &amp; 1;
+        unsigned long port = short_base; /* output to the parallel data latch */
+        void *address = (void *) short_base;
+
+        if (use_mem)
+        {
+                while (written &lt; count)
+                        iowrite8(0xff * ((++written + odd) &amp; 1), address);
+        } else
+        {
+
+                while (written &lt; count)
+                        outb(0xff * ((++written + odd) &amp; 1), port);
+        }
+
+        *f_pos += count;
+        return written;
+}
+</PRE>
+                        <P>其他设备特殊文件, /dev/shortprint, 使用并口来驱动一个打印机; 你可用使用它, 
+                        如果你想避免连接一个 D-25 连接器管脚 9 和 10. shortprint 
+                        的写实现使用一个环形缓存来存储要打印的数据, 
+                        而写实现是刚刚展示的那个(因此你能够读取你的打印机吃进每个字符用的时间).</P>
+                        <P>为了支持打印机操作, 中断处理从刚刚展示的那个已经稍微修改, 增加了发送下一个数据字节到打印机的能力, 
+                        如果没有更多数据传送.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=HandlerArgumentsandReturnValue.sect></A>10.2.5.&nbsp;处理者的参数和返回值</H3></DIV></DIV></DIV>
+                        <P>尽管 short 忽略了它们, 一个传递给一个中断处理的参数: irq, dev_id, 和 regs. 
+                        我们看一下每个的角色.</P>
+                        <P>中断号( int irq )作为你可能在你的 log 消息中打印的信息是有用的, 如果有. 第二个参数, 
+                        void *dev_id, 是一类客户数据; 一个 void* 参数传递给 request_irq, 
+                        并且同样的指针接着作为一个参数传回给处理者, 当中断发生时. 你常常传递一个指向你的在 dev_id 
+                        中的设备数据结构的指针, 因此一个管理相同设备的几个实例的驱动不需要任何额外的代码, 
+                        在中断处理中找出哪个设备要负责当前的中断事件.</P>
+                        <P>这个参数在中断处理中的典型使用如下:</P><PRE class=programlisting>static irqreturn_t sample_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+{
+        struct sample_dev *dev = dev_id;
+
+        /* now `dev' points to the right hardware item */
+        /* .... */
+}
+</PRE>
+                        <P>和这个处理者关联的典型的打开代码看来如此:</P><PRE class=programlisting>static void sample_open(struct inode *inode, struct file *filp)
+{
+        struct sample_dev *dev = hwinfo + MINOR(inode-&gt;i_rdev);
+        request_irq(dev-&gt;irq, sample_interrupt,
+
+                    0 /* flags */, "sample", dev /* dev_id */);
+        /*....*/
+        return 0;
+
+}
+</PRE>
+                        <P>最后一个参数, struct pt_regs *regs, 很少用到. 
+                        它持有一个处理器的上下文在进入中断状态前的快照. 寄存器可用来监视和调试; 对于常规地设备驱动任务, 
+                        正常地不需要它们.</P>
+                        <P>中断处理应当返回一个值指示是否真正有一个中断要处理. 如果处理者发现它的设备确实需要注意, 它应当返回 
+                        IRQ_HANDLED; 否则返回值应当是 IRQ_NONE. 你也可产生返回值, 使用这个宏:</P><PRE class=programlisting>IRQ_RETVAL(handled)
+</PRE>
+                        <P>这里, handled 是非零, 如果你能够处理中断. 内核用返回值来检测和抑制假中断. 
+                        如果你的设备没有给你方法来告知是否它确实中断, 你应当返回 IRQ_HANDLED.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=EnablingandDisablingInterrupts.sect></A>10.2.6.&nbsp;使能和禁止中断</H3></DIV></DIV></DIV>
+                        <P>有时设备驱动必须阻塞中断的递交一段时间(希望地短)(我们在第 5 章的 
+                        "自旋锁"一节看到过这样的一个情况). 常常, 中断必须被阻塞当持有一个自旋锁来避免死锁系统时. 
+                        有几个方法来禁止不涉及自旋锁的中断. 但是在我们讨论它们之前, 注意禁止中断应当是一个相对少见的行为, 
+                        即便在设备驱动中, 并且这个技术应当从不在驱动中用做互斥机制.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Disablingasingleinterrupt.sect></A>10.2.6.1.&nbsp;禁止单个中断</H4></DIV></DIV></DIV>
+                        <P>有时(但是很少!)一个驱动需要禁止一个特定中断线的中断递交. 内核提供了 3 个函数为此目的, 
+                        所有都声明在 &lt;asm/irq.h&gt;. 这些函数是内核 API 的一部分, 因此我们描述它们, 
+                        但是它们的使用在大部分驱动中不鼓励. 在其他的中, 你不能禁止共享的中断线, 并且, 在现代的系统中, 
+                        共享的中断是规范. 已说过的, 它们在这里:</P><PRE class=programlisting>void disable_irq(int irq);
+void disable_irq_nosync(int irq);
+void enable_irq(int irq);
+</PRE>
+                        <P>调用任一函数可能更新在可编程控制器(PIC)中的特定 irq 的掩码, 因此禁止或使能跨所有处理器的特定 
+                        IRQ. 对这些函数的调用能够嵌套 -- 如果 disable_irq 被连续调用 2 次, 需要 2 个 
+                        enable_irq 调用在 IRQ 被真正重新使能前. 可能调用这些函数从一个中断处理中, 
+                        但是在处理它时使能你自己的 IRQ 常常不是一个好做法.</P>
+                        <P>disable_irq 不仅禁止给定的中断, 还等待一个当前执行的中断处理结束, 如果有. 要知道如果调用 
+                        disable_irq 的线程持有中断处理需要的任何资源(例如自旋锁), 系统可能死锁. 
+                        disable_irq_nosync 与 disable_irq 不同, 它立刻返回. 因此, 
+                        使用disable_irq_nosync 快一点, 但是可能使你的设备有竞争情况.</P>
+                        <P>但是为什么禁止中断? 坚持说并口, 我们看一下 plip 网络接口. 一个 plip 
+                        设备使用裸并口来传送数据. 因为只有 5 位可以从并口连接器读出, 它们被解释为 4 
+                        个数据位和一个时钟/握手信号. 当一个报文的第一个 4 位被 initiator (发送报文的接口) 传送, 
+                        时钟线被拉高, 使接收接口来中断处理器. plip 处理者接着被调用来处理新到达的数据.</P>
+                        <P>在设备已经被提醒了后, 数据传送继续, 使用握手线来传送数据到接收接口(这可能不是最好的实现, 
+                        但是有必要与使用并口的其他报文驱动兼容). 如果接收接口不得不为每个接收的字节处理 2 次中断, 
+                        性能可能不可忍受. 因此, 驱动在接收报文的时候禁止中断; 相反, 一个查询并延时的循环用来引入数据.</P>
+                        <P>类似地, 因为从接收器到发送器的握手线用来确认数据接收, 发送接口禁止它的 IRQ 
+                        线在报文发送时.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Disablingallinterrupts.sect></A>10.2.6.2.&nbsp;禁止所有中断</H4></DIV></DIV></DIV>
+                        <P>如果你需要禁止所有中断如何? 在 2.6 内核, 可能关闭在当前处理器上所有中断处理, 使用任一个下面 2 
+                        个函数(定义在 &lt;asm/system.h&gt;):</P><PRE class=programlisting>void local_irq_save(unsigned long flags);
+void local_irq_disable(void);
+</PRE>
+                        <P>一个对 local_irq_save 的调用在当前处理器上禁止中断递交, 在保存当前中断状态到 flags 
+                        之后. 注意, flags 是直接传递, 不是通过指针. local_irq_disable 
+                        关闭本地中断递交而不保存状态; 你应当使用这个版本只在你知道中断没有在别处被禁止.</P>
+                        <P>完成打开中断, 使用:</P><PRE class=programlisting>void local_irq_restore(unsigned long flags); 
+void local_irq_enable(void);
+</PRE>
+                        <P>第一个版本恢复由 local_irq_save 存储于 flags 的状态, 而 
+                        local_irq_enable 无条件打开中断. 不象 disable_irq, 
+                        local_irq_disable 不跟踪多次调用. 如果调用链中有多于一个函数可能需要禁止中断, 应该使用 
+                        local_irq_save.</P>
+                        <P>在 2.6 内核, 没有方法全局性地跨整个系统禁止所有的中断. 内核开发者决定, 关闭所有中断的开销太高, 
+                        并且在任何情况下没有必要有这个能力. 如果你在使用一个旧版本驱动, 它调用诸如 cli 和 sti, 
+                        你需要在它在 2.6 下工作前更新它为使用正确的加锁</P></DIV></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch10s02.html#id461412" 
+                        name=ftn.id461412><FONT color=#0000ff>37</FONT></A>] 
+                        </SUP>尽管, 一些大系统明确使用中断平衡机制来在系统间分散中断负载.</P></DIV>
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch10s02.html#id462191" 
+                        name=ftn.id462191><FONT color=#0000ff>38</FONT></A>] 
+                        </SUP>这个 shortint 设备完成它的任务, 通过交替地写入 0x00 和 0xff 到并口.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=TopandBottomHalves.sect></A>10.3.&nbsp;前和后半部</H2></DIV></DIV></DIV>
+                        <P>中断处理的一个主要问题是如何在处理中进行长时间的任务. 常常大量的工作必须响应一个设备中断来完成, 
+                        但是中断处理需要很快完成并且不使中断阻塞太长. 这 2 个需要(工作和速度)彼此冲突, 
+                        留给驱动编写者一点困扰.</P>
+                        <P>Linux (许多其他系统一起)解决这个问题通过将中断处理分为 2 半. 所谓的前半部是实际响应中断的函数 
+                        -- 你使用 request_irq 注册的那个. 后半部是由前半部调度来延后执行的函数, 在一个更安全的时间. 
+                        最大的不同在前半部处理和后半部之间是所有的中断在后半部执行时都使能 -- 这就是为什么它在一个更安全时间运行. 
+                        在典型的场景中, 前半部保存设备数据到一个设备特定的缓存, 调度它的后半部, 并且退出: 这个操作非常快. 
+                        后半部接着进行任何其他需要的工作, 例如唤醒进程, 启动另一个 I/O 操作, 等等. 
+                        这种设置允许前半部来服务一个新中断而同时后半部仍然在工作.</P>
+                        <P>几乎每个认真的中断处理都这样划分. 例如, 当一个网络接口报告有新报文到达, 
+                        处理者只是获取数据并且上推给协议层; 报文的实际处理在后半部进行.</P>
+                        <P>Linux 内核有 2 个不同的机制可用来实现后半部处理, 我们都在第 7 章介绍. tasklet 
+                        常常是后半部处理的首选机制; 它们非常快, 但是所有的 tasklet 代码必须是原子的. tasklet 
+                        的可选项是工作队列, 它可能有一个更高的运行周期但是允许睡眠.</P>
+                        <P>下面的讨论再次使用 short 驱动. 当使用一个模块选项加载时, short 
+                        能够被告知在前/后半部模式使用一个 tasklet 或者工作队列处理者来进行中断处理. 在这个情况下, 
+                        前半部快速地执行; 它简单地记住当前时间并且调度后半部处理. 
+                        后半部接着负责将时间编码并且唤醒任何可能在等待数据的用户进程.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=Tasklet.sect></A>10.3.1.&nbsp;Tasklet 
+                        实现</H3></DIV></DIV></DIV>
+                        <P>记住 tasklet 是一个特殊的函数, 可能被调度来运行, 在软中断上下文, 
+                        在一个系统决定的安全时间中. 它们可能被调度运行多次, 但是 tasklet 调度不累积; ; tasklet 
+                        只运行一次, 即便它在被投放前被重复请求. 没有 tasklet 会和它自己并行运行, 因为它只运行一次, 但是 
+                        tasklet 可以与 SMP 系统上的其他 tasklet 并行运行. 因此, 如果你的驱动有多个 
+                        tasklet, 它们必须采取某类加锁来避免彼此冲突.</P>
+                        <P>tasklet 也保证作为函数运行在第一个调度它们的同一个 CPU 上. 因此, 一个中断处理可以确保一个 
+                        tasklet 在处理者结束前不会开始执行. 但是, 另一个中断当然可能在 tasklet 在运行时被递交, 
+                        因此, tasklet 和中断处理之间加锁可能仍然需要.</P>
+                        <P>tasklet 必须使用 DECLARE_TASKLET 宏来声明:</P><PRE class=programlisting>DECLARE_TASKLET(name, function, data);
+</PRE>
+                        <P>name 是给 tasklet 的名子, function 是调用来执行 tasklet (它带一个 
+                        unsigned long 参数并且返回 void )的函数, 以及 data 是一个 unsigned 
+                        long 值来传递给 tasklet 函数.</P>
+                        <P>short 驱动声明它的 tasklet 如下:</P><PRE class=programlisting>void short_do_tasklet(unsigned long);
+DECLARE_TASKLET(short_tasklet, short_do_tasklet, 0);
+</PRE>
+                        <P>函数 tasklet_schedule 用来调度一个 tasklet 运行. 如果 short 使用 
+                        tasklet=1 来加载, 它安装一个不同的中断处理来保存数据并且调度 tasklet 如下:</P><PRE class=programlisting>irqreturn_t short_tl_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+{
+        do_gettimeofday((struct timeval *) tv_head); /* cast to stop 'volatile' warning
+                         */
+        short_incr_tv(&amp;tv_head);
+        tasklet_schedule(&amp;short_tasklet);
+        short_wq_count++; /* record that an interrupt arrived */
+        return IRQ_HANDLED;
+}
+</PRE>
+                        <P>实际的 tasklet 函数, short_do_tasklet, 将在系统方便时很快执行. 
+                        如同前面提过, 这个函数进行处理中断的大量工作; 它看来如此:</P><PRE class=programlisting>void short_do_tasklet (unsigned long unused)
+{
+        int savecount = short_wq_count, written;
+        short_wq_count = 0; /* we have already been removed from the queue */
+        /*
+        * The bottom half reads the tv array, filled by the top half,
+        * and prints it to the circular text buffer, which is then consumed
+        * by reading processes */
+        /* First write the number of interrupts that occurred before this bh */
+        written = sprintf((char *)short_head,"bh after %6i\n",savecount);
+        short_incr_bp(&amp;short_head, written);
+        /*
+        * Then, write the time values. Write exactly 16 bytes at a time,
+        * so it aligns with PAGE_SIZE */
+
+        do {
+                written = sprintf((char *)short_head,"%08u.%06u\n",
+                                  (int)(tv_tail-&gt;tv_sec % 100000000),
+                                  (int)(tv_tail-&gt;tv_usec));
+                short_incr_bp(&amp;short_head, written);
+                short_incr_tv(&amp;tv_tail);
+        } while (tv_tail != tv_head);
+
+        wake_up_interruptible(&amp;short_queue); /* awake any reading process */
+}
+</PRE>
+                        <P>在别的东西中, 这个 tasklet 记录了从它上次被调用以来有多少中断到达. 一个如 short 
+                        一样的设备能够在短时间内产生大量中断, 因此在后半部执行前有几个中断到达就不是不寻常的. 
+                        驱动必须一直准备这种可能性并且必须能够从前半部留下的信息中决定有多少工作要做.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=Workqueues.sect></A>10.3.2.&nbsp;工作队列</H3></DIV></DIV></DIV>
+                        <P>回想, 工作队列在将来某个时候调用一个函数, 在一个特殊工作者进程的上下文中. 
+                        因为这个工作队列函数在进程上下文运行, 它在需要时能够睡眠. 但是, 你不能从一个工作队列拷贝数据到用户空间, 
+                        除非你使用我们在 15 章演示的高级技术; 工作者进程不存取任何其他进程的地址空间.</P>
+                        <P>short 驱动, 如果设置 wq 选项为一个非零值来加载, 为它的后半部处理使用一个工作队列. 
+                        它使用系统缺省的工作队列, 因此不要求特殊的设置代码; 
+                        如果你的驱动有特别的运行周期要求(或者可能在工作队列函数长时间睡眠), 你可能需要创建你自己的, 
+                        专用的工作队列. 我们确实需要一个 work_struct 结构, 它声明和初始化使用下列:</P><PRE class=programlisting>static struct work_struct short_wq;
+/* this line is in short_init() */
+INIT_WORK(&amp;short_wq, (void (*)(void *)) short_do_tasklet, NULL);
+</PRE>
+                        <P>我们的工作者函数是 short_do_tasklet, 我们已经在前面一节看到.</P>
+                        <P>当使用一个工作队列, short 还建立另一个中断处理, 看来如此:</P><PRE class=programlisting>irqreturn_t short_wq_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+{
+        /* Grab the current time information. */
+        do_gettimeofday((struct timeval *) tv_head);
+        short_incr_tv(&amp;tv_head);
+        /* Queue the bh. Don't worry about multiple enqueueing */
+        schedule_work(&amp;short_wq);
+        short_wq_count++; /* record that an interrupt arrived */
+        return IRQ_HANDLED;
+}
+</PRE>
+                        <P>如你所见, 中断处理看来非常象这个 tasklet 版本, 除了它调用 schedule_work 
+                        来安排后半部处理.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=InterruptSharing.sect></A>10.4.&nbsp;中断共享</H2></DIV></DIV></DIV>
+                        <P>中断冲突的概念几乎是 PC 体系的同义词. 过去, 在 PC 上的 IRQ 线不能服务多于一个设备, 
+                        并且它们从不足够. 结果, 失望的用户花费大量时间开着它们的计算机, 
+                        尽力找到一个方法来使它们所有的外设一起工作.</P>
+                        <P>现代的硬件, 当然, 已经设计来允许中断共享; PCI 总线要求它. 因此, Linux 
+                        内核支持在所有总线上中断共享, 甚至是那些(例如 ISA 总线)传统上不被支持的. 2.6 
+                        内核的设备驱动应当编写来使用共享中断, 如果目标硬件能够支持这个操作模式. 幸运的是, 
+                        使用共享中断在大部分时间是容易的.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=InstallingaSharedHandler.sect></A>10.4.1.&nbsp;安装一个共享的处理者</H3></DIV></DIV></DIV>
+                        <P>共享中断通过 request_irq 来安装就像不共享的一样, 但是有 2 个不同:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>SA_SHIRQ 位必须在 flags 参数中指定, 当请求中断时. 
+                          <P></P>
+                          <LI>
+                          <P>dev_id 参数必须是独特的. 任何模块地址空间的指针都行, 但是 dev_id 明确地不能设置为 
+                          NULL.</P></LI></UL></DIV>
+                        <P>内核保持着一个与中断相关联的共享处理者列表, 并且 dev_id 可认为是区别它们的签名. 如果 2 
+                        个驱动要在同一个中断上注册 NULL 作为它们的签名, 在卸载时事情可能就乱了, 在中断到的时候引发内核 
+                        oops. 由于这个理由, 如果在注册共享中断时传给了一个 NULL dev_id , 现代内核会大声抱怨. 
+                        当请求一个共享的中断, request_irq 成功, 如果下列之一是真:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>中断线空闲.</P>
+                          <LI>
+                          <P>所有这条线的已经注册的处理者也指定共享这个 IRQ.</P></LI></UL></DIV>
+                        <P>无论何时 2 个或多个驱动在共享中断线, 并且硬件中断在这条线上中断处理器, 
+                        内核为这个中断调用每个注册的处理者, 传递它的 dev_id 给每个. 因此, 
+                        一个共享的处理者必须能够识别它自己的中断并且应当快速退出当它自己的设备没有被中断时. 确认返回 IRQ_NONE 
+                        无论何时你的处理者被调用并且发现设备没被中断.</P>
+                        <P>如果你需要探测你的设备, 在请求 IRQ 线之前, 内核无法帮你. 没有探测函数可给共享处理者使用. 
+                        标准的探测机制有效如果使用的线是空闲的, 但是如果这条线已经被另一个有共享能力的驱动持有, 探测失败, 
+                        即便你的驱动已正常工作. 幸运的是, 大部分设计为中断共享的硬件能够告知处理器它在使用哪个中断, 
+                        因此减少明显的探测的需要.</P>
+                        <P>释放处理者以正常方式进行, 使用 free_irq. 这里 dev_id 
+                        参数用来从这个中断的共享处理者列表中选择正确的处理者来释放. 这就是为什么 dev_id 
+                        指针必须是独特的.</P>
+                        <P>一个使用共享处理者的驱动需要小心多一件事: 它不能使用 enable_irq 或者 
+                        disable_irq. 如果它用了, 对其他共享这条线的设备就乱了; 
+                        禁止另一个设备的中断即便短时间也可能产生延时, 这对这个设备和它的用户是有问题的. 通常, 程序员必须记住, 
+                        他的驱动不拥有这个 IRQ, 并且它的行为应当比它拥有这个中断线更加"社会性".</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=RunningtheHandler.sect></A>10.4.2.&nbsp;运行处理者</H3></DIV></DIV></DIV>
+                        <P>如同前面建议的, 当内核收到一个中断, 所有的注册的处理者被调用. 
+                        一个共享的处理者必须能够在它需要的处理的中断和其他设备产生的中断之间区分.</P>
+                        <P>使用 shared=1 选项来加载 short 安装了下列处理者来代替缺省的:</P><PRE class=programlisting>irqreturn_t short_sh_interrupt(int irq, void *dev_id, struct pt_regs *regs) 
+{
+        int value, written;
+        struct timeval tv;
+        /* If it wasn't short, return immediately */
+        value = inb(short_base);
+        if (!(value &amp; 0x80))
+                return IRQ_NONE;
+        /* clear the interrupting bit */
+        outb(value &amp; 0x7F, short_base);
+        /* the rest is unchanged */
+        do_gettimeofday(&amp;tv);
+        written = sprintf((char *)short_head,"%08u.%06u\n",
+                          (int)(tv.tv_sec % 100000000), (int)(tv.tv_usec));
+        short_incr_bp(&amp;short_head, written);
+        wake_up_interruptible(&amp;short_queue); /* awake any reading process */
+        return IRQ_HANDLED;
+}
+</PRE>
+                        <P>这里应该有个解释. 因为并口没有"中断挂起"位来检查, 处理者使用 ACK 位作此目的. 如果这个位是高, 
+                        正报告的中断是给 short, 并且这个处理者清除这个位.</P>
+                        <P>处理者通过并口数据端口的清零来复位这个位 -- short 假设管脚 9 和 10 连在一起. 
+                        如果其他一个和 short 共享这个 IRQ 的设备产生一个中断, short 
+                        看到它的线仍然非激活并且什么不作.</P>
+                        <P>当然, 一个功能齐全的驱动可能将工作划分位前和后半部, 但是容易添加并且不会有任何影响实现共享的代码. 
+                        一个真实驱动还可能使用 dev_id 参数来决定, 在很多可能的中, 哪个设备在中断.</P>
+                        <P>注意, 如果你使用打印机(代替跳线)来测试使用 short 的中断管理, 
+                        这个共享的处理者不象所说的一样工作,因为打印机协议不允许共享, 
+                        并且驱动不知道是否这个中断是来自打印机.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheprocInterfaceandShardInterrupts.sect></A>10.4.3.&nbsp;/proc 
+                        接口和共享中断</H3></DIV></DIV></DIV>
+                        <P>在系统中安装共享处理者不影响 /proc/stat, 它甚至不知道处理者. 但是, 
+                        /proc/interrupts 稍稍变化.</P>
+                        <P>所有同一个中断号的安装的处理者出现在 /proc/interrupts 的同一行. 下列输出( 从一个 
+                        x86_64 系统)显示了共享中断处理是如何显示的:</P><PRE class=screen> CPU0
+ 0: 892335412 XT-PIC timer
+ 1: 453971 XT-PIC i8042
+ 2: 0 XT-PIC cascade
+ 5: 0 XT-PIC libata, ehci_hcd
+ 8: 0 XT-PIC rtc
+ 9: 0 XT-PIC acpi
+ 10: 11365067 XT-PIC ide2, uhci_hcd, uhci_hcd, SysKonnect SK-98xx, EMU10K1
+ 11: 4391962 XT-PIC uhci_hcd, uhci_hcd
+ 12: 224 XT-PIC i8042
+ 14: 2787721 XT-PIC ide0
+ 15: 203048 XT-PIC ide1
+NMI: 41234
+LOC: 892193503
+ERR: 102
+MIS: 0
+</PRE>
+                        <P>这个系统有几个共享中断线. IRQ 5 用来给串行 ATA 和 IEEE 1394 控制器; IRQ 10 
+                        有几个设备, 包括一个 IDE 控制器, 2 个 USB 控制器, 一个以太网接口, 以及一个声卡; 并且 
+                        IRQ 11 也被 2 个 USB 控制器使用.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=InterruptDrivenIO.sect></A>10.5.&nbsp;中断驱动 
+                        I/O</H2></DIV></DIV></DIV>
+                        <P>无论何时一个数据传送到或自被管理的硬件可能因为任何原因而延迟, 驱动编写者应当实现缓存. 
+                        数据缓存帮助来分离数据传送和接收从写和读系统调用, 并且整个系统性能受益.</P>
+                        <P>一个好的缓存机制产生了中断驱动的 I/O, 一个输入缓存在中断时填充并且被读取设备的进程清空; 
+                        一个输出缓存由写设备的进程填充并且在中断时清空. 一个中断驱动的输出的例子是 /dev/shortprint 
+                        的实现.</P>
+                        <P>为使中断驱动的数据传送成功发生, 硬件应当能够产生中断, 使用下列语义:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>对于输入, 设备中断处理器, 当新数据到达时, 并且准备好被系统处理器获取. 
+                          进行的实际动作依赖是否设备使用 I/O 端口, 内存映射, 或者 DMA.</P>
+                          <LI>对于输出, 设备递交一个中断, 或者当它准备好接受新数据, 或者确认一个成功的数据传送. 
+                          内存映射的和能DMA的设备常常产生中断来告诉系统它们完成了这个缓存. 
+                          <P></P></LI></UL></DIV>
+                        <P>在一个读或写与实际数据到达之间的时间关系在第 6 章的"阻塞和非阻塞操作"一节中介绍.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AWriteBufferingExample.sect></A>10.5.1.&nbsp;一个写缓存例子</H3></DIV></DIV></DIV>
+                        <P>我们已经几次提及 shortprint 驱动; 现在是时候真正看看. 这个模块为并口实现一个非常简单, 
+                        面向输出的驱动; 它是足够的, 但是, 来使能文件打印. 如果你选择来测试这个驱动, 但是, 
+                        记住你必须传递给打印机一个文件以它理解的格式; 不是所有的打印机在给一个任意数据的流时很好响应.</P>
+                        <P>shortprint 驱动维护一个一页的环形输出缓存. 当一个用户空间进程写数据到这个设备, 
+                        数据被填入缓存, 但是写方法实际没有进行任何 I/O. 相反, shortp_write 
+的核心看来如此:</P><PRE class=programlisting>while (written &lt; count)
+{
+        /* Hang out until some buffer space is available. */
+        space = shortp_out_space();
+        if (space &lt;= 0) {
+                if (wait_event_interruptible(shortp_out_queue,
+                                             (space = shortp_out_space()) &gt; 0))
+                        goto out;
+        }
+
+        /* Move data into the buffer. */
+        if ((space + written) &gt; count)
+                space = count - written;
+
+        if (copy_from_user((char *) shortp_out_head, buf, space)) {
+                up(&amp;shortp_out_sem);
+                return -EFAULT;
+        }
+        shortp_incr_out_bp(&amp;shortp_out_head, space);
+        buf += space;
+        written += space;
+
+        /* If no output is active, make it active. */
+        spin_lock_irqsave(&amp;shortp_out_lock, flags);
+        if (! shortp_output_active)
+                shortp_start_output();
+        spin_unlock_irqrestore(&amp;shortp_out_lock, flags);
+}
+
+out:
+*f_pos += written;
+</PRE>
+                        <P>一个旗标 ( shortp_out_sem ) 控制对这个环形缓存的存取; shortp_write 
+                        就在上面的代码片段之前获得这个旗标. 当持有这个旗标, 它试图输入数据到这个环形缓存. 函数 
+                        shortp_out_space 返回可用的连续空间的数量(因此, 没有必要担心缓存回绕); 如果这个量是 0, 
+                        驱动等到释放一些空间. 它接着拷贝它能够的数量的数据到缓存中.</P>
+                        <P>一旦有数据输出, shortp_write 必须确保数据被写到设备. 
+                        数据的写是通过一个工作队列函数完成的; shortp_write 必须启动这个函数如果它还未在运行. 
+                        在获取了一个单独的, 控制存取输出缓存的消费者一侧(包括 
+                        shortp_output_active)的数据的自旋锁后, 它调用 shortp_start_output 
+                        如果需要. 接着只是注意多少数据被写到缓存并且返回.</P>
+                        <P>启动输出进程的函数看来如下:</P><PRE class=programlisting>static void shortp_start_output(void)
+{
+        if (shortp_output_active) /* Should never happen */
+                return;
+
+        /* Set up our 'missed interrupt' timer */
+        shortp_output_active = 1;
+        shortp_timer.expires = jiffies + TIMEOUT;
+        add_timer(&amp;shortp_timer);
+
+        /* And get the process going. */
+        queue_work(shortp_workqueue, &amp;shortp_work);
+}
+</PRE>
+                        <P>处理硬件的事实是, 你可以, 偶尔, 丢失来自设备的中断. 当发生这个, 
+                        你确实不想你的驱动一直停止直到系统重启; 这不是一个用户友好的做事方式. 最好是认识到一个中断已经丢失, 
+                        收拾残局, 继续. 为此, shortprint 甚至一个内核定时器无论何时它输出数据给设备. 如果时钟超时, 
+                        我们可能丢失一个中断. 我们很快会看到定时器函数, 但是, 暂时, 让我们坚持在主输出功能上. 
+                        那是在我们的工作队列函数里实现的, 它, 如同你上面看到的, 在这里被调度. 那个函数的核心看来如下:</P><PRE class=programlisting>spin_lock_irqsave(&amp;shortp_out_lock, flags);
+/* Have we written everything? */
+if (shortp_out_head == shortp_out_tail)
+{ /* empty */
+        shortp_output_active = 0;
+        wake_up_interruptible(&amp;shortp_empty_queue);
+        del_timer(&amp;shortp_timer);
+
+}
+/* Nope, write another byte */
+else
+        shortp_do_write();
+/* If somebody's waiting, maybe wake them up. */
+if (((PAGE_SIZE + shortp_out_tail -shortp_out_head) % PAGE_SIZE) &gt; SP_MIN_SPACE)
+{
+        wake_up_interruptible(&amp;shortp_out_queue);
+}
+spin_unlock_irqrestore(&amp;shortp_out_lock, flags);
+</PRE>
+                        <P>因为我们在使用共享变量的输出一侧, 我们必须获得自旋锁. 接着我们看是否有更多的数据要发送; 如果无, 
+                        我们注意输出不再激活, 删除定时器, 并且唤醒任何在等待队列全空的进程(这种等待当设备被关闭时结束). 如果, 
+                        相反, 有数据要写, 我们调用 shortp_do_write 来实际发送一个字节到硬件.</P>
+                        <P>接着, 因为我们可能在输出缓存中有空闲空间, 我们考虑唤醒任何等待增加更多数据给那个缓存的进程. 
+                        但是我们不是无条件进行唤醒; 相反, 我们等到有一个最低数量的空间. 
+                        每次我们从缓存拿出一个字节就唤醒一个写者是无意义的; 唤醒进程的代价, 调度它运行, 并且使它重回睡眠, 
+                        太高了. 相反, 我们应当等到进程能够立刻移动相当数量的数据到缓存. 这个技术在缓存的, 
+                        中断驱动的驱动中是普通的.</P>
+                        <P>为完整起见, 这是实际写数据到端口的代码:</P><PRE class=programlisting>static void shortp_do_write(void)
+{
+        unsigned char cr = inb(shortp_base + SP_CONTROL);
+        /* Something happened; reset the timer */
+        mod_timer(&amp;shortp_timer, jiffies + TIMEOUT);
+        /* Strobe a byte out to the device */
+        outb_p(*shortp_out_tail, shortp_base+SP_DATA);
+        shortp_incr_out_bp(&amp;shortp_out_tail, 1);
+        if (shortp_delay)
+                udelay(shortp_delay);
+        outb_p(cr | SP_CR_STROBE, shortp_base+SP_CONTROL);
+        if (shortp_delay)
+                udelay(shortp_delay);
+        outb_p(cr &amp; ~SP_CR_STROBE, shortp_base+SP_CONTROL);
+}
+</PRE>
+                        <P>这里, 我们复位定时器来反映一个事实, 我们已经作了一些处理, 输送字节到设备, 
+                        并且更新了环形缓存指针.</P>
+                        <P>工作队列函数没有直接重新提交它自己, 因此只有一个单个字节会被写入设备. 在某一处, 打印机将, 
+                        以它的缓慢方式, 消耗这个字节并且准备好下一个; 它将接着中断处理器. shortprint 
+                        中使用的中断处理是简短的:</P><PRE class=programlisting>static irqreturn_t shortp_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+{
+        if (! shortp_output_active)
+                return IRQ_NONE;
+        /* Remember the time, and farm off the rest to the workqueue function */
+        do_gettimeofday(&amp;shortp_tv);
+        queue_work(shortp_workqueue, &amp;shortp_work);
+        return IRQ_HANDLED;
+}
+</PRE>
+                        <P>因为并口不要求一个明显的中断确认, 中断处理所有真正需要做的是告知内核来再次运行工作队列函数.</P>
+                        <P>如果中断永远不来如何? 至此我们已见到的驱动代码将简单地停止. 为避免发生这个, 
+                        我们设置了一个定时器在几页前. 当定时器超时运行的函数是:</P><PRE class=programlisting>static void shortp_timeout(unsigned long unused) 
+{
+        unsigned long flags;
+        unsigned char status;
+        if (! shortp_output_active)
+                return;
+        spin_lock_irqsave(&amp;shortp_out_lock, flags);
+        status = inb(shortp_base + SP_STATUS);
+
+        /* If the printer is still busy we just reset the timer */
+        if ((status &amp; SP_SR_BUSY) == 0 || (status &amp; SP_SR_ACK)) {
+
+                shortp_timer.expires = jiffies + TIMEOUT;
+                add_timer(&amp;shortp_timer);
+                spin_unlock_irqrestore(&amp;shortp_out_lock, flags);
+                return;
+        }
+        /* Otherwise we must have dropped an interrupt. */
+        spin_unlock_irqrestore(&amp;shortp_out_lock, flags);
+        shortp_interrupt(shortp_irq, NULL, NULL);
+}
+</PRE>
+                        <P>如果没有输出要被激活, 定时器函数简单地返回. 这避免了定时器重新提交自己, 当事情在被关闭时. 接着, 
+                        在获得了锁之后, 我们查询端口的状态; 如果它声称忙, 它完全还没有时间来中断我们, 
+                        因此我们复位定时器并且返回. 打印机能够, 有时, 花很长时间来使自己准备; 考虑一下缺纸的打印机, 
+                        而每个人在一个长周末都不在. 在这种情况下, 只有耐心等待直到事情改变.</P>
+                        <P>但是, 如果打印机声称准备好了, 我们一定丢失了它的中断. 这个情况下, 
+                        我们简单地手动调用我们的中断处理来使输出处理再动起来.</P>
+                        <P>shortpirnt 驱动不支持从端口读数据; 相反, 它象 shortint 并且返回中断时间信息. 
+                        但是一个中断驱动的读方法的实现可能非常类似我们已经见到的. 从设备来的数据可能被读入驱动缓存; 
+                        它可能被拷贝到用户空间只在缓存中已经累积了相当数量的数据, 完整的读请求已被满足, 或者某种超时发生.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=InterruptHandlingqr.sect></A>10.6.&nbsp;快速参考</H2></DIV></DIV></DIV>
+                        <P>本章中介绍了这些关于中断管理的符号:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/interrupt.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int request_irq(unsigned 
+                          int irq, irqreturn_t (*handler)( ), unsigned long 
+                          flags, const char *dev_name, void 
+                          *dev_id);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void free_irq(unsigned int 
+                          irq, void *dev_id);</SPAN></SPAN> 
+                          <DD>
+                          <P>调用这个注册和注销一个中断处理.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/irq.h.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          can_request_irq(unsigned int irq, unsigned long 
+                          flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数, 在 i386 和 x86_64 体系上有, 
+                          返回一个非零值如果一个分配给定中断线的企图成功.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/signal.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>SA_INTERRUPT</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>SA_SHIRQ</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>SA_SAMPLE_RANDOM 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>给 request_irq 的标志. SA_INTERRUPT 请求安装一个快速处理者( 
+                          相反是一个慢速的). SA_SHIRQ 安装一个共享的处理者, 并且第 3 个 flag 
+                          声称中断时戳可用来产生系统熵.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>/proc/interrupts</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>/proc/stat </SPAN></SPAN>
+                          <DD>
+                          <P>报告硬件中断和安装的处理者的文件系统节点.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          probe_irq_on(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int probe_irq_off(unsigned 
+                          long);</SPAN></SPAN> 
+                          <DD>
+                          <P>驱动使用的函数, 当它不得不探测来决定哪个中断线被设备在使用. probe_irq_on 
+                          的结果必须传回给 probe_irq_off 在中断产生之后. probe_irq_off 
+                          的返回值是被探测的中断号.</P>
+                          <DT><SPAN class=term><SPAN>IRQ_NONE</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>IRQ_HANDLED</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>IRQ_RETVAL(int 
+                          x)</SPAN></SPAN> 
+                          <DD>
+                          <P>从一个中断处理返回的可能值, 指示是否一个来自设备的真正的中断出现了.</P>
+                          <DT><SPAN class=term><SPAN>void disable_irq(int 
+                          irq);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void disable_irq_nosync(int 
+                          irq);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void enable_irq(int 
+                          irq);</SPAN></SPAN> 
+                          <DD>
+                          <P>驱动可以使能和禁止中断报告. 如果硬件试图在中断禁止时产生一个中断, 这个中断永远丢失了. 
+                          一个使用一个共享处理者的驱动必须不使用这个函数.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          local_irq_save(unsigned long flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          local_irq_restore(unsigned long flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>使用 local_irq_save 来禁止本地处理器的中断并且记住它们之前的状态. flags 
+                          可以被传递给 local_irq_restore 来恢复之前的中断状态.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          local_irq_disable(void);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          local_irq_enable(void);</SPAN></SPAN> 
+                          <DD>
+                          <P>在当前处理器熵无条件禁止和使能中断的函数.</P></DD></DL></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:36，已浏览51次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270132">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270132">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（10）中断处理 - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>

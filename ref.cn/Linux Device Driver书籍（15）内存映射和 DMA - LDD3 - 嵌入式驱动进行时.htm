@@ -1,0 +1,2447 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270151 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（15）内存映射和 DMA  - LDD3 - 嵌入式驱动进行时" 
+name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（15）内存映射和 DMA  - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（15）内存映射和 DMA </B></FONT>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>第&nbsp;15&nbsp;章&nbsp;内存映射和 DMA </DIV>
+                        <DIV>
+                        <P>本章研究 Linux 内存管理的部分, 重点在对于设备驱动作者有用的技术. 
+                        许多类型的驱动编程需要一些对于虚拟内存子系统如何工作的理解; 我们在本章涉及到的材料来自手头, 
+                        而不是象我们曾进入更加复杂和性能关键的子系统一样. 虚拟内存子系统也是 Linux 内核核心的非常有趣的部分, 
+                        并且因而, 值得一见.</P>
+                        <P>本章的材料分为 3 个部分:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>第一部分涉及 mmap 系统调用的实现, 它允许设备内存直接映射到一个用户进程地址空间. 
+                          不是所有的设备需要 mmap 支持, 但是, 对一些, 映射设备内存可产生可观的性能提高.</P>
+                          <LI>
+                          <P>我们接着看从其他的方向跨过边界, 用对直接存取用户空间的讨论. 相对少驱动需要这个能力; 
+                          在大部分情况下, 内核做这种映射而驱动甚至不知道它. 但是了解如何映射用户空间内存到内核(使用 
+                          get_user_pages)会有用.</P>
+                          <LI>
+                          <P>最后一节涵盖直接内存存取( DMA ) I/O 操作, 
+                          它提供给外设对系统内存的直接存取.</P></LI></UL></DIV>
+                        <P>当然, 所有这些技术需要一个对 Linux 内存管理如何工作的理解, 
+                        因此我们从对这个子系统的总览开始.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=MemoryManagementinLinux.sect1></A>15.1.&nbsp;Linux 
+                        中的内存管理</H2></DIV></DIV></DIV>
+                        <P>不是描述操作系统的内存管理理论, 本节试图指出 Linux 实现的主要特点. 尽管你不必是一位 Linux 
+                        虚拟内存专家来实现 mmap, 一个对事情如何工作的基本了解是有用的. 
+                        下面是一个相当长的对内核使用来管理内存的数据结构的描述. 一旦必要的背景已被覆盖, 
+                        我们就进入使用这个结构.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AddressTypes.sect2></A>15.1.1.&nbsp;地址类型</H3></DIV></DIV></DIV>
+                        <P>Linux 是, 当然, 一个虚拟内存系统, 意味着用户程序见到的地址不直接对应于硬件使用的物理地址. 
+                        虚拟内存引入了一个间接层, 它允许了许多好事情. 有了虚拟内存, 
+                        系统重运行的程序可以分配远多于物理上可用的内存; 确实, 
+                        即便一个单个进程可拥有一个虚拟地址空间大于系统的物理内存. 虚拟内存也允许程序对进程的地址空间运用多种技巧, 
+                        包括映射成员的内存到设备内存.</P>
+                        <P>至此, 我们已经讨论了虚拟和物理地址, 但是许多细节被掩盖过去了. Linux 系统处理几种类型的地址, 
+                        每个有它自己的含义. 不幸的是, 内核代码不是一直非常清楚确切地在每个情况下在使用什么类型地地址, 
+                        因此程序员必须小心.</P>
+                        <P>下面是一个 Linux 中使用的地址类型列表. 图 <A 
+                        title="图&nbsp;15.1.&nbsp;Linux 中使用的地址类型" 
+                        href="http://www.deansys.com/doc/ldd3/ch15.html#ldd3-15-1.fig"><FONT 
+                        color=#0000ff>Linux 
+                        中使用的地址类型</FONT></A>显示了这个地址类型如何关联到物理内存.</P>
+                        <DIV class=figure><A name=ldd3-15-1.fig></A>
+                        <P class=title><B>图&nbsp;15.1.&nbsp;Linux 
+                        中使用的地址类型</B></P>
+                        <DIV><IMG alt="Linux 中使用的地址类型" 
+                        src="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/ldd3-15-1.png"></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>User virtual addresses 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这是被用户程序见到的常规地址. 用户地址在长度上是 32 位或者 64 位, 依赖底层的硬件结构, 
+                          并且每个进程有它自己的虚拟地址空间.</P>
+                          <DT><SPAN class=term><SPAN>Physical addresses 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>在处理器和系统内存之间使用的地址. 物理地址是 32- 或者 64-位的量; 甚至 
+                          32-位系统在某些情况下可使用更大的物理地址.</P>
+                          <DT><SPAN class=term><SPAN>Bus addresses 
+</SPAN></SPAN>
+                          <DD>
+                          <P>在外设和内存之间使用的地址. 经常, 它们和被处理器使用的物理地址相同, 但是这不是必要的情况. 
+                          一些体系可提供一个 I/O 内存管理单元(IOMMU), 它在总线和主内存之间重映射地址. 一个 IOMMU 
+                          可用多种方法使事情简单(例如, 使散布在内存中的缓冲对设备看来是连续的, 例如), 但是当设定 DMA 
+                          操作时对 IOMMU 编程是一个必须做的额外的步骤. 总线地址是高度特性依赖的, 当然.</P>
+                          <DT><SPAN class=term><SPAN>Kernel logical addresses 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这些组成了正常的内核地址空间. 这些地址映射了部分(也许全部)主存并且常常被当作它们是物理内存来对待. 
+                          在大部分的体系上, 逻辑地址和它们的相关物理地址只差一个常量偏移. 逻辑地址使用硬件的本地指针大小并且, 
+                          因此, 可能不能在重装备的 32-位系统上寻址所有的物理内存. 逻辑地址常常存储于 unsigned 
+                          long 或者 void * 类型的变量中. 从 kmalloc 返回的内存有内核逻辑地址.</P>
+                          <DT><SPAN class=term><SPAN>Kernel virtual addresses 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>内核虚拟地址类似于逻辑地址, 它们都是从内核空间地址到物理地址的映射. 
+                          内核虚拟地址不必有逻辑地址空间具备的线性的, 一对一到物理地址的映射, 但是. 
+                          所有的逻辑地址是内核虚拟地址, 但是许多内核虚拟地址不是逻辑地址. 例如, vmalloc 
+                          分配的内存有虚拟地址(但没有直接物理映射). kmap 函数(本章稍后描述)也返回虚拟地址. 
+                          虚拟地址常常存储于指针变量.</P></DD></DL></DIV>
+                        <P>如果你有逻辑地址, 宏 __pa() ( 在 &lt;asm/page.h&gt; 
+                        中定义)返回它的关联的物理地址. 物理地址可被映射回逻辑地址使用 __va(), 但是只给低内存页.</P>
+                        <P>不同的内核函数需要不同类型地址. 如果有不同的 C 类型被定义可能不错, 这样请求的地址类型是明确的, 
+                        但是我们没有这样的好运. 在本章, 我们尽力对在哪里使用哪种类型地址保持清晰.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=PhsicalAddressesandPages.sect2></A>15.1.2.&nbsp;物理地址和页</H3></DIV></DIV></DIV>
+                        <P>物理内存被划分为离散的单元称为页. 系统的许多内部内存处理在按页的基础上完成. 
+                        页大小一个体系不同于另一个, 尽管大部分系统当前使用 4096-字节的页. 常量 PAGE_SIZE (定义在 
+                        &lt;asm/page.h&gt;) 给出了页大小在任何给定的体系上.</P>
+                        <P>如果你查看一个内存地址 - 虚拟或物理 - 它可分为一个页号和一个页内的偏移. 如果使用 
+                        4096-字节页, 例如, 12 位低有效位是偏移, 并且剩下的, 高位指示页号. 
+                        如果你丢弃偏移并且向右移动剩下的部分 offset 位, 结果被称为一个页帧号 (PFN). 
+                        移位来在页帧号和地址之间转换是一个相当普通的操作. 宏 PAGE_SHIFT 
+                        告诉必须移动多少位来进行这个转换.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=HighandLowMemory.sect2></A>15.1.3.&nbsp;高和低内存</H3></DIV></DIV></DIV>
+                        <P>逻辑和内核虚拟地址之间的不同在配备大量内存的 32-位系统中被突出. 用 32 位, 可能寻址 4 G 
+                        内存. 但是, 直到最近, 在 32-位 系统的 Linux 被限制比那个少很多的内存, 
+                        因为它建立虚拟地址的方式.</P>
+                        <P>内核( 在 x86 体系上, 在缺省配置里) 在用户空间和内核之间划分 4-G 虚拟地址; 在 2 
+                        个上下文中使用同一套映射. 一个典型的划分分出 3 GB 给用户空间, 和 1 GB 给内核空间. 
+                        <SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch15.html#ftn.id495351" 
+                        name=id495351><FONT 
+                        color=#0000ff>47</FONT></A>]</SUP>内核的代码和数据结构必须要适合这个空间, 
+                        但是内核地址空间最大的消费者是物理内存的虚拟映射. 内核不能直接操作没有映射到内核的地址空间. 内核, 
+                        换句话说, 需要它自己的虚拟地址给任何它必须直接接触的内存. 因此, 多年来, 
+                        能够被内核处理的的最大量的物理内存是能够映射到虚拟地址的内核部分的数量, 减去内核代码自身需要的空间. 结果, 
+                        基于 x86 的 Linux 系统可以工作在最多稍小于 1 GB 物理内存.</P>
+                        <P>为应对更多内存的商业压力而不破坏 32-位 应用和系统的兼容性, 
+                        处理器制造商已经增加了"地址扩展"特性到他们的产品中. 结果, 在许多情况下, 即便 32-位 
+                        处理器也能够寻址多于 4GB 物理内存. 但是, 多少内存可被直接用逻辑地址映射的限制还存在. 
+                        这样内存的最低部分(上到 1 或 2 GB, 根据硬件和内核配置)有逻辑地址; 剩下的(高内存)没有. 
+                        在存取一个特定高地址页之前, 内核必须建立一个明确的虚拟映射来使这个也在内核地址空间可用. 因此, 
+                        许多内核数据结构必须放在低内存; 高内存用作被保留为用户进程页.</P>
+                        <P>术语"高内存"对有些人可能是疑惑的, 特别因为它在 PC 世界里有其他的含义. 因此, 为清晰起见, 
+                        我们将定义这些术语:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>Low memory </SPAN></SPAN>
+                          <DD>
+                          <P>逻辑地址在内核空间中存在的内存. 在大部分每个系统你可能会遇到, 所有的内存都是低内存.</P>
+                          <DT><SPAN class=term><SPAN>High memory </SPAN></SPAN>
+                          <DD>
+                          <P>逻辑地址不存在的内存, 因为它在为内核虚拟地址设置的地址范围之外.</P></DD></DL></DIV>
+                        <P>在 i386 系统上, 低和高内存之间的分界常常设置在刚刚在 1 GB 之下, 
+                        尽管那个边界在内核配置时可被改变. 这个边界和在原始 PC 中有的老的 640 KB 限制没有任何关联, 
+                        并且它的位置不是硬件规定的. 相反, 它是, 内核自身设置的一个限制当它在内核和用户空间之间划分 
+                        32-位地址空间时.</P>
+                        <P>我们将指出使用高内存的限制, 随着我们在本章遇到它们时.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheMemoryMapandStructPage.sect2></A>15.1.4.&nbsp;内存映射和 
+                        struct page</H3></DIV></DIV></DIV>
+                        <P>历史上, 内核已使用逻辑地址来引用物理内存页. 高内存支持的增加, 但是, 已暴露这个方法的一个明显的问题 
+                        -- 逻辑地址对高内存不可用. 因此, 处理内存的内核函数更多在使用指向 struct page 
+                        的指针来代替(在 &lt;linux/mm.h&gt; 中定义). 
+                        这个数据结构只是用来跟踪内核需要知道的关于物理内存的所有事情.</P>
+                        <P>2.6 内核(带一个增加的补丁)可以支持一个 "4G/4G" 模式在 x86 硬件上, 
+                        它以微弱的性能代价换来更大的内核和用户虚拟地址空间.</P>
+                        <P>系统中每一个物理页有一个 struct page. 这个结构的一些成员包括下列:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>atomic_t 
+                          count;</SPAN></SPAN> 
+                          <DD>
+                          <P>这个页的引用数. 当这个 count 掉到 0, 这页被返回给空闲列表.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          *virtual;</SPAN></SPAN> 
+                          <DD>
+                          <P>这页的内核虚拟地址, 如果它被映射; 否则, NULL. 低内存页一直被映射; 高内存页常常不是. 
+                          这个成员不是在所有体系上出现; 它通常只在页的内核虚拟地址无法轻易计算时被编译. 如果你想查看这个成员, 
+                          正确的方法是使用 page_address 宏, 下面描述.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          flags;</SPAN></SPAN> 
+                          <DD>
+                          <P>一套描述页状态的一套位标志. 这些包括 PG_locked, 它指示该页在内存中已被加锁, 以及 
+                          PG_reserved, 它防止内存管理系统使用该页.</P></DD></DL></DIV>
+                        <P>有很多的信息在 struct page 中, 
+                        但是它是内存管理的更深的黑魔法的一部分并且和驱动编写者无关.</P>
+                        <P>内核维护一个或多个 struct page 项的数组来跟踪系统中所有物理内存. 在某些系统, 
+                        有一个单个数组称为 mem_map. 但是, 在某些系统, 情况更加复杂. 非一致内存存取( NUMA 
+                        )系统和那些有很大不连续的物理内存的可能有多于一个内存映射数组, 
+                        因此打算是可移植的代码在任何可能时候应当避免直接对数组存取. 幸运的是, 只是使用 struct page 
+                        指针常常是非常容易, 而不用担心它们来自哪里.</P>
+                        <P>有些函数和宏被定义来在 struct page 指针和虚拟地址之间转换:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *virt_to_page(void *kaddr);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个宏, 定义在 &lt;asm/page.h&gt;, 采用一个内核逻辑地址并返回它的被关联的 
+                          struct page 指针. 因为它需要一个逻辑地址, 它不使用来自 vmalloc 
+                          的内存或者高内存.</P>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *pfn_to_page(int pfn);</SPAN></SPAN> 
+                          <DD>
+                          <P>为给定的页帧号返回 struct page 指针. 如果需要, 它在传递给 pfn_to_page 
+                          之前使用 pfn_valid 来检查一个页帧号的有效性.</P>
+                          <DT><SPAN class=term><SPAN>void *page_address(struct 
+                          page *page);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回这个页的内核虚拟地址, 如果这样一个地址存在. 对于高内存, 那个地址仅当这个页已被映射才存在. 
+                          这个函数在 &lt;linux/mm.h&gt; 中定义. 大部分情况下, 你想使用 kmap 
+                          的一个版本而不是 page_address.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/highmem.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void *kmap(struct page 
+                          *page);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void kunmap(struct page 
+                          *page);</SPAN></SPAN> 
+                          <DD>
+                          <P>kmap 为系统中的任何页返回一个内核虚拟地址. 对于低内存页, 它只返回页的逻辑地址; 对于高内存, 
+                          kmap 在内核地址空间的一个专用部分中创建一个特殊的映射. 使用 kmap 创建的映射应当一直使用 
+                          kunmap 来释放;一个有限数目的这样的映射可用, 因此最好不要在它们上停留太长时间. kmap 
+                          调用维护一个计数器, 因此如果 2 个或 多个函数都在同一个页上调用 kmap, 正确的事情发生了. 
+                          还要注意 kmap 可能睡眠当没有映射可用时.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/highmem.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/kmap_types.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void *kmap_atomic(struct 
+                          page *page, enum km_type type);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void kunmap_atomic(void 
+                          *addr, enum km_type type);</SPAN></SPAN> 
+                          <DD>
+                          <P>kmap_atomic 是 kmap 的一种高性能形式. 每个体系都给原子的 kmaps 
+                          维护一小列插口( 专用的页表项); 一个 kmap_atomic 的调用者必须在 type 
+                          参数中告知系统使用这些插口中的哪个. 对驱动有意义的唯一插口是 KM_USER0 和 KM_USER1 
+                          (对于直接从来自用户空间的调用运行的代码), 以及 KM_IRQ0 和 KM_IRQ1(对于中断处理). 
+                          注意原子的 kmaps 必须被原子地处理; 你的代码不能在持有一个时睡眠. 还要注意内核中没有什么可以阻止 
+                          2 个函数试图使用同一个插口并且相互干扰( 尽管每个 CPU 有独特的一套插口). 实际上, 对原子的 
+                          kmap 插口的竞争看来不是个问题.</P></DD></DL></DIV>
+                        <P>在本章后面和后续章节中当我们进入例子代码时, 我们看到这些函数的一些使用, </P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=PageTables.sect2></A>15.1.5.&nbsp;页表</H3></DIV></DIV></DIV>
+                        <P>在任何现代系统上, 处理器必须有一个机制来转换虚拟地址到它的对应物理地址. 这个机制被称为一个页表; 
+                        它本质上是一个多级树型结构数组, 包含了虚拟-到-物理的映射和几个关联的标志. Linux 
+                        内核维护一套页表即便在没有直接使用这样页表的体系上.</P>
+                        <P>设备驱动通常可以做的许多操作能涉及操作页表. 幸运的是对于驱动作者, 2.6 
+                        内核已经去掉了任何直接使用页表的需要. 结果是, 我们不描述它们的任何细节; 好奇的读者可能想读一下 
+                        Understanding The Linux Kernel 来了解完整的内容, 作者是 Daniel P. 
+                        Bovet 和 Marco Cesati (O' Reilly).</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=VirtualMemoryAreas.sect2></A>15.1.6.&nbsp;虚拟内存区</H3></DIV></DIV></DIV>
+                        <P>虚拟内存区( VMA )用来管理一个进程的地址空间的独特区域的内核数据结构. 一个 VMA 
+                        代表一个进程的虚拟内存的一个同质区域: 一个有相同许可标志和被相同对象(如, 
+                        一个文件或者交换空间)支持的连续虚拟地址范围. 它松散地对应于一个"段"的概念, 
+                        尽管可以更好地描述为"一个有它自己特性的内存对象". 一个进程的内存映射有下列区组成:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>给程序的可执行代码(常常称为 text)的一个区.</P>
+                          <LI>
+                          <P>给数据的多个区, 包括初始化的数据(它有一个明确的被分配的值, 在执行开始), 
+                          未初始化数据(BBS), <SUP>[<A 
+                          href="http://www.deansys.com/doc/ldd3/ch15.html#ftn.id495847" 
+                          name=id495847><FONT 
+                          color=#0000ff>48</FONT></A>]</SUP>以及程序堆栈.</P>
+                          <LI>
+                          <P>给每个激活的内存映射的一个区域.</P></LI></UL></DIV>
+                        <P>一个进程的内存区可看到通过 /proc/&lt;pid/maps&gt;(这里 pid, 当然, 
+                        用一个进程的 ID 来替换). /proc/self 是一个 /proc/id 的特殊情况, 
+                        因为它常常指当前进程. 作为一个例子, 这里是几个内存映射(我们添加了简短注释)</P><PRE class=screen># cat /proc/1/maps look at init
+08048000-0804e000 r-xp 00000000 03:01 64652 
+0804e000-0804f000 rw-p 00006000 03:01 64652 
+0804f000-08053000 rwxp 00000000 00:00 0
+40000000-40015000 r-xp 00000000 03:01 96278 
+40015000-40016000 rw-p 00014000 03:01 96278 
+40016000-40017000 rw-p 00000000 00:00 0
+42000000-4212e000 r-xp 00000000 03:01 80290 
+4212e000-42131000 rw-p 0012e000 03:01 80290 
+42131000-42133000 rw-p 00000000 00:00 0
+bffff000-c0000000 rwxp 00000000 00:00 0
+ffffe000-fffff000 ---p 00000000 00:00 0
+
+/sbin/init text /sbin/init data zero-mapped BSS /lib/ld-2.3.2.so text /lib/ld-2.3.2.so data BSS for ld.so /lib/tls/libc-2.3.2.so text /lib/tls/libc-2.3.2.so data BSS for libc Stack segment vsyscall page 
+# rsh wolf cat /proc/self/maps #### x86-64 (trimmed)
+00400000-00405000 r-xp 00000000 03:01 1596291 /bin/cat text
+00504000-00505000 rw-p 00004000 03:01 1596291 /bin/cat data
+00505000-00526000 rwxp 00505000 00:00 0 bss
+3252200000-3252214000 r-xp 00000000 03:01 1237890 /lib64/ld-2.3.3.so
+3252300000-3252301000 r--p 00100000 03:01 1237890 /lib64/ld-2.3.3.so
+3252301000-3252302000 rw-p 00101000 03:01 1237890 /lib64/ld-2.3.3.so
+7fbfffe000-7fc0000000 rw-p 7fbfffe000 00:00 0 stack
+ffffffffff600000-ffffffffffe00000 ---p 00000000 00:00 0 vsyscall
+</PRE>
+                        <P>每行的字段是:</P><PRE class=screen>start-end perm offset major:minor inode image 
+</PRE>
+                        <P>每个在 /proc/*/maps (出来映象的名子) 对应 struct vm_area_struct 
+                        中的一个成员:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>start end </SPAN></SPAN>
+                          <DD>
+                          <P>这个内存区的开始和结束虚拟地址.</P>
+                          <DT><SPAN class=term><SPAN>perm </SPAN></SPAN>
+                          <DD>
+                          <P>带有内存区的读,写和执行许可的位掩码. 这个成员描述进程可以对属于这个区的页做什么. 
+                          成员的最后一个字符要么是给"私有"的 p 要么是给"共享"的 s.</P>
+                          <DT><SPAN class=term><SPAN>offset </SPAN></SPAN>
+                          <DD>
+                          <P>内存区在它被映射到的文件中的起始位置. 0 偏移意味着内存区开始对应文件的开始.</P>
+                          <DT><SPAN class=term><SPAN>major minor </SPAN></SPAN>
+                          <DD>
+                          <P>持有已被映射文件的设备的主次编号. 易混淆地, 对于设备映射, 
+                          主次编号指的是持有被用户打开的设备特殊文件的磁盘分区, 不是设备自身.</P>
+                          <DT><SPAN class=term><SPAN>inode </SPAN></SPAN>
+                          <DD>
+                          <P>被映射文件的 inode 号.</P>
+                          <DT><SPAN class=term><SPAN>image </SPAN></SPAN>
+                          <DD>
+                          <P>已被映射的文件名((常常在一个可执行映象中).</P></DD></DL></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Thevm_area_structstructure.sect3></A>15.1.6.1.&nbsp;vm_area_struct 
+                        结构</H4></DIV></DIV></DIV>
+                        <P>当一个用户空间进程调用 mmap 来映射设备内存到它的地址空间, 系统通过一个新 VMA 
+                        代表那个映射来响应. 一个支持 mmap 的驱动(并且, 因此, 实现 mmap 
+                        方法)需要来帮助那个进程来完成那个 VMA 的初始化. 驱动编写者应当, 因此, 为支持 mmap 应至少有对 
+                        VMA 的最少的理解.</P>
+                        <P>让我们看再 struct vm_area_struct 中最重要的成员( 在 
+                        &lt;linux/mm.h&gt; 中定义). 这些成员应当被设备驱动在它们的 mmap 实现中使用. 
+                        注意内核维护 VMA 的链表和树来优化区查找, 并且 vm_area_struct 
+                        的几个成员被用来维护这个组织. 因此, VMA 不是有一个驱动任意创建的, 否则这个结构破坏了. VMA 
+                        的主要成员是下面(注意在这些成员和我们刚看到的 /proc 输出之间的相似)</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          vm_start;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          vm_end;</SPAN></SPAN> 
+                          <DD>
+                          <P>被这个 VMA 覆盖的虚拟地址范围. 这些成员是在 /proc/*/maps中出现的头 2 
+                          个字段.</P>
+                          <DT><SPAN class=term><SPAN>struct file 
+                          *vm_file;</SPAN></SPAN> 
+                          <DD>
+                          <P>一个指向和这个区(如果有一个)关联的 struct file 结构的指针.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          vm_pgoff;</SPAN></SPAN> 
+                          <DD>
+                          <P>文件中区的偏移, 以页计. 当一个文件和设备被映射, 这是映射在这个区的第一页的文件位置.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          vm_flags;</SPAN></SPAN> 
+                          <DD>
+                          <P>描述这个区的一套标志. 对设备驱动编写者最感兴趣的标志是 VM_IO 和 VM_RESERVUED. 
+                          VM_IO 标志一个 VMA 作为内存映射的 I/O 区. 在其他方面, VM_IO 
+                          标志阻止这个区被包含在进程核转储中. VM_RESERVED 告知内存管理系统不要试图交换出这个 VMA; 
+                          它应当在大部分设备映射中设置.</P>
+                          <DT><SPAN class=term><SPAN>struct vm_operations_struct 
+                          *vm_ops;</SPAN></SPAN> 
+                          <DD>
+                          <P>一套函数, 内核可能会调用来在这个内存区上操作. 它的存在指示内存区是一个内核"对象", 
+                          象我们已经在全书中使用的 struct file.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          *vm_private_data;</SPAN></SPAN> 
+                          <DD>
+                          <P>驱动可以用来存储它的自身信息的成员.</P></DD></DL></DIV>
+                        <P>象 struct vm_area_struct, vm_operations_struct 定义于 
+                        &lt;linux/mm.h&gt;; 它包括下面列出的操作. 这些操作是唯一需要来处理进程的内存需要的, 
+                        它们以被声明的顺序列出. 本章后面, 一些这些函数被实现.</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>void (*open)(struct 
+                          vm_area_struct *vma);</SPAN></SPAN> 
+                          <DD>
+                          <P>open 方法被内核调用来允许实现 VMA 的子系统来初始化这个区. 
+                          这个方法被调用在任何时候有一个新的引用这个 VMA( 当生成一个新进程, 例如). 一个例外是当这个 VMA 
+                          第一次被 mmap 创建时; 在这个情况下, 驱动的 mmap 方法被调用来替代.</P>
+                          <DT><SPAN class=term><SPAN>void (*close)(struct 
+                          vm_area_struct *vma);</SPAN></SPAN> 
+                          <DD>
+                          <P>当一个区被销毁, 内核调用它的关闭操作. 注意没有使用计数关联到 VMA; 
+                          这个区只被使用它的每个进程打开和关闭一次.</P>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *(*nopage)(struct vm_area_struct *vma, unsigned long 
+                          address, int *type);</SPAN></SPAN> 
+                          <DD>
+                          <P>当一个进程试图存取使用一个有效 VMA 的页, 但是它当前不在内存中, nopage 
+                          方法被调用(如果它被定义)给相关的区. 这个方法返回 struct page 指针给物理页, 也许在从第 2 
+                          级存储中读取它之后. 如果 nopage 方法没有为这个区定义, 一个空页由内核分配.</P>
+                          <DT><SPAN class=term><SPAN>int (*populate)(struct 
+                          vm_area_struct *vm, unsigned long address, unsigned 
+                          long len, pgprot_t prot, unsigned long pgoff, int 
+                          nonblock);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个方法允许内核"预错"页到内存, 在它们被用户空间存取之前. 
+                          对于驱动通常没有必要来实现这个填充方法.</P></DD></DL></DIV></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheProcessMemoryMap.sect2></A>15.1.7.&nbsp;进程内存映射</H3></DIV></DIV></DIV>
+                        <P>内存管理难题的最后部分是进程内存映射结构, 它保持所有其他数据结构在一起. 
+                        每个系统中的进程(除了几个内核空间帮助线程)有一个 struct mm_struct ( 定义在 
+                        &lt;linux/sched.h&gt;), 它含有进程的虚拟内存区列表, 页表, 
+                        和各种其他的内存管理管理信息, 包括一个旗标( mmap_sem )和一个自旋锁( 
+                        page_table_lock ). 这个结构的指针在任务结构中; 在很少的驱动需要存取它的情况下, 
+                        通常的方法是使用 current-&gt;mm. 注意内存关联结构可在进程之间共享; Linux 
+                        线程的实现以这种方式工作, 例如.</P>
+                        <P>这总结了我们对 Linux 内存管理数据结构的总体. 有了这些, 我们现在可以继续 mmap 
+                        系统调用的实现.</P></DIV></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch15.html#id495351" 
+                        name=ftn.id495351><FONT color=#0000ff>47</FONT></A>] 
+                        </SUP>许多非-x86体系可以有效工作在没有这里描述的内核/用户空间的划分, 因此它们可以在 
+                        32-位系统使用直到 4-GB 内核地址空间. 但是, 本节描述的限制仍然适用这样的系统当安装有多于 4GB 
+                        内存时.</P></DIV>
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch15.html#id495847" 
+                        name=ftn.id495847><FONT color=#0000ff>48</FONT></A>] 
+                        </SUP>BSS 的名子是来自一个老的汇编操作符的历史遗物, 意思是"由符号开始的块". 可执行文件的 BSS 
+                        段不存储在磁盘上, 并且内核映射零页到 BSS 地址范围.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=ThemmapDeviceOperation.sect1></A>15.2.&nbsp;mmap 
+                        设备操作</H2></DIV></DIV></DIV>
+                        <P>内存映射是现代 Unix 系统最有趣的特性之一. 至于驱动, 
+                        内存映射可被实现来提供用户程序对设备内存的直接存取.</P>
+                        <P>一个 mmap 用法的明确的例子可由查看给 X Windows 
+                        系统服务器的虚拟内存区的一个子集来见到:</P><PRE class=screen>cat /proc/731/maps 
+000a0000-000c0000 rwxs 000a0000 03:01 282652 /dev/mem
+000f0000-00100000 r-xs 000f0000 03:01 282652 /dev/mem
+00400000-005c0000 r-xp 00000000 03:01 1366927 /usr/X11R6/bin/Xorg
+006bf000-006f7000 rw-p 001bf000 03:01 1366927 /usr/X11R6/bin/Xorg
+2a95828000-2a958a8000 rw-s fcc00000 03:01 282652 /dev/mem
+2a958a8000-2a9d8a8000 rw-s e8000000 03:01 282652 /dev/mem
+...
+</PRE>
+                        <P>X 服务器的 VMA 的完整列表很长, 但是大部分此处不感兴趣. 我们确实见到, 但是, /dev/mm 
+                        的 4 个不同映射, 它给出一些关于 X 服务器如何使用视频卡的内幕. 第一个映射在 a0000, 
+                        它是视频内存的在 640-KB ISA 孔里的标准位置. 再往下, 我们见到了大映射在 e8000000, 
+                        这个地址在系统中最高的 RAM 地址之上. 这是一个在适配器上的视频内存的直接映射.</P>
+                        <P>这些区也可在 /proc/iomem 中见到:</P><PRE class=screen>000a0000-000bffff : Video RAM area
+000c0000-000ccfff : Video ROM
+000d1000-000d1fff : Adapter ROM
+000f0000-000fffff : System ROM
+d7f00000-f7efffff : PCI Bus #01
+
+ e8000000-efffffff : 0000:01:00.0
+fc700000-fccfffff : PCI Bus #01
+
+ fcc00000-fcc0ffff : 0000:01:00.0 
+</PRE>
+                        <P>映射一个设备意味着关联一些用户空间地址到设备内存. 无论何时程序在给定范围内读或写, 
+                        它实际上是在存取设备. 在 X 服务器例子里, 使用 mmap 允许快速和容易地存取视频卡内存. 
+                        对于一个象这样的性能关键的应用, 直接存取有很大不同.</P>
+                        <P>如你可能期望的, 不是每个设备都出借自己给 mmap 抽象; 这样没有意义, 例如, 
+                        对串口或其他面向流的设备. mmap 的另一个限制是映射粒度是 PAGE_SIZE. 
+                        内核可以管理虚拟地址只在页表一级; 因此, 被映射区必须是 PAGE_SIZE 的整数倍并且必须位于是 
+                        PAGE_SIZE 整数倍开始的物理地址. 内核强制 size 的粒度通过做一个稍微大些的区域, 
+                        如果它的大小不是页大小的整数倍.</P>
+                        <P>这些限制对驱动不是大的限制, 因为存取设备的程序是设备依赖的. 因为程序必须知道设备如何工作的, 
+                        程序员不会太烦于需要知道如页对齐这样的细节. 一个更大的限制存在当 ISA 设备被用在非 x86 平台时, 
+                        因为它们的 ISA 硬件视图可能不连续. 例如, 一些 Alpha 计算机将 ISA 内存看作一个分散的 8 
+                        位, 16 位, 32 位项的集合, 没有直接映射. 这种情况下, 你根本无法使用 mmap. 
+                        对不能进行直接映射 ISA 地址到 Alph 地址可能只发生在 32-位 和 64-位内存存取, ISA 可只做 
+                        8-位 和 16-位 发送, 并且没有办法来透明映射一个协议到另一个.</P>
+                        <P>使用 mmap 有相当地优势当这样做可行的时候. 例如, 我们已经看到 X 服务器, 
+                        它传送大量数据到和从视频内存; 动态映射图形显示到用户空间提高了吞吐量, 如同一个 lseek/write 
+                        实现相反. 另一个典型例子是一个控制一个 PCI 设备的程序. 大部分 PCI 
+                        外设映射它们的控制寄存器到一个内存地址, 并且一个高性能应用程序可能首选对寄存器的直接存取来代替反复地调用 
+                        ioctl 来完成它的工作.</P>
+                        <P>mmap 方法是 file_operation 结构的一部分, 当发出 mmap 系统调用时被引用. 用了 
+                        mmap, 内核进行大量工作在调用实际的方法之前, 并且, 因此, 方法的原型非常不同于系统调用的原型. 这不象 
+                        ioctl 和 poll 等调用, 内核不会在调用这些方法之前做太多.</P>
+                        <P>系统调用如下一样被声明(如在 mmap(2) 手册页中描述的 );</P><PRE class=programlisting>mmap (caddr_t addr, size_t len, int prot, int flags, int fd, off_t offset) 
+</PRE>
+                        <P>另一方面, 文件操作声明如下:</P><PRE class=programlisting>int (*mmap) (struct file *filp, struct vm_area_struct *vma);
+</PRE>
+                        <P>方法中的 filp 参数象在第 3 章介绍的那样, 而 vma 包含关于用来存取设备的虚拟地址范围的信息. 
+                        因此, 大量工作被内核完成; 为实现 mmap, 驱动只要建立合适的页表给这个地址范围, 并且, 如果需要, 
+                        用新的操作集合替换 vma-&gt;vm_ops.</P>
+                        <P>有 2 个建立页表的方法:调用 remap_pfn_range 一次完成全部, 或者一次一页通过 
+                        nopage VMA 方法. 每个方法有它的优点和限制. 我们从"一次全部"方法开始, 它更简单. 从这里, 
+                        我们增加一个真实世界中的实现需要的复杂性.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=Usingremap_pfn_range.sect2></A>15.2.1.&nbsp;使用 
+                        remap_pfn_range</H3></DIV></DIV></DIV>
+                        <P>建立新页来映射物理地址的工作由 remap_pfn_range 和 io_remap_page_range 
+                        来处理, 它们有下面的原型:</P><PRE class=programlisting>int remap_pfn_range(struct vm_area_struct *vma, unsigned long virt_addr, unsigned long pfn, unsigned long size, pgprot_t prot); 
+int io_remap_page_range(struct vm_area_struct *vma, unsigned long virt_addr, unsigned long phys_addr, unsigned long size, pgprot_t prot); 
+</PRE>
+                        <P>由这个函数返回的值常常是 0 或者一个负的错误值. 让我们看看这些函数参数的确切含义:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>vma </SPAN></SPAN>
+                          <DD>
+                          <P>页范围被映射到的虚拟内存区</P>
+                          <DT><SPAN class=term><SPAN>virt_addr </SPAN></SPAN>
+                          <DD>
+                          <P>重新映射应当开始的用户虚拟地址. 这个函数建立页表为这个虚拟地址范围从 virt_addr 到 
+                          virt_addr_size.</P>
+                          <DT><SPAN class=term><SPAN>pfn</SPAN></SPAN> 
+                          <DD>
+                          <P>页帧号, 对应虚拟地址应当被映射的物理地址. 这个页帧号简单地是物理地址右移 PAGE_SHIFT 
+                          位. 对大部分使用, VMA 结构的 vm_paoff 成员正好包含你需要的值. 这个函数影响物理地址从 
+                          (pfn&lt;&lt;PAGE_SHIFT) 到 
+                          (pfn&lt;&lt;PAGE_SHIFT)+size.</P>
+                          <DT><SPAN class=term><SPAN>size </SPAN></SPAN>
+                          <DD>
+                          <P>正在被重新映射的区的大小, 以字节.</P>
+                          <DT><SPAN class=term><SPAN>prot </SPAN></SPAN>
+                          <DD>
+                          <P>给新 VMA 要求的"protection". 驱动可(并且应当)使用在 
+                          vma-&gt;vm_page_prot 中找到的值.</P></DD></DL></DIV>
+                        <P>给 remap_fpn_range 的参数是相当直接的, 并且它们大部分是已经在 VMA 中提供给你, 
+                        当你的 mmap 方法被调用时. 你可能好奇为什么有 2 个函数, 但是. 第一个 
+                        (remap_pfn_range)意图用在 pfn 指向实际的系统 RAM 的情况下, 而 
+                        io_remap_page_range 应当用在 phys_addr 指向 I/O 内存时. 实际上, 这 2 
+                        个函数在每个体系上是一致的, 除了 SPARC, 并且你在大部分情况下被使用看到 remap_pfn_range 
+                        . 为编写可移植的驱动, 但是, 你应当使用 remap_pfn_range 的适合你的特殊情况的变体.</P>
+                        <P>另一种复杂性不得不处理缓存: 常常地, 引用设备内存不应当被处理器缓存. 常常系统 BIOS 
+                        做了正确设置, 但是它也可能通过保护字段关闭特定 VMA 的缓存. 不幸的是, 
+                        在这个级别上关闭缓存是高度处理器依赖的. 好奇的读者想看看来自 drivers/char/mem.c 的 
+                        pgprot_noncached 函数来找到包含什么. 我们这里不进一步讨论这个主题.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ASimpleImplementation.sect2></A>15.2.2.&nbsp;一个简单的实现</H3></DIV></DIV></DIV>
+                        <P>如果你的驱动需要做一个简单的线性的设备内存映射, 到一个用户地址空间, remap_pfn_range 
+                        几乎是所有你做这个工作真正需要做的. 下列的代码从 drivers/char/mem.c 中得来, 
+                        并且显示了这个任务如何在一个称为 simple ( Simple Implementation Mapping 
+                        Pages with Little Enthusiasm)的典型模块中进行的.</P><PRE class=programlisting>static int simple_remap_mmap(struct file *filp, struct vm_area_struct *vma) 
+{
+ if (remap_pfn_range(vma, vma-&gt;vm_start, vm-&gt;vm_pgoff,
+ vma-&gt;vm_end - vma-&gt;vm_start,
+ vma-&gt;vm_page_prot))
+ return -EAGAIN;
+ vma-&gt;vm_ops = &amp;simple_remap_vm_ops;
+ simple_vma_open(vma);
+ return 0; 
+} 
+</PRE>
+                        <P>如你所见, 重新映射内存只不过是调用 remap_pfn_rage 来创建必要的页表.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AddingVMAOperations.sect2></A>15.2.3.&nbsp;添加 VMA 
+                        的操作</H3></DIV></DIV></DIV>
+                        <P>如我们所见, vm_area_struct 结构包含一套操作可以用到 VMA. 
+                        现在我们看看以一个简单的方式提供这些操作. 特别地, 我们为 VMA 提供 open 和 close 操作. 
+                        这些操作被调用无论何时一个进程打开或关闭 VMA; 特别地, open 
+                        方法被调用任何时候一个进程产生和创建一个对 VMA 的新引用. open 和 close VMA 
+                        方法被调用加上内核进行的处理, 因此它们不需要重新实现任何那里完成的工作. 
+                        它们对于驱动存在作为一个方法来做任何它们可能要求的附加处理.</P>
+                        <P>如同它所证明的, 一个简单的驱动例如 simple 不需要做任何额外的特殊处理. 我们已创建了 open 
+                        和 close 方法, 它打印一个信息到系统日志来通知大家它们已被调用. 不是特别有用, 
+                        但是它确实允许我们来显示这些方法如何被提供, 并且见到当它们被调用时.</P>
+                        <P>到此, 我们忽略了缺省的 vma-&gt;vm_ops 使用调用 printk 的操作:</P><PRE class=programlisting>void simple_vma_open(struct vm_area_struct *vma)
+{
+	printk(KERN_NOTICE "Simple VMA open, virt %lx, phys %lx\n", vma-&gt;vm_start, vma-&gt;vm_pgoff &lt;&lt; PAGE_SHIFT);
+} 
+
+void simple_vma_close(struct vm_area_struct *vma)
+{
+ printk(KERN_NOTICE "Simple VMA close.\n");
+}
+
+static struct vm_operations_struct simple_remap_vm_ops = {
+ .open = simple_vma_open,
+ .close = simple_vma_close,
+};
+</PRE>
+                        <P>为使这些操作为一个特定的映射激活, 有必要存储一个指向 simple_remap_um_ops 指针在相关 
+                        VMA 的 vm_ops 成员中. 这常常在 mmap 方法中完成. 如果你回看 
+                        simple_remap_mmap 例子, 你见到这些代码行:</P><PRE class=programlisting>vma-&gt;vm_ops = &amp;simple_remap_vm_ops;
+simple_vma_open(vma);
+</PRE>
+                        <P>注意对 simple_vma_open 的明确调用. 因为 open 方法不在初始化 mmap 时调用, 
+                        我们必须明确调用它如果我们要它运行.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=MappingMemorywithnopage.sect2></A>15.2.4.&nbsp;使用 
+                        nopage 映射内存</H3></DIV></DIV></DIV>
+                        <P>尽管 remap_pfn_range 对许多人工作得不错, 如果不是大部分人, 驱动 mmap 
+                        的实现有时有点更大的灵活性是必要的. 在这样的情况下, 一个使用 nopage VMA 
+                        方法的实现可被调用.</P>
+                        <P>一种 nopage 方法有用的情况可由 mremap 系统调用引起, 
+                        它被应用程序用来改变一个被映射区的绑定地址. 如它所发生的, 当一个被映射的 VMA 被 mremap 
+                        改变时内核不直接通知驱动. 如果这个 VMA 的大小被缩减, 内核可静静地刷出不需要的页, 而不必告诉驱动. 
+                        相反, 如果这个 VMA 被扩大, 当映射必须为新页建立时, 驱动最终通过对 nopage 的调用发现, 
+                        因此没有必要进行特殊的通知. nopage 方法, 因此, 如果你想支持 mremap 系统调用必须实现. 
+                        这里, 我们展示一个简单的 nopage 实现给 simple 设备.</P>
+                        <P>nopage 方法, 记住, 有下列原型:</P><PRE class=programlisting>struct page *(*nopage)(struct vm_area_struct *vma, unsigned long address, int *type);
+</PRE>
+                        <P>当一个用户进程试图存取在一个不在内存中的 VMA 中的一个页, 相关的 nopage 函数被调用. 
+                        地址参数包含导致出错的虚拟地址, 向下圆整到页的开始. nopage 函数必须定位并返回用户需要的页的 
+                        struct page 指针. 这个函数必须也负责递增它通过调用 get_page 
+宏返回的页的使用计数.</P><PRE class=programlisting> get_page(struct page *pageptr); 
+</PRE>
+                        <P>这一步是需要的来保持在被映射页的引用计数正确. 内核为每个页维护这个计数; 当计数到 0, 
+                        内核知道这个页可被放置在空闲列表了. 当一个 VMA 被去映射, 内核递减使用计数给区中每个页. 
+                        如果你的驱动在添加一个页到区时不递增计数, 使用计数过早地成为 0, 系统的整体性被破坏了.</P>
+                        <P>nopage 方法也应当存储错误类型在由 type 参数指向的位置 -- 但是只当那个参数不为 NULL. 
+                        在设备驱动中, 类型的正确值将总是 VM_FAULT_MINOR.</P>
+                        <P>如果你使用 nopage, 当调用 mmap 常常很少有工作来做; 我们的版本看来象这样:</P><PRE class=programlisting>static int simple_nopage_mmap(struct file *filp, struct vm_area_struct *vma)
+{
+ unsigned long offset = vma-&gt;vm_pgoff &lt;&lt; PAGE_SHIFT;
+
+    if (offset &gt;= __pa(high_memory) || (filp-&gt;f_flags &amp; O_SYNC))
+ vma-&gt;vm_flags |= VM_IO;
+ vma-&gt;vm_flags |= VM_RESERVED;
+
+ vma-&gt;vm_ops = &amp;simple_nopage_vm_ops;
+ simple_vma_open(vma);
+ return 0;
+
+}
+</PRE>
+                        <P>mmap 必须做的主要的事情是用我们自己的操作来替换缺省的(NULL)vm_ops 指针. nopage 
+                        方法接着进行一次重新映射一页并且返回它的 struct page 结构的地址. 
+                        因为我们这里只实现一个到物理内存的窗口, 重新映射的步骤是简单的: 我们只需要定位并返回一个指向 struct 
+                        page 的指针给需要的地址. 我们的 nopage 方法看来如下:</P><PRE class=programlisting>struct page *simple_vma_nopage(struct vm_area_struct *vma, unsigned long address, int *type) 
+{
+ struct page *pageptr;
+ unsigned long offset = vma-&gt;vm_pgoff &lt;&lt; PAGE_SHIFT;
+ unsigned long physaddr = address - vma-&gt;vm_start + offset;
+ unsigned long pageframe = physaddr &gt;&gt; PAGE_SHIFT;
+
+ if (!pfn_valid(pageframe))
+ return NOPAGE_SIGBUS;
+ pageptr = pfn_to_page(pageframe);
+ get_page(pageptr);
+ if (type)
+
+ *type = VM_FAULT_MINOR;
+ return pageptr;
+}
+</PRE>
+                        <P>因为, 再一次, 在这里我们简单地映射主内存, nopage 函数只需要找到正确的 struct page 
+                        给出错地址并且递增它的引用计数. 因此, 事件的请求序列是计算需要地物理地址, 并且通过右移它 
+                        PAGE_SHIFT 位转换它为以页帧号. 因为用户空间可以给我们任何它喜欢的地址, 
+                        我们必须确保我们有一个有效的页帧; pfn_valid 函数为我们做这些. 如果地址超范围, 我们返回 
+                        NOPAGE_SIGBUS, 它产生一个总线信号被递交给调用进程.</P>
+                        <P>否则, pfn_to_page 获得必要的 struct page 指针; 
+                        我们可递增它的引用计数(使用调用 get_page)并且返回它.</P>
+                        <P>nopage 方法正常地返回一个指向 struct page 的指针. 如果, 由于某些原因, 
+                        一个正常的页不能返回(即, 请求的地址超出驱动的内存区), NOPAGE_SIGBUS 可被返回来指示错误; 
+                        这是上的简单代码所做的. nopage 也可以返回 NOPAGE_OOM 来指示由于资源限制导致的失败.</P>
+                        <P>注意, 这个实现对 ISA 内存区起作用, 但是对那些在 PCI 总线上的不行. PCI 
+                        内存被映射在最高的系统内存之上, 并且在系统内存中没有这些地址的入口. 因为没有 struct page 
+                        来返回一个指向的指针, nopage 不能在这些情况下使用; 你必须使用 remap_pfn_range 
+                        代替.</P>
+                        <P>如果 nopage 方法被留置为 NULL, 处理页出错的内核代码映射零页到出错的虚拟地址. 
+                        零页是一个写时拷贝的页, 它读作为0, 并且被用来, 例如, 映射 BSS 段. 任何引用零页的进程都看到: 
+                        一个填满 0 的页. 如果进程写到这个页, 它最终修改一个私有页. 因此, 如果一个进程扩展一个映射的页通过调用 
+                        mremap, 并且驱动还没有实现 nopage, 进程结束以零填充的内存代替一个段错误.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=RemappingSpecificIORegions.sect2></A>15.2.5.&nbsp;重新映射特定 
+                        I/O 区</H3></DIV></DIV></DIV>
+                        <P>所有的我们至今所见的例子是 /dev/mem 的重新实现; 它们重新映射物理地址到用户空间. 典型的驱动, 
+                        但是, 想只映射应用到它的外设设备的小的地址范围, 不是全部内存. 为了映射到用户空间只一个整个内存范围的子集, 
+                        驱动只需要使用偏移. 下面为一个驱动做这个技巧来映射一个 simple_region_size 字节的区域, 
+                        在物理地址 simple_region_start(应当是页对齐的) 开始:</P><PRE class=programlisting>unsigned long off = vma-&gt;vm_pgoff &lt;&lt; PAGE_SHIFT;
+unsigned long physical = simple_region_start + off;
+unsigned long vsize = vma-&gt;vm_end - vma-&gt;vm_start;
+unsigned long psize = simple_region_size - off;
+
+if (vsize &gt; psize)
+ return -EINVAL; /* spans too high */
+remap_pfn_range(vma, vma_&gt;vm_start, physical, vsize, vma-&gt;vm_page_prot);
+</PRE>
+                        <P>除了计算偏移, 这个代码引入了一个检查来报告一个错误当程序试图映射超过在目标设备的 I/O 区可用的内存. 
+                        在这个代码中, psize 是已指定了偏移后剩下的物理 I/O 大小, 并且 vsize 是虚拟内存请求的大小; 
+                        这个函数拒绝映射超出允许的内存范围的地址.</P>
+                        <P>注意, 用户空间可一直使用 mremap 来扩展它的映射, 可能超过物理设备区的结尾. 
+                        如果你的驱动不能定义一个 nopage method, 它从不会得到这个扩展的通知, 并且额外的区映射到零页. 
+                        作为一个驱动编写者, 你可能很想阻止这种行为; 映射理由到你的区的结尾不是一个明显的坏事情, 
+                        但是很不可能程序员希望它发生.</P>
+                        <P>最简单的方法来阻止映射扩展是实现一个简单的 nopage 方法, 它一直导致一个总线信号被发送给出错进程. 
+                        这样的一个方法可能看来如此:</P><PRE class=programlisting>struct page *simple_nopage(struct vm_area_struct *vma,
+ unsigned long address, int *type);
+{ return NOPAGE_SIGBUS; /* send a SIGBUS */}
+</PRE>
+                        <P>如我们已见到的, nopage 方法只当进程解引用一个地址时被调用, 这个地址在一个已知的 VMA 
+                        中但是当前没有有效的页表入口给这个 VMA. 如果有已使用 remap_pfn_range 来映射全部设备区, 
+                        这里展示的 nopage 方法只被调用来引用那个区外部. 因此, 它能够安全地返回 NOPAGE_SIGBUS 
+                        来指示一个错误. 当然, 一个更加完整的 nopage 实现可以检查是否出错地址在设备区内, 
+                        并且如果是这样进行重新映射. 但是, 再一次, nopage 无法在 PCI 内存区工作, 因此 PCI 
+                        映射的扩展是不可能的.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=RemappingRAM.sect2></A>15.2.6.&nbsp;重新映射 
+                        RAM</H3></DIV></DIV></DIV>
+                        <P>remap_pfn_range 的一个有趣的限制是它只存取保留页和在物理内存顶之上的物理地址. 在 
+                        Linux, 一个物理地址页被标志为"保留的"在内存映射中来指示它对内存管理是不可用的. 在 PC 上, 例如, 
+                        640 KB 和 1MB 之间被标记为保留的, 如同驻留内核代码自身的页. 
+                        保留页被锁定在内存并且是唯一可被安全映射到用户空间的; 这个限制是系统稳定的一个基本要求.</P>
+                        <P>因此, remap_pfn_range 不允许你重新映射传统地址, 这包括你通过调用 
+                        get_free_page 获得的. 相反, 它映射在零页. 所有都看来正常, 除了进程见到私有的, 
+                        零填充的页而不是它在期望的被重新映射的 RAM. 这个函数做了大部分硬件驱动需要来做的所有事情, 
+                        因为它能够重新映射高端 PCI 缓冲和 ISA 内存.</P>
+                        <P>remap_pfn_range 的限制可通过运行 mapper 见到, 其中一个例子程序在 
+                        misc-progs 在 O'Reilly 的 FTP 网站提供的文件. mapper 
+                        是一个简单的工具可用来快速测试 mmap 系统调用; 它映射由命令行选项指定的一个文件的只读部分, 
+                        并且输出被映射的区到标准输出. 下面的部分, 例如, 显示 /dev/mem 没有映射位于地址 64 
+                        KB的物理页 --相反, 我们看到一个页充满 0 (例子中的主机是一台 PC, 
+                        但是结果应该在其他平台上相同).</P><PRE class=screen>morgana.root# ./mapper /dev/mem 0x10000 0x1000 | od -Ax -t x1
+mapped "/dev/mem" from 65536 to 69632
+000000 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+*
+001000
+</PRE>
+                        <P>remap_pfn_range 处理 RAM 的不能之处说明基于内存的设备如 scull 不能轻易实现 
+                        mmap, 因为它的设备内存是传统内存, 不是 I/O 内存. 幸运的是, 一个相对容易的方法对任何需要映射 
+                        RAM 到用户空间的驱动都可用; 它使用我们前面已见过的 nopage 方法.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=RemmapingRAMwiththenopagemethod.sect3></A>15.2.6.1.&nbsp;使用 
+                        nopage 方法重新映射 RAM</H4></DIV></DIV></DIV>
+                        <P>映射真实内存到用户空间的方法是使用 vm_ops-&lt;nopage 来一次一个地处理页错. 
+                        一个简单的实现是 scullp 模块的一部分, 在第 8 张介绍.</P>
+                        <P>scullp 是一个面向页的字符设备. 因为它是面向页的, 它可以在它的内存上实现 mmap. 
+                        实现内存映射的代码使用一些在"Linux 中的内存管理"一节中介绍的概念.</P>
+                        <P>在检查代码前, 让我们查看影响在 scullp 中的 mmap 实现的设计选择.</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>scullp 只要设备被映射就不会释放设备内存. 这是策略问题而非一个需求, 并且它不同于 scull 
+                          和类似设备的行为, 它们被截短为 0 当为写而打开时. 对释放一个映射的 scullp 设备的拒绝, 
+                          允许一个进程覆盖被其他进程映射的区., 因此你可以测试并且看进程和设备内存如何交互. 
+                          为避免释放一个映射设备, 驱动必须保持一个激活映射的计数; 在设备结构中的 vmas 
+                          成员被用来作此目的.</P>
+                          <LI>
+                          <P>内存映射仅当 scullp 的 order 参数(在模块加载时间设置)是 0 时进行. 这个参数控制 
+                          __get_free_pages 如何被调用( 见第 8 章"get_free_page 及其友" 一节). 
+                          0 order 的限制( 这强制一次分配一页, 而不是以大的组)被 __get_free_pages 
+                          的内部所规定, 它是 scullp 所使用的分配函数. 为最大化分配性能, Linux 
+                          内核维护一个空闲页列表给每个分配级别, 并且只有在一个簇中第一页的引用计数被 get_free_pages 
+                          递增以及被 free_pages 递减. mmap 方法对一个 scullp 设备被禁止, 如果分配级大于 
+                          0, 因为 nopage 处理单个页而不是一簇页. scullp 
+                          不知道如何正确管理是高级别分配的一部分的页的引用计数.(如果你需要重新回顾 scullp 和 
+                          内存分配级别值, 返回第 8 章的"一个使用整页的 scull: 
+                        scullp"一节.)</P></LI></UL></DIV>
+                        <P>0-级的限制大部分是用来保持代码简单. 它可能正确实现 mmap 给多页分配, 通过使用页的使用计数, 
+                        但是它可能只增加了例子的复杂性而没有介绍任何有趣的信息.</P>
+                        <P>打算根据刚刚概括的规则来映射 RAM 的代码, 需要实现 open, close, 和 nopage 
+                        VMA 方法; 它还需要存取内存映射来调整页使用计数.</P>
+                        <P>这个 scullp_mmap 的实现非常短, 因为它依赖 nopage 
+函数来做所有的感兴趣的工作:</P><PRE class=programlisting>int scullp_mmap(struct file *filp, struct vm_area_struct *vma)
+{
+
+ struct inode *inode = filp-&gt;f_dentry-&gt;d_inode;
+ /* refuse to map if order is not 0 */
+ if (scullp_devices[iminor(inode)].order)
+ return -ENODEV;
+
+ /* don't do anything here: "nopage" will fill the holes */
+ vma-&gt;vm_ops = &amp;scullp_vm_ops;
+ vma-&gt;vm_flags |= VM_RESERVED;
+ vma-&gt;vm_private_data = filp-&gt;private_data;
+ scullp_vma_open(vma);
+ return 0;
+}
+</PRE>
+                        <P>if 语句的目的是避免映射分配级别不是 0 的设备. scullp 的操作存储在 vm_ops 成员, 
+                        并且一个指向设备结构的指针藏于 vm_private_data 成员. 最后, vm_ops-&gt;open 
+                        被调用来更新设备的激活映射的计数.</P>
+                        <P>open 和 close 简单地跟踪映射计数并如下定义:</P><PRE class=programlisting>void scullp_vma_open(struct vm_area_struct *vma)
+{
+ struct scullp_dev *dev = vma-&gt;vm_private_data;
+ dev-&gt;vmas++;
+}
+
+void scullp_vma_close(struct vm_area_struct *vma)
+{
+ struct scullp_dev *dev = vma-&gt;vm_private_data;
+ dev-&gt;vmas--;
+}
+</PRE>
+                        <P>大部分地工作接下来由 nopage 进行. 在 scullp 实现中, 给 nopage 
+                        的地址参数被用来计算设备中的偏移; 这个偏移接着被用来在 scullp 内存树中查找正确的页.</P><PRE class=programlisting>struct page *scullp_vma_nopage(struct vm_area_struct *vma, unsigned long address, int *type)
+{
+        unsigned long offset;
+        struct scullp_dev *ptr, *dev = vma-&gt;vm_private_data;
+        struct page *page = NOPAGE_SIGBUS;
+        void *pageptr = NULL; /* default to "missing" */
+
+        down(&amp;dev-&gt;sem);
+        offset = (address - vma-&gt;vm_start) + (vma-&gt;vm_pgoff &lt;&lt; PAGE_SHIFT);
+        if (offset &gt;= dev-&gt;size)
+                goto out; /* out of range */
+
+        /*
+        * Now retrieve the scullp device from the list,then the page.
+        * If the device has holes, the process receives a SIGBUS when
+        * accessing the hole.
+        */
+        offset &gt;&gt;= PAGE_SHIFT; /* offset is a number of pages */
+        for (ptr = dev; ptr &amp;&amp; offset &gt;= dev-&gt;qset;)
+        {
+                ptr = ptr-&gt;next;
+                offset -= dev-&gt;qset;
+        }
+        if (ptr &amp;&amp; ptr-&gt;data)
+                pageptr = ptr-&gt;data[offset];
+        if (!pageptr)
+                goto out; /* hole or end-of-file */
+        page = virt_to_page(pageptr);
+
+        /* got it, now increment the count */
+        get_page(page);
+        if (type)
+                *type = VM_FAULT_MINOR;
+out:
+        up(&amp;dev-&gt;sem);
+        return page;
+}
+</PRE>
+                        <P>scullp 使用由 get_free_pages 获取的内存. 那个内存使用逻辑地址寻址, 因此所有的 
+                        scullp_nopage 为获得一个 struct page 指针不得不做的是调用 
+                        virt_to_page.</P>
+                        <P>现在 scullp 设备如同期望般工作了, 就象你在这个从 mapper 工具中的例子输出能见到的. 
+                        这里, 我们发送一个 /dev 的目录列表(一个长的)到 scullp 设备并且接着使用 mapper 
+                        工具来查看这个列表的各个部分连同 mmap.</P><PRE class=screen>morgana% ls -l /dev &gt; /dev/scullp
+morgana% ./mapper /dev/scullp 0 140
+mapped "/dev/scullp" from 0 (0x00000000) to 140 (0x0000008c)
+total 232
+crw-------1 root root 10, 10 Sep 15 07:40 adbmouse
+crw-r--r--1 root root 10, 175 Sep 15 07:40 agpgart
+morgana% ./mapper /dev/scullp 8192 200 mapped "/dev/scullp" from 8192 (0x00002000) to 8392 (0x000020c8) 
+d0h1494  
+brw-rw---- 1 root  floppy  2,  92 Sep 15 07:40 fd0h1660  
+brw-rw---- 1 root  floppy  2,  20 Sep 15 07:40 fd0h360  
+brw-rw---- 1 root  floppy  2,  12 Sep 15 07:40 fd0H360  
+</PRE></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=RemappingKernelVirtualAddresses.sect2></A>15.2.7.&nbsp;重映射内核虚拟地址</H3></DIV></DIV></DIV>
+                        <P>尽管它极少需要, 看一个驱动如何使用 mmap 映射一个内核虚拟地址到用户空间是有趣的. 记住, 
+                        一个真正的内核虚拟地址, 是一个由诸如 vmalloc 的函数返回的地址 -- 就是, 
+                        一个映射到内核页表中的虚拟地址. 本节的代码来自 scullv, 这是如同 scullp 但是通过 
+                        vmalloc 分配它的存储的模块.</P>
+                        <P>大部分的 scullv 实现如同我们刚刚见到的 scullp, 除了没有必要检查控制内存分配的 order 
+                        参数. 这个的原因是 vmalloc 分配它的页一次一个, 因为单页分配比多页分配更加可能成功. 因此, 
+                        分配级别问题不适用 vmalloc 分配的空间.</P>
+                        <P>此外, 在由 scullp 和 scullv 使用的 nopage 实现中只有一个不同. 记住, 
+                        scullp 一旦它发现感兴趣的页, 将使用 virt_to_page 来获得对应的 struct page 
+                        指针. 那个函数不使用内核虚拟地址, 但是. 相反, 你必须使用 mvalloc_to_page. 因此 
+                        scullv 版本的 nopage 的最后部分看来如此:</P><PRE class=programlisting>/*
+* After scullv lookup, "page" is now the address of the page
+* needed by the current process. Since it's a vmalloc address,
+* turn it into a struct page.
+*/
+page = vmalloc_to_page(pageptr);
+
+/* got it, now increment the count */
+get_page(page);
+if (type)
+        *type = VM_FAULT_MINOR;
+out:
+up(&amp;dev-&gt;sem);
+return page;
+</PRE>
+                        <P>基于这个讨论, 你可能也想映射由 ioremap 返回的地址到用户空间. 但是, 那可能是一个错误; 来自 
+                        ioremap 的地址是特殊的并且不能作为正常的内核虚拟地址对待. 相反, 你应当使用 
+                        remap_pfn_range 来重新映射 I/O 内存区到用户空间.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=PerformingDirectIO.sect1></A>15.3.&nbsp;进行直接 
+                        I/O</H2></DIV></DIV></DIV>
+                        <P>大部分 I/O 操作是通过内核缓冲的. 一个内核空间缓冲区的使用允许一定程度的用户空间和实际设备的分离; 
+                        这种分离能够使编程容易并且还可以在许多情况下有性能的好处. 但是, 有这样的情况它对于进行 I/O 
+                        直接到或从一个用户空间缓冲区是有好处的. 如果正被传输的数据量大, 
+                        不使用一个额外的拷贝直接通过内核空间传输数据可以加快事情进展.</P>
+                        <P>2.6 内核中一个直接 I/O 使用的例子是 SCSI 磁带驱动. 流动的磁带能够传送大量数据通过系统, 
+                        并且磁带传送常常是面向记录的, 因此在内核中缓冲数据没有好处. 因此, 当条件正确(用户空间缓冲区是页对齐的, 
+                        例如), SCSI 磁带驱动进行它的 I/O 而不拷贝数据.</P>
+                        <P>就是说, 重要的是认识到直接 I/O 不是一直提供人们期望的性能提高. 设置直接 I/O 
+                        (它调用出错换入并且除下相关的用户空间)的开销可能是不小的, 并且被缓冲的 I/O 的好处丢失了. 例如, 直接 
+                        I/O 的使用要求 write 系统调用同步操作; 否则应用程序不能知道什么时间它可以重新使用它的 I/O 
+                        缓冲. 停止应用程序直到每个 write 完成可能拖慢事情, 这是为什么使用直接 I/O 
+                        的应用程序也常常使用异步 I/O 操作的原因.</P>
+                        <P>事情的真正内涵是, 在任何情况下, 在一个字符驱动实现直接 I/O 常常是不必要并且可能是有害的. 
+                        你应当只在你确定缓冲的 I/O 的开销确实拖慢了系统的情况下采取这个步骤. 还要注意, 
+                        块和网络驱动不必担心实现直接 I/O; 这 2 种情况下, 内核中的高级的代码在需要时建立和使用直接 I/O, 
+                        并且驱动级别的代码甚至不需要知道直接 I/O 在被进行中.</P>
+                        <P>实现直接 I/O 的关键是一个称为 get_user_pages 的函数, 它在 
+                        &lt;linux/mm.h&gt; 中定义使用下列原型:</P><PRE class=programlisting>int get_user_pages(struct task_struct *tsk,
+ struct mm_struct *mm,
+ unsigned long start,
+ int len,
+ int write,
+ int force,
+ struct page **pages,
+ struct vm_area_struct **vmas); 
+</PRE>
+                        <P>这个函数有几个参数:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>tsk </SPAN></SPAN>
+                          <DD>
+                          <P>一个指向进行 I/O 的任务的指针; 它的主要目的是告知内核谁应当负责任何一个当设置缓冲时导致的页错. 
+                          这个参数几乎一直作为 current 传递.</P>
+                          <DT><SPAN class=term><SPAN>mm</SPAN></SPAN> 
+                          <DD>
+                          <P>一个内存管理结构的指针, 描述被映射的地址空间. mm_struct 
+                          结构是捆绑一个进程的虚拟地址空间所有的部分在一起的. 对于驱动的使用, 这个参数应当一直是 
+                          current-&gt;mm.</P>
+                          <DT><SPAN class=term><SPAN>start len</SPAN></SPAN> 
+                          <DD>
+                          <P>start 是(页对齐的)用户空间缓冲的地址, 并且 len 是缓冲的长度以页计.</P>
+                          <DT><SPAN class=term><SPAN>write force </SPAN></SPAN>
+                          <DD>
+                          <P>如果 write 是非零, 这些页被映射来写(当然, 隐含着用户空间在进行一个读操作). force 
+                          标志告知 get_user_pages 来覆盖在给定页上的保护, 来提供要求的权限; 驱动应当一直传递 0 
+                          在这里.</P>
+                          <DT><SPAN class=term><SPAN>pages vmas </SPAN></SPAN>
+                          <DD>
+                          <P>输出参数. 在成功完成后, 页包含一系列指向 struct page 结构的指针来描述用户空间缓冲, 
+                          并且 vmas 包含指向被关联的 VMA 的指针. 这些参数应当, 显然, 指向能够持有至少 len 
+                          个指针的数组. 任一个参数可能是 NULL, 但是你需要, 至少, struct page 
+                          指针来实际对缓冲操作.</P></DD></DL></DIV>
+                        <P>get_user_pages 是一个低级内存管理函数, 带一个相称的复杂的接口. 它还要求给这个地址空间的 
+                        mmap 读者/写者 旗标在调用前被以读模式获得. 结果是, 对 get_user_pages 
+                        常常看来象:</P><PRE class=programlisting>down_read(&amp;current-&gt;mm-&gt;mmap_sem);
+
+result = get_user_pages(current, current-&gt;mm, ...);
+up_read(&amp;current-&gt;mm-&gt;mmap_sem);
+</PRE>
+                        <P>返回值是实际映射的页数, 它可能小于请求的数目(但是大于 0).</P>
+                        <P>一旦成功完成, 调用者有一个页数组指向用户空间缓冲, 它被锁入内存. 为直接在缓冲上操作, 
+                        内核空间代码必须将每个 struct page 指针转换为一个内核虚拟地址, 使用 kmap 或者 
+                        kmap_atomic. 常常地, 但是, 对于可以使用直接 I/O 的设备在使用 DMA 操作, 
+                        因此你的驱动将可能想从 struct page 指针数组创建一个发散/汇聚列表. 我们在 
+                        "发散/汇聚映射"一节中讨论如何做这个.</P>
+                        <P>一旦你的直接 I/O 操作完成了, 你必须释放用户页. 在这样做之前, 但是, 
+                        你必须通知内核如果你改变了这些页的内容. 否则, 内核可能认为这些页是"干净"的, 
+                        意味着它们匹配一个在交换设备中发现的一个拷贝, 并且释放它们不写出它们到备份存储. 因此, 
+                        如果你已改变了这些页(响应一个用户空间写请求), 你必须标志每个被影响到的页为脏, 使用一个调用:</P><PRE class=programlisting>void SetPageDirty(struct page *page); 
+</PRE>
+                        <P>(这个宏定义在 &lt;linux/page-flags.h&gt;). 
+                        进行这个操作的代码首先检查来保证页不在内存映射的保留部分, 这部分从不被换出. 因此, 
+代码常常看来如此:</P><PRE class=programlisting>if (! PageReserved(page))
+ SetPageDirty(page);
+</PRE>
+                        <P>因为用户空间内存正常地不置为保留的, 这个检查严格地不应当是必要的, 但是当你深入内存管理子系统时, 
+                        最好全面并且仔细.</P>
+                        <P>不管这些页是否已被改变, 它们必须从页缓存中释放, 或者它们一直留在那里. 这个调用是:</P><PRE class=programlisting>void page_cache_release(struct page *page); 
+</PRE>
+                        <P>这个调用应当, 当然, 在页已被标识为脏之后进行, 如果需要.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AsynchronousIO.sect2></A>15.3.1.&nbsp;异步 
+                        I/O</H3></DIV></DIV></DIV>
+                        <P>增加到 2.6 内核的一个新的特性是异步 I/O 能力. 异步 I/O 
+                        允许用户空间来初始化操作而不必等待它们的完成; 因此, 一个应用程序可以在它的 I/O 在进行中时做其他的处理. 
+                        一个复杂的, 高性能的应用程序还可使用异步 I/O 来使多个操作在同一个时间进行.</P>
+                        <P>异步 I/O 的实现是可选的, 并且很少几个驱动作者关心; 大部分设备不会从这个能力中受益. 
+                        如同我们将在接下来的章节中见到的, 块和网络驱动在整个时间是完全异步的, 因此只有字符驱动对于明确的异步 I/O 
+                        支持是候选的. 一个字符设备能够从这个支持中受益, 如果有好的理由来使多个 I/O 操作在任一给定时间同时进行. 
+                        一个好例子是流化磁带驱动, 这里这个驱动可停止并且明显慢下来如果 I/O 操作没有尽快到达. 
+                        一个应用程序试图从一个流驱动中获得最好的性能, 可以使用异步 I/O 来使多个操作在任何时间准备好进行.</P>
+                        <P>对于少见的需要实现异步 I/O 的驱动作者, 我们提供一个快速的关于它如何工作的概观. 我们涉及异步 
+                        I/O 在本章, 因为它的实现几乎一直也包括直接 I/O 操作(如果你在内核中缓冲数据, 
+                        你可能常常实现异步动作而不必在用户空间出现不必要的复杂性).</P>
+                        <P>支持异步 I/O 的驱动应当包含 &lt;linux/aio.h&gt;. 有 3 个 
+                        file_operation 方法给异步 I/O 实现:</P><PRE class=programlisting>ssize_t (*aio_read) (struct kiocb *iocb, char *buffer,
+ size_t count, loff_t offset);
+ssize_t (*aio_write) (struct kiocb *iocb, const char *buffer,
+ size_t count, loff_t offset);
+int (*aio_fsync) (struct kiocb *iocb, int datasync);
+</PRE>
+                        <P>aio_fsync 操作只对文件系统代码感兴趣, 因此我们在此不必讨论它. 其他 2 个, 
+                        aio_read 和 aio_write, 看起来非常象常规的 read 和 write 方法, 
+                        但是有几个例外. 一个是 offset 参数由值传递; 异步操作从不改变文件位置, 因此没有理由传一个指针给它. 
+                        这些方法还使用 iocb ("I/O 控制块")参数, 这个我们一会儿就到.</P>
+                        <P>aio_read 和 aio_write 方法的目的是初始化一个读或写操作, 
+                        在它们返回时可能完成或者可能没完成. 如果有可能立刻完成操作, 这个方法应当这样做并且返回通常的状态: 
+                        被传输的字节数或者一个负的错误码. 因此, 如果你的驱动有一个称为 my_read 的读方法, 下面的 
+                        aio_read 方法是全都正确的(尽管特别无意义):</P><PRE class=programlisting>static ssize_t my_aio_read(struct kiocb *iocb, char *buffer, ssize_t count, loff_t offset)
+{
+ return my_read(iocb-&gt;ki_filp, buffer, count, &amp;offset);
+}
+</PRE>
+                        <P>注意, struct file 指针在 kocb 结构的 ki_filp 成员中.</P>
+                        <P>如果你支持异步 I/O, 你必须知道这个事实, 内核可能, 偶尔, 创建"异步 IOCB". 它们是, 
+                        本质上, 必须实际上被同步执行的异步操作. 有人可能非常奇怪为什么要这样做, 但是最好只做内核要求做的. 
+                        同步操作在 IOCB 中标识; 你的驱动应当询问状态, 使用:</P><PRE class=programlisting>int is_sync_kiocb(struct kiocb *iocb); 
+</PRE>
+                        <P>如果这个函数返回一个非零值, 你的驱动必须同步执行这个操作.</P>
+                        <P>但是, 最后, 所有这个结构的意义在于使能异步操作. 如果你的驱动能够初始化这个操作(或者, 简单地, 
+                        将它排队到它能够被执行时), 它必须做两件事情: 记住它需要知道的关于这个操作的所有东西, 并且返回 
+                        -EIOCBQUEUED 给调用者. 记住操作信息包括安排对用户空间缓冲的存取; 一旦你返回, 
+                        你将不再有机会来存取缓冲, 当再调用进程的上下文运行时. 通常, 那意味着你将可能不得不建立一个直接内核映射( 
+                        使用 get_user_pages ) 或者一个 DMA 映射. -EIOCBQUEUED 
+                        错误码指示操作还没有完成, 并且它最终的状态将之后传递.</P>
+                        <P>当"之后"到来时, 你的驱动必须通知内核操作已经完成. 那通过调用 aio_complete 
+                        来完成:</P><PRE class=programlisting>int aio_complete(struct kiocb *iocb, long res, long res2);
+</PRE>
+                        <P>这里, iocb 是起初传递给你的同一个 IOCB, 并且 res 是这个操作的通常的结果状态. res2 
+                        是将被返回给用户空间的第 2 个结果码; 大部分的异步 I/O 实现作为 0 传递 res2. 一旦你调用 
+                        aio_complete, 你不应当再碰 IOCB 或者用户缓冲.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=AnasynchronousIOexample.sect3></A>15.3.1.1.&nbsp;一个异步 
+                        I/O 例子</H4></DIV></DIV></DIV>
+                        <P>例子代码中的面向页的 scullp 驱动实现异步 I/O. 实现是简单的, 
+                        但是足够来展示异步操作应当如何被构造.</P>
+                        <P>aio_read 和 aio_write 方法实际上不做太多:</P><PRE class=programlisting>static ssize_t scullp_aio_read(struct kiocb *iocb, char *buf, size_t count, loff_t pos)
+{
+        return scullp_defer_op(0, iocb, buf, count, pos);
+}
+
+static ssize_t scullp_aio_write(struct kiocb *iocb, const char *buf, size_t count, loff_t pos)
+{
+        return scullp_defer_op(1, iocb, (char *) buf, count, pos);
+}
+</PRE>
+                        <P>这些方法仅仅调用一个普通的函数:</P><PRE class=programlisting>struct async_work
+{
+        struct kiocb *iocb;
+        int result;
+        struct work_struct work;
+
+};
+
+static int scullp_defer_op(int write, struct kiocb *iocb, char *buf, size_t count, loff_t pos)
+{
+        struct async_work *stuff;
+        int result;
+
+        /* Copy now while we can access the buffer */
+        if (write)
+                result = scullp_write(iocb-&gt;ki_filp, buf, count, &amp;pos);
+        else
+                result = scullp_read(iocb-&gt;ki_filp, buf, count, &amp;pos);
+
+        /* If this is a synchronous IOCB, we return our status now. */
+        if (is_sync_kiocb(iocb))
+                return result;
+
+        /* Otherwise defer the completion for a few milliseconds. */
+        stuff = kmalloc (sizeof (*stuff), GFP_KERNEL);
+        if (stuff == NULL)
+
+                return result; /* No memory, just complete now */
+        stuff-&gt;iocb = iocb;
+        stuff-&gt;result = result;
+        INIT_WORK(&amp;stuff-&gt;work, scullp_do_deferred_op, stuff);
+        schedule_delayed_work(&amp;stuff-&gt;work, HZ/100);
+        return -EIOCBQUEUED;
+}
+</PRE>
+                        <P>一个更加完整的实现应当使用 get_user_pages 来映射用户缓冲到内核空间. 
+                        我们选择来使生活简单些, 通过只拷贝在 outset 的数据. 接着调用 is_sync_kiocb 
+                        来看是否这个操作必须同步完成; 如果是, 结果状态被返回, 并且我们完成了. 
+                        否则我们记住相关的信息在一个小结构, 通过一个工作队列来为"完成"而安排, 并且返回 -EIOCBQUEUED. 
+                        在这点上, 控制返回到用户空间.</P>
+                        <P>之后, 工作队列执行我们的完成函数:</P><PRE class=programlisting>static void scullp_do_deferred_op(void *p) 
+{
+ struct async_work *stuff = (struct async_work *) p;
+ aio_complete(stuff-&gt;iocb, stuff-&gt;result, 0);
+ kfree(stuff); 
+} 
+</PRE>
+                        <P>这里, 只是用我们保存的信息调用 aio_complete 的事情. 一个真正的驱动的异步 I/O 
+                        实现是有些复杂, 当然, 但是它遵循这类结构.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=DirectMemoryAccess.sect1></A>15.4.&nbsp;直接内存存取</H2></DIV></DIV></DIV>
+                        <P>直接内存存取, 或者 DMA, 是结束我们的内存问题概览的高级主题. DMA 
+                        是硬件机制允许外设组件来直接传输它们的 I/O 数据到和从主内存, 而不需要包含系统处理器. 
+                        这种机制的使用能够很大提高吞吐量到和从一个设备, 因为大量的计算开销被削减了.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=OverviewofDMADataTransfer.sect2></A>15.4.1.&nbsp;一个 
+                        DMA 数据传输的概况</H3></DIV></DIV></DIV>
+                        <P>在介绍程序细节之前, 让我们回顾一个 DMA 传输如何发生的, 只考虑输入传输来简化讨论.</P>
+                        <P>数据传输可由 2 种方法触发:或者软件请求数据(通过一个函数例如 
+                        read)或者硬件异步推数据到系统.</P>
+                        <P>在第一种情况, 包含的步骤总结如下:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>1. 当一个进程调用 read, 驱动方法分配一个 DMA 缓冲并引导硬件来传输它的数据到那个缓冲. 
+                          这个进程被置为睡眠.</P>
+                          <LI>
+                          <P>2. 硬件写数据到这个 DMA 缓冲并且在它完成时引发一个中断.</P>
+                          <LI>
+                          <P>3. 中断处理获得输入数据, 确认中断, 并且唤醒进程, 
+                        它现在可以读数据了.</P></LI></UL></DIV>
+                        <P>第 2 种情况到来是当 DMA 被异步使用. 例如, 这发生在数据获取设备, 
+                        它在没有人读它们的时候也持续推入数据. 在这个情况下, 
+                        驱动应当维护一个缓冲以至于后续的读调用能返回所有的累积的数据给用户空间. 这类传输包含的步骤有点不同:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>1. 硬件引发一个中断来宣告新数据已经到达.</P>
+                          <LI>
+                          <P>2. 中断处理分配一个缓冲并且告知硬件在哪里传输数据.</P>
+                          <LI>
+                          <P>3. 外设写数据到缓冲并且引发另一个中断当完成时.</P>
+                          <LI>
+                          <P>处理者分派新数据, 唤醒任何相关的进程, 并且负责杂务.</P></LI></UL></DIV>
+                        <P>异步方法的变体常常在网卡中见到. 这些卡常常期望见到一个在内存中和处理器共享的环形缓冲(常常被称为一个 
+                        DMA 的缓冲); 每个到来的报文被放置在环中下一个可用的缓冲, 并且发出一个中断. 
+                        驱动接着传递网络本文到内核其他部分并且在环中放置一个新 DMA 缓冲.</P>
+                        <P>在所有这些情况中的处理的步骤都强调, 有效的 DMA 处理依赖中断报告. 虽然可能实现 DMA 
+                        使用一个轮询驱动, 它不可能有意义, 因为一个轮询驱动可能浪费 DMA 
+                        提供的性能益处超过更容易的处理器驱动的I/O.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch15s04.html#ftn.id498425" 
+                        name=id498425><FONT 
+                        color=#0000ff>49</FONT></A>]</SUP></P>
+                        <P>在这里介绍的另一个相关项是 DMA 缓冲. DMA 要求设备驱动来分配一个或多个特殊的适合 DMA 
+                        的缓冲. 注意许多驱动分配它们的缓冲在初始化时并且使用它们直到关闭 -- 在之前列表中的分配一词, 
+                        意思是"获得一个之前分配的缓冲".</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AllocationgtheDMABuffer.sect2></A>15.4.2.&nbsp;分配 
+                        DMA 缓冲</H3></DIV></DIV></DIV>
+                        <P>本节涵盖 DMA 缓冲在底层的分配; 我们稍后介绍一个高级接口, 
+                        但是来理解这里展示的内容仍是一个好主意.</P>
+                        <P>随 DMA 缓冲带来的主要问题是, 当它们大于一页, 它们必须占据物理内存的连续页因为设备使用 ISA 
+                        或者 PCI 系统总线传输数据, 它们都使用物理地址. 注意有趣的是这个限制不适用 SBus ( 见 12 
+                        章的"SBus"一节 ), 它在外设总线上使用虚拟地址. 一些体系结构还可以在 PCI 总线上使用虚拟地址, 
+                        但是一个可移植的驱动不能依赖这个功能.</P>
+                        <P>尽管 DMA 缓冲可被分配或者在系统启动时或者在运行时, 模块只可在运行时分配它们的缓冲. (第 8 
+                        章介绍这些技术; "获取大缓冲"一节涵盖在系统启动时分配, 而"kmalloc 
+                        的真实"和"get_free_page 和其友"描述在运行时分配). 
+                        驱动编写者必须关心分配正确的内存,当它被用做 DMA 操作时; 不是所有内存区是合适的. 特别的, 
+                        在一些系统中的一些设备上高端内存可能不为 DMA 工作 - 外设完全无法使用高端地址.</P>
+                        <P>在现代总线上的大部分设备可以处理 32-位 地址, 意思是正常的内存分配对它们是刚刚好的. 一些 PCI 
+                        设备, 但是, 不能实现完整的 PCI 标准并且不能使用 32-位 地址. 并且 ISA 设备, 当然, 
+                        限制只在 24-位 地址.</P>
+                        <P>对于有这种限制的设备, 内存应当从 DMA 区进行分配, 通过添加 GFP_DMA 标志到 kmalloc 
+                        或者 get_free_pages 调用. 当这个标志存在, 只有可用 24-位 寻址的内存被分配. 
+                        另一种选择, 你可以使用通用的 DMA 层( 我们马上讨论这个 )来分配缓冲以解决你的设备的限制.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Doityourselfallocation.sect3></A>15.4.2.1.&nbsp;自己做分配</H4></DIV></DIV></DIV>
+                        <P>我们已见到 get_free_pages 如何分配直到几个 MByte (由于 order 可以直到 
+                        MAX_ORDER, 当前是 11), 但是高级数的请求容易失败当请求的缓冲远远小于 128 KB, 
+                        因为系统内存时间长了变得碎裂.<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch15s04.html#ftn.id498543" 
+                        name=id498543><FONT 
+                        color=#0000ff>50</FONT></A>]</SUP></P>
+                        <P>当内核无法返回请求数量的内存或者当你需要多于 128 KB(例如, 一个通常的 PCI 帧抓取的请求), 
+                        一个替代返回 -ENOMEM 的做法是在启动时分配内存或者保留物理 RAM 的顶部给你的缓冲. 我们在第 8 
+                        章的 "获得大量缓冲" 一节描述在启动时间分配, 但是它对模块是不可用的. 保留 RAM 
+                        的顶部是通过在启动时传递一个 mem= 参数给内核实现的. 例如, 如果你有 256 MB, 参数 
+                        mem=255M 使内核不使用顶部的 MByte. 你的模块可能后来使用下列代码来获得对这个内存的存取:</P><PRE class=programlisting>dmabuf = ioremap (0xFF00000 /* 255M */, 0x100000 /* 1M */); 
+</PRE>
+                        <P>分配器, 配合本书的例子代码的一部分, 提供了一个简单的 API 来探测和管理这样的保留 RAM 
+                        并且已在几个体系上被成功使用. 但是, 这个技巧当你有一个高内存系统时无效(即, 一个有比适合 CPU 
+                        地址空间更多的物理内存的系统 ).</P>
+                        <P>当然, 另一个选项, 是使用 GFP_NOFAIL 来分配你的缓冲. 这个方法, 但是, 
+                        确实严重地对内存管理子系统有压力, 并且它冒锁住系统的风险; 最好是避免除非确实没有其他方法.</P>
+                        <P>如果你分配一个大 DMA 缓冲到这样的长度, 但是, 值得想一下替代的方法. 如果你的设备可以做发散/汇聚 
+                        I/O, 你可以分配你的缓冲以更小的片段并且让设备做其他的. 发散/汇聚 I/O 也可以用当进行直接 I/O 
+                        到用户空间时, 它可能是最好地解决方法当需要一个真正大缓冲时.</P></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=BusAddresses.sect2></A>15.4.3.&nbsp;总线地址</H3></DIV></DIV></DIV>
+                        <P>一个使用 DMA 的设备驱动必须和连接到接口总线的硬件通讯, 总线使用物理地址, 
+                        而程序代码使用虚拟地址.</P>
+                        <P>事实上, 情况比这个稍微有些复杂. 基于DMA 的硬件使用总线地址, 而不是物理地址. 尽管 ISA 和 
+                        PCI 总线地址在 PC 上完全是物理地址, 这对每个平台却不总是真的. 有时接口总线被通过桥接电路连接, 
+                        它映射 I/O 地址到不同的物理地址. 一些系统甚至有一个页映射机制, 使任意的页连续出现在外设总线.</P>
+                        <P>在最低级别(再次, 我们将马上查看一个高级解决方法), Linux 内核提供一个可移植的方法, 
+                        通过输出下列函数, 在 &lt;asm/io.h&gt; 定义. 这些函数的使用不被推荐, 
+                        因为它们只在有非常简单的 I/O 体系的系统上正常工作; 但是, 你可能遇到它们当使用内核代码时.</P><PRE class=programlisting>unsigned long virt_to_bus(volatile void *address);
+void *bus_to_virt(unsigned long address);
+</PRE>
+                        <P>这些函数进行一个简单的转换在内核逻辑地址和总线地址之间. 它们在许多情况下不工作, 一个 I/O 
+                        内存管理单元必须被编程的地方或者必须使用反弹缓冲的地方. 做这个转换的正确方法是使用通用的 DMA 层, 
+                        因此我们现在转移到这个主题.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheGenericDMALayer.sect2></A>15.4.4.&nbsp;通用 DMA 
+                        层</H3></DIV></DIV></DIV>
+                        <P>DMA 操作, 最后, 下到分配一个缓冲并且传递总线地址到你的设备. 但是, 
+                        编写在所有体系上安全并正确进行 DMA 的可移植启动的任务比想象的要难. 不同的系统有不同的概念, 
+                        关于缓存一致性应当如何工作的概念; 如果你不正确处理这个问题, 你的驱动可能破坏内存. 
+                        一些系统有复杂的总线硬件, 它使 DMA 任务更容易 - 或者更难. 并且不是所有的系统可以在内存所有部分进行 
+                        DMA. 幸运的是, 内核提供了一个总线和体系独立的 DMA 层来对驱动作者隐藏大部分这些问题. 
+                        我们非常鼓励你来使用这个层来 DMA 操作, 在任何你编写的驱动中.</P>
+                        <P>下面的许多函数需要一个指向 struct device 的指针. 这个结构是 Linux 
+                        设备模型中设备的低级表示. 它不是驱动常常必须直接使用的东西, 但是你确实需要它当使用通用 DMA 层时. 
+                        常常地, 你可发现这个结构, 深埋在描述你的设备的总线. 例如, 它可在 struct pci_device 
+                        或者 struct usb_device 中发现它作为 dev 成员. 设备结构在 14 章中详细描述.</P>
+                        <P>使用下面函数的驱动应当包含 &lt;linux/dma-mapping.h&gt;.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Dealingwithdifficulthardware.sect3></A>15.4.4.1.&nbsp;处理困难硬件</H4></DIV></DIV></DIV>
+                        <P>在尝试 DMA 之前必须回答的第一个问题是给定设备是否能够在当前主机上做这样的操作. 
+                        许多设备受限于它们能够寻址的内存范围, 因为许多理由. 缺省地, 内核假定你的设备能够对任何 32-位 地址进行 
+                        DMA. 如果不是这样, 你应当通知内核这个事实, 使用一个调用:</P><PRE class=programlisting> int dma_set_mask(struct device *dev, u64 mask); 
+</PRE>
+                        <P>mask 应当显示你的设备能够寻址的位; 如果它被限制到 24 位, 例如, 你要传递 mask 作为 
+                        0x0FFFFFF. 返回值是非零如果使用给定的 mask 可以 DMA; 如果 dma_set_mask 返回 
+                        0, 你不能对这个设备使用 DMA 操作. 因此, 设备的驱动中的初始化代码限制到 24-位 DMA 
+                        操作可能看来如:</P><PRE class=programlisting>if (dma_set_mask (dev, 0xffffff))
+        card-&gt;use_dma = 1;
+else
+{
+        card-&gt;use_dma = 0; /* We'll have to live without DMA */
+        printk (KERN_WARN, "mydev: DMA not supported\n");
+}
+</PRE>
+                        <P>再次, 如果你的设备支持正常的, 32-位 DMA 操作, 没有必要调用 
+                        dma_set_mask.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=DMAmappings.sect3></A>15.4.4.2.&nbsp;DMA 
+                        映射</H4></DIV></DIV></DIV>
+                        <P>一个 DMA 映射是分配一个 DMA 缓冲和产生一个设备可以存取的地址的结合. 它试图使用一个简单的对 
+                        virt_to_bus 的调用来获得这个地址, 但是有充分的理由来避免那个方法. 
+                        它们中的第一个是合理的硬件带有一个 IOMMU 来为总线提供一套映射寄存器. IOMMU 
+                        可为任何物理内存安排来出现在设备可存取的地址范围内, 并且它可使物理上散布的缓冲对设备看来是连续的. 使用 
+                        IOMMU 需要使用通用的 DMA 层; virt_to_bus 不负责这个任务.</P>
+                        <P>注意不是所有的体系都有一个 IOMMU; 特别的, 流行的 x86 平台没有 IOMMU 支持. 
+                        一个正确编写的驱动不需要知道它在之上运行的 I/O 支持硬件, 但是.</P>
+                        <P>为设备设置一个有用的地址可能也, 在某些情况下, 要求一个反弹缓冲的建立. 
+                        反弹缓冲是当一个驱动试图在一个外设不能达到的地址上进行 DMA 时创建的, 比如一个高内存地址. 
+                        数据接着根据需要被拷贝到和从反弹缓冲. 无需说, 反弹缓冲的使用能拖慢事情, 但是有时没有其他选择.</P>
+                        <P>DMA 映射也必须解决缓存一致性问题. 记住现代处理器保持最近存取的内存区的拷贝在一个快速的本地缓冲中; 
+                        如果没有这个缓存, 合理的性能是不可能的. 如果你的设备改变主存一个区, 
+                        会强制使任何包含那个区的处理器缓存被失效; 负责处理器可能使用不正确的主存映象, 并且导致数据破坏. 类似地, 
+                        当你的设备使用 DMA 来从主存中读取数据, 任何对那个驻留在处理器缓存的内存的改变必须首先被刷新. 
+                        这些缓存一致性问题可以产生无头的模糊和难寻的错误, 如果编程者不小心. 一个体系在硬件中管理缓存一致性, 
+                        但是其他的要求软件支持. 通用的 DMA 层深入很多来保证在所有体系上事情都正确工作, 但是, 
+                        如同我们将见到的, 正确的行为要求符合一些规则.</P>
+                        <P>DMA 映射设置一个新类型, dma_addr_t, 来代表总线地址. 类型 dma_addr_t 
+                        的变量应当被驱动当作不透明的; 唯一可允许的操作是传递它们到 DMA 支持过程和设备自身. 作为一个总线地址, 
+                        dma_addr_t 可导致不期望的问题如果被 CPU 直接使用.</P>
+                        <P>PCI 代码在 2 类 DMA 映射中明显不同, 依赖 DMA 
+                        缓冲被期望停留多长时间:</P>Coherent DMA mappings 
+                        <P>连贯的 DMA 映射. 这些映射常常在驱动的生命期内存在. 一个连贯的缓冲必须是同时对 CPU 
+                        和外设可用(其他的映射类型, 如同我们之后将看到的, 在任何给定时间只对一个或另一个可用). 结果, 
+                        一致的映射必须在缓冲一致的内存. 一致的映射建立和使用可能是昂贵的.</P>Streaming DMA 
+                        mappings 
+                        <P>流 DMA 映射. 流映射常常为一个单个操作建立. 一些体系当使用流映射时允许大的优化, 如我们所见, 
+                        但是这些映射也服从一个更严格的关于如何存取它们的规则. 内核开发者建议使用一致映射而不是流映射在任何可能的时候. 
+                        这个建议有 2 个原因. 第一个, 在支持映射寄存器的系统上, 每个 DMA 映射在总线上使用它们一个或多个. 
+                        一致映射, 有长的生命周期, 可以长时间独占这些寄存器, 甚至当它们不在使用时. 另外一个原因是, 
+                        在某些硬件上, 流映射可以用无法在一致映射中使用的方法来优化.</P>
+                        <P>这 2 种映射类型必须以不同的方式操作; 是时候看看细节了.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=SettingupcoherentDMAmappings.sect3></A>15.4.4.3.&nbsp;建立一致 
+                        DMA 映射</H4></DIV></DIV></DIV>
+                        <P>一个驱动可以建立一个一致映射, 使用对 dma_alloc_coherent 的调用:</P><PRE class=programlisting>void *dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle, int flag);
+</PRE>
+                        <P>这个函数处理缓冲的分配和映射. 前 2 个参数是设备结果和需要的缓冲大小. 这个函数返回 DMA 
+                        映射的结果在 2 个地方. 来自这个函数的返回值是缓冲的一个内核虚拟地址, 它可被驱动使用; 
+                        其间相关的总线地址在 dma_handle 中返回. 分配在这个函数中被处理以至缓冲被放置在一个可以使用 DMA 
+                        的位置; 常常地内存只是使用 get_free_pages 来分配(但是注意大小是以字节计的, 而不是一个 
+                        order 值). flag 参数是通常的 GFP_ 值来描述内存如何被分配; 常常应当是 GFP_KERNEL 
+                        (常常) 或者 GFP_ATOMIC (当在原子上下文中运行时).</P>
+                        <P>当不再需要缓冲(常常在模块卸载时), 它应当被返回给系统, 使用 
+                        dma_free_coherent:</P><PRE class=programlisting>void dma_free_coherent(struct device *dev, size_t size,
+ void *vaddr, dma_addr_t dma_handle);
+</PRE>
+                        <P>注意, 这个函数象许多通常的 DMA 函数, 需要提供所有的大小, CPU 地址, 和 
+                        总线地址参数.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=DMApools.sect3></A>15.4.4.4.&nbsp;DMA 
+                        池</H4></DIV></DIV></DIV>
+                        <P>一个 DMA池 是分配小的, 一致DMA映射的分配机制. 从 dma_alloc_coherent 
+                        获得的映射可能有一页的最小大小. 如果你的驱动需要比那个更小的 DMA 区域, 你应当可能使用一个 DMA 池. 
+                        DMA 池也在这种情况下有用, 当你可能试图对嵌在一个大结构中的小区域进行 DMA 操作. 
+                        一些非常模糊的驱动错误已被追踪到缓存一致性问题, 在靠近小 DMA 区域的结构成员. 为避免这个问题, 
+                        你应当一直明确分配进行 DMA 操作的区域, 和其他的非 DMA 数据结构分开.</P>
+                        <P>DMA 池函数定义在 &lt;linux/dmapool.h&gt;.</P>
+                        <P>一个 DMA 池必须在使用前创建, 使用一个调用:</P><PRE class=programlisting>struct dma_pool *dma_pool_create(const char *name, struct device *dev,
+ size_t size, size_t align,
+ size_t allocation); 
+</PRE>
+                        <P>这里, name 是池的名子, dev 是你的设备结构, size 是要从这个池分配的缓冲区大小, 
+                        align 是来自池的分配要求的硬件对齐(以字节表达的), 以及 allocation是, 如果非零, 
+                        一个分配不应当越过的内存边界. 如果 allocation 以 4096 传递, 例如, 从池分配的缓冲不越过 
+                        4-KB 边界.</P>
+                        <P>当你用完一个池, 可被释放, 用:</P><PRE class=programlisting>void dma_pool_destroy(struct dma_pool *pool); 
+</PRE>
+                        <P>你应当返回所有的分配给池, 在销毁它之前. 分配被用 dma_pool_alloc 处理:</P><PRE class=programlisting>void *dma_pool_alloc(struct dma_pool *pool, int mem_flags, dma_addr_t *handle);
+</PRE>
+                        <P>对这个调用, mem_flags 是常用的 GFP_ 分配标志的设置. 如果所有都进行顺利, 
+                        一个内存区(大小是当池创建时指定的)被分配和返回. 至于 dam_alloc_coherent, 结果 DMA 
+                        缓冲地址被返回作为一个内核虚拟地址, 并作为一个总线地址被存于 handle.</P>
+                        <P>不需要的缓冲应当返回池, 使用:</P><PRE class=programlisting>void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t addr); 
+</PRE></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=SettingupstreamingDMAmapping.sect3></A>15.4.4.5.&nbsp;建立流 
+                        DMA 映射</H4></DIV></DIV></DIV>
+                        <P>流映射比一致映射有更复杂的接口, 有几个原因. 这些映射行为使用一个由驱动已经分配的缓冲, 因此, 
+                        必须处理它们没有选择的地址. 在一些体系上, 流映射也可以有多个不连续的页和多部分的"发散/汇聚"缓冲. 
+                        所有这些原因, 流映射有它们自己的一套映射函数.</P>
+                        <P>当建立一个流映射时, 你必须告知内核数据移向哪个方向. 一些符号(enum 
+                        dam_data_direction 类型)已为此定义:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>DMA_TO_DEVICE</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN class=term><SPAN>DMA_FROM_DEVICE 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这 2 个符号应当是自解释的. 如果数据被发向这个设备(相应地, 也许, 到一个 write 
+                          系统调用), DMA_IO_DEVICE 应当被使用; 去向 CPU 的数据, 相反, 用 
+                          DMA_FROM_DEVICE 标志.</P>
+                          <DT><SPAN class=term><SPAN>DMA_BIDIRECTIONAL 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>如果数据被在任一方向移动, 使用 DMA_BIDIRECTIONAL.</P>
+                          <DT><SPAN class=term><SPAN>DMA_NONE </SPAN></SPAN>
+                          <DD>
+                          <P>这个符号只作为一个调试辅助而提供. 
+                        试图使用带这个方向的缓冲导致内核崩溃.</P></DD></DL></DIV>
+                        <P>可能在所有时间里试图只使用 DMA_BIDIRECTIONAL, 但是驱动作者应当抵挡住这个诱惑. 
+                        在一些体系上, 这个选择会有性能损失.</P>
+                        <P>当你有单个缓冲要发送, 使用 dma_map_single 来映射它:</P><PRE class=programlisting>dma_addr_t dma_map_single(struct device *dev, void *buffer, size_t size, enum dma_data_direction direction);
+</PRE>
+                        <P>返回值是总线地址, 你可以传递到设备, 或者是 NULL 如果有错误.</P>
+                        <P>一旦传输完成, 映射应当用 dma_unmap_single 来删除:</P><PRE class=programlisting>void dma_unmap_single(struct device *dev, dma_addr_t dma_addr, size_t size, enum dma_data_direction direction);
+</PRE>
+                        <P>这里, size 和 direction 参数必须匹配那些用来映射缓冲的.</P>
+                        <P>一些重要的规则适用于流 DMA 映射:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>缓冲必须用在只匹配它被映射时给定的方向的传输.</P>
+                          <LI>
+                          <P>一旦一个缓冲已被映射, 它属于这个设备, 不是处理器. 直到这个缓冲已被去映射, 
+                          驱动不应当以任何方式触动它的内容. 只在调用 dma_unmap_single 
+                          后驱动才可安全存取缓冲的内容(有一个例外, 我们马上见到). 其他的事情, 
+                          这个规则隐含一个在被写入设备的缓冲不能被映射, 直到它包含所有的要写的数据.</P>
+                          <LI>
+                          <P>这个缓冲必须不被映射, 当 DMA 仍然激活, 
+                        否则肯定会有严重的系统不稳定.</P></LI></UL></DIV>
+                        <P>你可能奇怪为什么一旦一个缓冲已被映射驱动就不能再使用它. 为什么这个规则有意义实际上有 2 个原因. 
+                        第一, 当一个缓冲为 DMA 而被映射, 内核必须确保缓冲中的所有的数据实际上已被写入内存. 
+                        有可能一些数据在处理器的缓存当 dma_unmap_single 被调用时, 并且必须被明确刷新. 
+                        被处理器在刷新后写入缓冲的数据可能对设备不可见.</P>
+                        <P>第二, 考虑一下会发生什么, 当被映射的缓冲在一个对设备不可存取的内存区. 一些体系在这种情况下完全失败, 
+                        但是其他的创建一个反弹缓冲. 反弹缓冲只是一个分开的内存区, 它对设备可存取. 如果一个缓冲被映射使用 
+                        DMA_TO_DEVICE 方向, 并且要求一个反弹缓冲, 原始缓冲的内容作为映射操作的一部分被拷贝. 明显地, 
+                        在拷贝后的对原始缓冲的改变设备见不到. 类似地, DMA_FROM_DEVICE 反弹缓冲被 
+                        dma_unmap_single 拷回到原始缓冲; 来自设备的数据直到拷贝完成才出现.</P>
+                        <P>偶然地, 为什么获得正确方向是重要的, 反弹缓冲是一个原因. DMA_BIDIRECTIONAL 
+                        反弹缓冲在操作前后被拷贝, 这常常是一个 CPU 周期的不必要浪费.</P>
+                        <P>偶尔一个驱动需要存取一个流 DMA 缓冲的内容而不映射它. 已提供了一个调用来做这个:</P><PRE class=programlisting>void dma_sync_single_for_cpu(struct device *dev, dma_handle_t bus_addr, size_t size, enum dma_data_direction direction); 
+</PRE>
+                        <P>这个函数应当在处理器存取一个流 DMA 缓冲前调用. 一旦已做了这个调用, CPU "拥有" DMA 
+                        缓冲并且可以按需使用它. 在设备存取这个缓冲前, 但是, 拥有权应当传递回给它, 使用:</P><PRE class=programlisting>void dma_sync_single_for_device(struct device *dev, dma_handle_t bus_addr, size_t size, enum dma_data_direction direction); 
+</PRE>
+                        <P>处理器, 再一次, 在调用这个之后不应当存取 DMA 缓冲.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Singlepagestreamingmappings.sect3></A>15.4.4.6.&nbsp;单页流映射</H4></DIV></DIV></DIV>
+                        <P>偶然地, 你可能想建立一个缓冲的映射, 这个缓冲你有一个 struct page 指针; 例如, 
+                        这可能发生在使用 get_user_pages 映射用户缓冲. 为建立和取消流映射使用 struct page 
+                        指针, 使用下面:</P><PRE class=programlisting>dma_addr_t dma_map_page(struct device *dev, struct page *page,
+ unsigned long offset, size_t size,
+ enum dma_data_direction direction); 
+void dma_unmap_page(struct device *dev, dma_addr_t dma_address,
+ size_t size, enum dma_data_direction direction);
+</PRE>
+                        <P>offset 和 size 参数可被用来映射页的部分. 但是, 建议部分页映射应当避免, 
+                        除非你真正确信你在做什么. 映射一页的部分可能导致缓存一致性问题, 如果这个分配只覆盖一个缓存线的一部分; 这, 
+                        随之, 会导致内存破坏和严重的难以调试的错误.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Scattergathermapping.sect3></A>15.4.4.7.&nbsp;发散/汇聚映射</H4></DIV></DIV></DIV>
+                        <P>发散/汇聚映射是一个特殊类型的流 DMA 映射. 假设你有几个缓冲, 都需要传送数据到或者从设备. 
+                        这个情况可来自几个方式, 包括从一个 readv 或者 writev 系统调用, 一个成簇的磁盘 I/O 请求, 
+                        或者一个页链表在一个被映射的内核 I/O 缓冲. 你可简单地映射每个缓冲, 轮流的, 并且进行要求的操作, 
+                        但是有几个优点来一次映射整个链表.</P>
+                        <P>许多设备可以接收一个散布表数组指针和长度, 并且传送它们全部在一个 DMA 操作中; 例如, 
+                        "零拷贝"网络是更轻松如果报文在多个片中建立. 
+                        另一个映射发散列表为一个整体的理由是利用在总线硬件上有映射寄存器的系统. 在这样的系统上, 
+                        物理上不连续的页从设备的观点看可被汇集为一个单个的, 连续的数组. 
+                        这个技术只当散布表中的项在长度上等于页大小(除了第一个和最后一个), 但是当它做这个工作时, 
+                        它可转换多个操作到一个单个的 DMA, 和有针对性的加速事情.</P>
+                        <P>最后, 如果一个反弹缓冲必须被使用, 应该连接整个列表为一个单个缓冲(因为它在被以任何方式拷贝).</P>
+                        <P>因此现在你确信散布表的映射在某些情况下是值得的. 映射一个散布表的第一步是创建和填充一个 struct 
+                        scatterlist 数组, 它描述被传输的缓冲. 这个结构是体系依赖的, 并且在 
+                        &lt;asm/scatterlist.h&gt; 中描述. 但是, 它常常包含 3 个成员:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *page;</SPAN></SPAN> 
+                          <DD>
+                          <P>struct page 指针, 对应在发散/汇聚操作中使用的缓冲.</P>
+                          <DT><SPAN class=term><SPAN>unsigned int 
+                          length;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned int 
+                          offset;</SPAN></SPAN> 
+                          <DD>
+                          <P>缓冲的长度和它的页内偏移.</P></DD></DL></DIV>
+                        <P>为映射一个发散/汇聚 DMA 操作, 你的驱动应当设置 page, offset, 和 length 
+                        成员在一个 struct scatterlist 项给每个要被发送的缓冲. 接着调用:</P><PRE class=programlisting>int dma_map_sg(struct device *dev, struct scatterlist *sg, int nents, enum dma_data_direction direction)
+</PRE>
+                        <P>这里 nents 是传入的散布表项的数目. 返回值是要发送的 DMA 缓冲的数目. 它可能小于 
+                        nents.</P>
+                        <P>对于输入散布表中的每个缓冲, dma_map_sg 决定了正确的给设备的总线地址. 作为任务的一部分, 
+                        它也连接在内存中相近的缓冲. 如果你的驱动运行的系统有一个 I/O 内存管理单元, dma_map_sg 
+                        也编程这个单元的映射寄存器, 可能的结果是, 从你的驱动的观点, 你能够传输一个单个的, 连续的缓冲. 
+                        你将不会知道传送的结果将看来如何, 但是, 直到在调用之后.</P>
+                        <P>你的驱动应当传送由 pci_map_sg 返回的每个缓冲. 总线地址和每个缓冲的长度存储于 struct 
+                        scatterlist 项, 但是它们在结构中的位置每个体系不同. 2 
+                        个宏定义已被定义来使得可能编写可移植的代码:</P><PRE class=programlisting>dma_addr_t sg_dma_address(struct scatterlist *sg); 
+</PRE>
+                        <P>从这个散布表入口返回总线( DMA )地址.</P><PRE class=programlisting>unsigned int sg_dma_len(struct scatterlist *sg); 
+</PRE>
+                        <P>返回这个缓冲的长度.</P>
+                        <P>再次, 记住要传送的缓冲的地址和长度可能和传递给 dma_map_sg 的不同.</P>
+                        <P>一旦传送完成, 一个 发散/汇聚 映射被使用 dma_unmap_sg 去映射:</P><PRE class=programlisting>void dma_unmap_sg(struct device *dev, struct scatterlist *list, int nents, enum dma_data_direction direction);
+</PRE>
+                        <P>注意 nents 必须是你起初传递给 dma_map_sg 的入口项的数目, 并且不是这个函数返回给你的 
+                        DMA 缓冲的数目.</P>
+                        <P>发散/汇聚映射是流 DMA 映射, 并且同样的存取规则如同单一映射一样适用. 
+                        如果你必须存取一个被映射的发散/汇聚列表, 你必须首先同步它:</P><PRE class=programlisting>void dma_sync_sg_for_cpu(struct device *dev, struct scatterlist *sg,
+ int nents, enum dma_data_direction direction);
+void dma_sync_sg_for_device(struct device *dev, struct scatterlist *sg, 
+ int nents, enum dma_data_direction direction); 
+</PRE></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=PCIdoubleaddresscyclemapping.sect3></A>15.4.4.8.&nbsp;PCI 
+                        双地址周期映射</H4></DIV></DIV></DIV>
+                        <P>正常地, DMA 支持层使用 32-位 总线地址, 可能受限于一个特定设备的 DMA 掩码. PCI 
+                        总线, 但是, 也支持一个 64-位地址模式, 双地址周期(DAC). 通常的 DMA 层不支持这个模式, 
+                        因为几个理由, 第一个是它是一个 PCI-特定 的特性. 还有, 许多 DAC 的实现满是错误, 并且, 因为 
+                        DAC 慢于一个常规的, 32-位 DMA, 可能有一个性能开销. 即便如此, 有的应用程序使用 DAC 
+                        是正确的事情; 如果你有一个设备可能使用非常大的位于高内存的缓冲, 你可能要考虑实现 DAC 支持. 
+                        这个支持只对 PCI 总线适用, 因此 PCI-特定的函数必须被使用.</P>
+                        <P>为使用 DAC, 你的驱动必须包含 &lt;linux/pci.h&gt;. 你必须设置一个单独的 DMA 
+                        掩码:</P><PRE class=programlisting>int pci_dac_set_dma_mask(struct pci_dev *pdev, u64 mask);
+</PRE>
+                        <P>你可使用 DAC 寻址只在这个调用返回 0 时. 一个特殊的类型 (dma64_addr_t) 被用作 
+                        DAC 映射. 为建立一个这些映射, 调用 pci_dac_page_to_dma:</P><PRE class=programlisting>dma64_addr_t pci_dac_page_to_dma(struct pci_dev *pdev, struct page *page, unsigned long offset, int direction);
+</PRE>
+                        <P>DAC 映射, 你将注意到, 可能被完成只从 struct page 指针(它们应当位于高内存, 毕竟, 
+                        否则使用它们没有意义了); 它们必须一次一页地被创建. direction 参数是在通用 DMA 层中使用的 
+                        enum dma_data_direction 的 PCI 对等体; 它应当是 
+                        PCI_DMA_TODEVICE, PCI_DMA_FROMDEVICE, 或者 
+                        PCI_DMA_BIRDIRECTIONAL.</P>
+                        <P>DAC 映射不要求外部资源, 因此在使用后没有必要明确释放它们. 但是, 有必要象对待其他流映射一样对待 
+                        DAC 映射, 并且遵守关于缓冲所有权的规则. 有一套函数来同步 DMA 缓冲, 和通常的变体相似:</P><PRE class=programlisting>void pci_dac_dma_sync_single_for_cpu(struct pci_dev *pdev,
+ dma64_addr_t dma_addr,
+ size_t len,
+ int direction); 
+
+void pci_dac_dma_sync_single_for_device(struct pci_dev *pdev,
+ dma64_addr_t dma_addr,
+ size_t len,
+ int direction);
+</PRE></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=AsimplePCIDMAexample.sect3></A>15.4.4.9.&nbsp;一个简单的 
+                        PCI DMA 例子</H4></DIV></DIV></DIV>
+                        <P>作为一个 DMA 映射如何被使用的例子, 我们展示了一个简单的给一个 PCI 设备的 DMA 编码的例子. 
+                        在 PCI 总线上的数据的 DMA 操作的形式非常依赖被驱动的设备. 因此, 这个例子不适用于任何真实的设备; 
+                        相反, 它是一个称为 dad ( DMA Acquisiton Device) 的假想驱动的一部分. 
+                        一个给这个设备的驱动可能定义一个传送函数象这样:</P><PRE class=programlisting>int dad_transfer(struct dad_dev *dev, int write, void *buffer,
+ size_t count)
+{
+ dma_addr_t bus_addr;
+
+ /* Map the buffer for DMA */
+ dev-&gt;dma_dir = (write ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
+ dev-&gt;dma_size = count;
+ bus_addr = dma_map_single(&amp;dev-&gt;pci_dev-&gt;dev, buffer, count,
+
+ dev-&gt;dma_dir);
+ dev-&gt;dma_addr = bus_addr;
+
+ /* Set up the device */
+ writeb(dev-&gt;registers.command, DAD_CMD_DISABLEDMA);
+ writeb(dev-&gt;registers.command, write ? DAD_CMD_WR : DAD_CMD_RD);
+ writel(dev-&gt;registers.addr, cpu_to_le32(bus_addr));
+ writel(dev-&gt;registers.len, cpu_to_le32(count));
+
+ /* Start the operation */
+ writeb(dev-&gt;registers.command, DAD_CMD_ENABLEDMA);
+ return 0;
+
+} 
+</PRE>
+                        <P>这个函数映射要被传送的缓冲并且启动设备操作. 这个工作的另一半必须在中断服务过程中完成, 
+                        这个看来如此:</P><PRE class=programlisting>void dad_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+{
+ struct dad_dev *dev = (struct dad_dev *) dev_id;
+
+ /* Make sure it's really our device interrupting */
+ /* Unmap the DMA buffer */
+ dma_unmap_single(dev-&gt;pci_dev-&gt;dev, dev-&gt;dma_addr,
+ dev-&gt;dma_size, dev-&gt;dma_dir);
+
+ /* Only now is it safe to access the buffer, copy to user, etc. */
+ ...
+}
+</PRE>
+                        <P>显然, 这个例子缺乏大量的细节, 包括可能需要的任何步骤来阻止启动多个同时的 DMA 
+                        操作.</P></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=DMAforISADevices.sect2></A>15.4.5.&nbsp;ISA 设备的 
+                        DMA</H3></DIV></DIV></DIV>
+                        <P>ISA 总线允许 2 类 DMA 传送: 本地 DMA 和 ISA 总线主 DMA. 本地 DMA 
+                        使用在主板上的标准 DMA-控制器电路来驱动 ISA 总线上的信号线. ISA 总线主 DMA, 另一方面, 
+                        完全由外设处理, 至少从驱动的观点看. 一个 ISA 总线主的例子是 1542 SCSI 控制器, 
+                        在内核源码中是在 drivers/scsi/aha1542.c.</P>
+                        <P>至于本地 DMA, 有 3 个实体包含在 ISA 总线上的 DMA 数据传送.</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>The 8237 DMA controller 
+                          (DMAC) </SPAN></SPAN>
+                          <DD>
+                          <P>控制器持有关于 DMA 传送的信息, 诸如方向, 内存地址, 以及传送的大小. 
+                          它还包含一个计数器来跟踪进行中的传送的状态. 当这个控制器收到一个 DMA 请求信号, 
+                          它获得总线的控制权并且驱动信号线以便设备可读或些它的数据.</P>
+                          <DT><SPAN class=term><SPAN>The peripheral device 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个设备必须激活 DMA 请求线当它准备传送数据时. 实际的传送由 DMAC 管理; 
+                          硬件设备顺序读或写数据到总线当控制器探测设备时. 设备常常触发中断当传送结束时.</P>
+                          <DT><SPAN class=term><SPAN>The device driver 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个驱动什么不做; 它提供给 DMA 控制器方向, 总线地址,和传送的大小. 
+                          它还和它的外设通讯来准备传送数据和响应中断当 DMA 结束时.</P></DD></DL></DIV>
+                        <P>开始的在 PC 上使用的 DMA 控制器管理 4 个"通道", 每个有一套 DMA 寄存器. 4 
+                        个设备可同时存储它们的 DMA 信息在控制器中. 更新的 PC 包含相同的 2 个 DMAC 
+                        设备<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch15s04.html#ftn.id500013" 
+                        name=id500013><FONT color=#0000ff>51</FONT></A>]</SUP>: 
+                        第 2 个控制器(主)被连接到系统的处理器, 并且第 1 个(从)被连接到第 2 个控制器的通道 0.</P>
+                        <P>最初的 PC 只有一个控制器; 第 2 个是在基于 286 的平台上增加的. 但是, 第 2 
+                        个控制器如同主控制器一样被连接, 因为它处理 16-位的传送; 第 1 个只传送 8 
+                        位每次并且它为向后兼容而存在.</P>
+                        <P>通道的编号从 0 到 7: 通道 4 对 ISA 外设不可用, 因为它在内部用来层叠从控制器到主控制器. 
+                        因此, 可用的通道是 0 到 3 在从控制器上( 8-位 通道) 和 5 到 7 到主控制器上( 
+                        16-位通道). 任何 DMA 传送的大小, 当被存储于控制器中, 是一个代表总线周期的数目的 16-位数. 
+                        最大的传送大小是, 因此, 64KB 对于从控制器(因为它传送 8 位在一个周期)和 128KB 对于主控制器( 
+                        它进行 16-位 传送).</P>
+                        <P>因为 DMA 控制器是一个系统范围的资源, 内核帮助处理这个. 它使用一个 DMA 
+                        注册来提供一个请求并释放机制给 DMA 通道, 和一套函数来在 DMA 控制器中配置通道信息.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=RegisteringDMAusage.sect3></A>15.4.5.1.&nbsp;注册 DMA 
+                        使用</H4></DIV></DIV></DIV>
+                        <P>你应当熟悉内核注册 -- 我们已经见到它们在 I/O 端口和中断线. DMA 通道注册和其他的类似. 在 
+                        &lt;asm/dma.h&gt; 中已经包含, 下面的函数可用来获得和释放一个 DMA 通道的拥有权:</P><PRE class=programlisting>int request_dma(unsigned int channel, const char *name); 
+void free_dma(unsigned int channel);
+</PRE>
+                        <P>通道参数是一个在 0 到 7 之间的数, 更精确些, 一个小于 MAX_DMA_CHANNELS 的正值. 
+                        在 PC 上, MAX_DMA_CHANNELS 定义为 8 来匹配硬件. name 
+                        参数是一个字符串来标识设备. 特定的 name 出现在文件 /proc/dma, 它可被用户程序读.</P>
+                        <P>从 request_dma 的返回值是 0 对于成功, 是 -EINVAL 或者 -EBUSY 
+                        如果有错误. 前者意思是请求的通道超范围, 后者意思是另一个设备持有这个通道.</P>
+                        <P>我们推荐你象对待 I/O 端口和中断线一样小心对待 DMA 通道; 
+                        在打开时请求通道好于从模块初始化函数里请求它. 延后请求允许在驱动之间的一些共享; 例如, 你的声卡和模拟 
+                        I/O 接口可以共享 DMA 通道只要它们不同时使用.</P>
+                        <P>我们还建议你请求 DMA 通道在你已请求中断线之后并且你在中断前释放它. 这是惯用的顺序来请求这 2 
+                        个资源; 遵循这个惯例避免了死锁的可能. 注意每个使用 DMA 的设备需要一个 IRQ 线; 否则, 
+                        它不能指示数据传送的完成.</P>
+                        <P>在一个典型的情况, open 代码看来如下, 引用了我们的假想的 dad 模块. dad 
+                        设备使用了一个快速中断处理, 不带共享 IRQ 线支持.</P><PRE class=programlisting>int dad_open (struct inode *inode, struct file *filp)
+{
+
+ struct dad_device *my_device; 
+
+/* ... */
+ if ( (error = request_irq(my_device.irq, dad_interrupt,
+ SA_INTERRUPT, "dad", NULL)) )
+ return error; /* or implement blocking open */
+
+ if ( (error = request_dma(my_device.dma, "dad")) ) {
+ free_irq(my_device.irq, NULL);
+ return error; /* or implement blocking open */
+ }
+
+ /* ... */
+ return 0; 
+} 
+</PRE>
+                        <P>和 open 匹配的 close 实现看来如此:</P><PRE class=programlisting>void dad_close (struct inode *inode, struct file *filp)
+{
+
+ struct dad_device *my_device;
+ /* ... */
+ free_dma(my_device.dma);
+ free_irq(my_device.irq, NULL);
+ /* ... */ 
+} 
+</PRE>
+                        <P>这是 /proc/dma 文件 在一个安装有声卡的系统中的样子:</P><PRE class=screen>merlino% cat /proc/dma
+ 1: Sound Blaster8
+ 4: cascade
+</PRE>
+                        <P>注意, 缺省的声音驱动获得 DMA 通道在系统启动时并且从不释放它. 层叠的入口是一个占位者, 指出通道 
+                        4 对驱动不可用, 如同前面解释的.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=TalkingtotheDMAcontroller.sect3></A>15.4.5.2.&nbsp;和 
+                        DMA 控制器通讯</H4></DIV></DIV></DIV>
+                        <P>在注册后, 驱动工作的主要部分包括配置 DMA 控制器正确操作. 这个任务并非微不足道的, 但是幸运的是, 
+                        内核输出了典型驱动需要的所有的函数.</P>
+                        <P>驱动需要配置 DMA 控制器或者读或写被调用时, 或者当准备异步传送时. 
+                        后面这个任务或者在打开时进行或者响应一个 ioctl 命令, 根据驱动和它实现的策略. 
+                        这里展示的代码是典型地被读或写设备方法调用的.</P>
+                        <P>这一小节提供一个对于 DMA 控制器内部的快速概览, 这样你可理解这里介绍的代码. 如果你想知道更多, 
+                        我们劝你读 &lt;asm/dma.h&gt; 和一些描述 PC 体系的硬件手册. 特别地, 我们不处理 8-位 
+                        和 16-位 传送的问题. 如果你在编写设备驱动给 ISA 设备板, 
+                        你应当在设备的硬件手册中找到相关的信息.</P>
+                        <P>DMA 控制器是一个共享的资源, 并且如果多个处理器试图同时对它编程会引起混乱. 为此, 
+                        控制器被一个自旋锁保护, 称为 dma_spin_lock. 驱动不应当直接操作这个锁; 但是, 2 
+                        个函数已提供给你来做这个:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          claim_dma_lock( );</SPAN></SPAN> 
+                          <DD>
+                          <P>获取 DMA 自旋锁. 这个函数还在本地处理器上阻塞中断; 因此, 
+                          返回值是一些描述之前中断状态的标志; 它必须被传递给随后的函数来恢复中断状态, 当你用完这个锁.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          release_dma_lock(unsigned long flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回 DMA 自旋锁并且恢复前面的中断状态.</P></DD></DL></DIV>
+                        <P>自旋锁应当被持有, 当使用下面描述的函数时. 但是, 它不应当被持有, 在实际的 I/O 当中. 
+                        一个驱动应当从不睡眠当持有一个自旋锁时.</P>
+                        <P>必须被加载到控制器中的信息包括 3 项: RAM 地址, 必须被传送的原子项的数目(以字节或字计), 
+                        以及传送的方向. 为此, 下列函数由 &lt;asm/dma.h&gt; 输出:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>void set_dma_mode(unsigned 
+                          int channel, char mode);</SPAN></SPAN> 
+                          <DD>
+                          <P>指示是否这个通道必须从设备读( 
+                          DMA_MODE_READ)或者写到设备(DMA_MODE_WRITE). 存在第 3 个模式, 
+                          DMA_MODE_CASCADE, 它被用来释放对总线的控制. 层叠是第 1 个控制器连接到第 2 
+                          个控制器顶部的方式, 但是它也可以被真正的 ISA 总线主设备使用. 我们这里不讨论总线控制.</P>
+                          <DT><SPAN class=term><SPAN>void set_dma_addr(unsigned 
+                          int channel, unsigned int addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>分配 DMA 缓冲的地址. 这个函数存储 addr 的低 24 有效位在控制器中. addr 
+                          参数必须是一个总线地址(见"总线地址"一节, 在本章前面).</P>
+                          <DT><SPAN class=term><SPAN>void set_dma_count(unsigned 
+                          int channel, unsigned int count);</SPAN></SPAN> 
+                          <DD>
+                          <P>分配传送的字节数. count 参数也表示给 16-位 通道的字节; 在这个情况下, 
+                          这个数必须是偶数.</P></DD></DL></DIV>
+                        <P>除了这些函数, 有一些维护工具必须用, 当处理 DMA 设备时:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>void disable_dma(unsigned 
+                          int channel);</SPAN></SPAN> 
+                          <DD>
+                          <P>一个 DMA 通道可在控制器内部被关闭. 这个通道应当在控制器被配置为阻止进一步不正确的操作前被关闭. 
+                          (否则, 会因为控制器被通过 8-位数据传送被编程而发生破坏, 并且, 因此, 
+                          之前的功能都不自动执行.</P>
+                          <DT><SPAN class=term><SPAN>void enable_dma(unsigned 
+                          int channel);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数告知控制器 DMA 通道包含有效数据.</P>
+                          <DT><SPAN class=term><SPAN>int 
+                          get_dma_residue(unsigned int channel);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个驱动有时需要知道是否一个 DMA 传输已经完成. 这个函数返回仍要被传送的字节数. 
+                          在一次成功的传送后的返回值是 0 并且在控制器在工作时是不可预测的 (但不是 0). 
+                          这种不可预测性来自需要通过 2 个8-位输入操作来获得 16-位 的余数.</P>
+                          <DT><SPAN class=term><SPAN>void clear_dma_ff(unsigned 
+                          int channel) ;</SPAN></SPAN> 
+                          <DD>
+                          <P>这个函数清理 DMA flip-flop. 这个 flip-flop 用来控制对 16-位 
+                          寄存器的存取. 这些寄存器被 2 个连续的 8-位操作来存取, 并且这个 flip-flop 
+                          被用来选择低有效字节(当它被清零)或者是最高有效字节(当它被置位). flip-flop 
+                          自动翻转当已经传送了 8 位; 程序员必须清除 flip-flop( 来设置它为已知的状态 )在存取 DMA 
+                          寄存器之前.</P></DD></DL></DIV>
+                        <P>使用这些, 一个驱动可如下实现一个函数来准备一次 DMA 传送:</P><PRE class=programlisting>int dad_dma_prepare(int channel, int mode, unsigned int buf, unsigned int count)
+{
+ unsigned long flags;
+
+    flags = claim_dma_lock();
+ disable_dma(channel);
+ clear_dma_ff(channel);
+ set_dma_mode(channel, mode);
+ set_dma_addr(channel, virt_to_bus(buf));
+ set_dma_count(channel, count);
+ enable_dma(channel);
+ release_dma_lock(flags);
+ return 0;
+}
+</PRE>
+                        <P>接着, 一个象下一个的函数被用来检查 DMA 的成功完成:</P><PRE class=programlisting>int dad_dma_isdone(int channel)
+{
+
+int residue;
+    unsigned long flags = claim_dma_lock ();
+ residue = get_dma_residue(channel);
+ release_dma_lock(flags);
+    return (residue == 0);
+}
+</PRE>
+                        <P>未完成的唯一一个事情是配置设备板. 这个设备特定的任务常常包含读或写几个 I/O 端口. 
+                        设备在几个大的方面不同. 例如, 一些设备期望程序员告诉硬件 DMA 缓冲有多大, 
+                        并且有时驱动不得不读一个被硬连到设备中的值. 为配置板, 
+硬件手册是你唯一的朋友.</P></DIV></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch15s04.html#id498425" 
+                        name=ftn.id498425><FONT color=#0000ff>49</FONT></A>] 
+                        </SUP>当然, 什么事情都有例外; 见"接收中断缓解"一节在 17 章, 
+                        演示了高性能网络驱动如何被使用轮询最好地实现.</P></DIV>
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch15s04.html#id498543" 
+                        name=ftn.id498543><FONT color=#0000ff>50</FONT></A>] 
+                        </SUP>碎片一词常常用于磁盘来表达文件没有连续存储在磁介质上. 相同的概念适用于内存, 
+                        这里每个虚拟地址空间在整个物理 RAM 散布, 并且难于获取连续的空闲页当请求一个 DMA 
+                        缓冲.</P></DIV>
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch15s04.html#id500013" 
+                        name=ftn.id500013><FONT color=#0000ff>51</FONT></A>] 
+                        </SUP>这些电路现在是主板芯片组的一部分, 但是几年前它们是 2 个单独的 8237 芯片.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=MemoryMappingandDMAqr.sect1></A>15.5.&nbsp;快速参考</H2></DIV></DIV></DIV>
+                        <P>本章介绍了下列关于内存处理的符号:</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=IntroductoryMaterial.sect2></A>15.5.1.&nbsp;介绍性材料</H3></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/mm.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/page.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <P>和内存管理相关的大部分函数和结构, 原型和定义在这些头文件.</P>
+                          <DT><SPAN class=term><SPAN>void *__va(unsigned long 
+                          physaddr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long __pa(void 
+                          *kaddr);</SPAN></SPAN> 
+                          <DD>
+                          <P>在内核逻辑地址和物理地址之间转换的宏定义.</P>
+                          <DT><SPAN class=term><SPAN>PAGE_SIZE</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>PAGE_SHIFT </SPAN></SPAN>
+                          <DD>
+                          <P>常量, 给出底层硬件的页的大小(字节)和一个页面号必须被移位来转变为一个物理地址的位数.</P>
+                          <DT><SPAN class=term><SPAN>struct page </SPAN></SPAN>
+                          <DD>
+                          <P>在系统内存映射中表示一个硬件页的结构.</P>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *virt_to_page(void *kaddr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void *page_address(struct 
+                          page *page);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *pfn_to_page(int pfn);</SPAN></SPAN> 
+                          <DD>
+                          <P>宏定义, 在内核逻辑地址和它们相关的内存映射入口之间转换的. page_address 
+                          只用在低地址页或者已被明确映射的高地址页. pfn_to_page 转换一个页面号到它的相关的 struct 
+                          page 指针.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long kmap(struct 
+                          page *page);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void kunmap(struct page 
+                          *page);</SPAN></SPAN> 
+                          <DD>
+                          <P>kmap 返回一个内核虚拟地址, 被映射到给定页, 如果需要并创建映射. kunmap 
+                          为给定页删除映射.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/highmem.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/kmap_types.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void *kmap_atomic(struct 
+                          page *page, enum km_type type);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void kunmap_atomic(void 
+                          *addr, enum km_type type);</SPAN></SPAN> 
+                          <DD>
+                          <P>kmap 的高性能版本; 结果的映射只能被原子代码持有. 对于驱动, type 应当是 
+                          KM_USER1, KM_USER1, KM_IRQ0, 或者 KM_IRQ1.</P>
+                          <DT><SPAN class=term><SPAN>struct 
+                          vm_area_struct;</SPAN></SPAN> 
+                          <DD>
+                          <P>描述一个 VMA 的结构.</P></DD></DL></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=Implementingmmap.sect2></A>15.5.2.&nbsp;实现 
+                        mmap</H3></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>int remap_pfn_range(struct 
+                          vm_area_struct *vma, unsigned long virt_add, unsigned 
+                          long pfn, unsigned long size, pgprot_t 
+                          prot);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          io_remap_page_range(struct vm_area_struct *vma, 
+                          unsigned long virt_add, unsigned long phys_add, 
+                          unsigned long size, pgprot_t prot);</SPAN></SPAN> 
+                          <DD>
+                          <P>位于 mmap 核心的函数. 它们映射 size 字节的物理地址, 从 pfn 
+                          指出的页号开始到虚拟地址 virt_add. 和虚拟空间相关联的保护位在 prot 里指定. 
+                          io_remap_page_range 应当在目标地址在 I/O 内存空间里时被使用.</P>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *vmalloc_to_page(void *vmaddr);</SPAN></SPAN> 
+                          <DD>
+                          <P>转换一个由 vmalloc 获得的内核虚拟地址到它的对应的 struct page 
+                          指针.</P></DD></DL></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ImplementingDirectIO.sect2></A>15.5.3.&nbsp;实现直接 
+                        I/O</H3></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>int get_user_pages(struct 
+                          task_struct *tsk, struct mm_struct *mm, unsigned long 
+                          start, int len, int write, int force, struct page 
+                          **pages, struct vm_area_struct **vmas);</SPAN></SPAN> 
+                          <DD>
+                          <P>函数, 加锁一个用户空间缓冲到内存并且返回对应的 struct page 指针. 调用者必须持有 
+                          mm-&gt;mmap_sem.</P>
+                          <DT><SPAN class=term><SPAN>SetPageDirty(struct page 
+                          *page);</SPAN></SPAN> 
+                          <DD>
+                          <P>宏定义, 标识给定的页为"脏"(被修改)并且需要写到它的后备存储, 在它被释放前.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          page_cache_release(struct page *page);</SPAN></SPAN> 
+                          <DD>
+                          <P>释放给定的页从页缓存中.</P>
+                          <DT><SPAN class=term><SPAN>int is_sync_kiocb(struct 
+                          kiocb *iocb);</SPAN></SPAN> 
+                          <DD>
+                          <P>宏定义, 返回非零如果给定的 IOCB 需要同步执行.</P>
+                          <DT><SPAN class=term><SPAN>int aio_complete(struct 
+                          kiocb *iocb, long res, long res2);</SPAN></SPAN> 
+                          <DD>
+                          <P>函数, 指示一个异步 I/O 操作完成.</P></DD></DL></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=DirectMemoryAccess.sect2></A>15.5.4.&nbsp;直接内存存取</H3></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/io.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          virt_to_bus(volatile void * address);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void * bus_to_virt(unsigned 
+                          long address);</SPAN></SPAN> 
+                          <DD>
+                          <P>过时的不好的函数, 在内核, 虚拟, 和总线地址之间转换. 总线地址必须用来和外设通讯.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/dma-mapping.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <P>需要来定义通用 DMA 函数的头文件.</P>
+                          <DT><SPAN class=term><SPAN>int dma_set_mask(struct 
+                          device *dev, u64 mask);</SPAN></SPAN> 
+                          <DD>
+                          <P>对于无法寻址整个 32-位范围的外设, 这个函数通知内核可寻址的地址范围并且如果可进行 DMA 
+                          返回非零.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          *dma_alloc_coherent(struct device *dev, size_t size, 
+                          dma_addr_t *bus_addr, int flag);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          dma_free_coherent(struct device *dev, size_t size, 
+                          void *cpuaddr, dma_handle_t bus_addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>分配和释放一致 DMA 映射, 对一个将持续在驱动的生命周期中的缓冲.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/dmapool.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct dma_pool 
+                          *dma_pool_create(const char *name, struct device *dev, 
+                          size_t size, size_t align, size_t 
+                          allocation);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          dma_pool_destroy(struct dma_pool *pool);</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void *dma_pool_alloc(struct 
+                          dma_pool *pool, int mem_flags, dma_addr_t 
+                          *handle);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void dma_pool_free(struct 
+                          dma_pool *pool, void *vaddr, dma_addr_t 
+                          handle);</SPAN></SPAN> 
+                          <DD>
+                          <P>创建, 销毁, 和使用 DMA 池来管理小 DMA 区的函数.</P>
+                          <DT><SPAN class=term><SPAN>enum 
+                          dma_data_direction;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>DMA_TO_DEVICE</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>DMA_FROM_DEVICE</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>DMA_BIDIRECTIONAL</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>DMA_NONE </SPAN></SPAN>
+                          <DD>
+                          <P>符号, 用来告知流映射函数在什么方向数据移入或出缓冲. </P>
+                          <DT><SPAN class=term><SPAN>dma_addr_t 
+                          dma_map_single(struct device *dev, void *buffer, 
+                          size_t size, enum dma_data_direction 
+                          direction);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          dma_unmap_single(struct device *dev, dma_addr_t 
+                          bus_addr, size_t size, enum dma_data_direction 
+                          direction);</SPAN></SPAN> 
+                          <DD>
+                          <P>创建和销毁一个单使用, 流 DMA 映射.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          dma_sync_single_for_cpu(struct device *dev, 
+                          dma_handle_t bus_addr, size_t size, enum 
+                          dma_data_direction direction);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          dma_sync_single_for_device(struct device *dev, 
+                          dma_handle_t bus_addr, size_t size, enum 
+                          dma_data_direction direction);</SPAN></SPAN> 
+                          <DD>
+                          <P>同步一个由一个流映射的缓冲. 必须使用这些函数, 如果处理器必须存取一个缓冲当使用流映射时.(即, 
+                          当设备拥有缓冲时).</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/scatterlist.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct scatterlist { /* ... 
+                          */ };</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>dma_addr_t 
+                          sg_dma_address(struct scatterlist *sg);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned int 
+                          sg_dma_len(struct scatterlist *sg);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个散布表结构描述一个涉及不止一个缓冲的 I/O 操作. 宏 sg_dma_address he 
+                          sg_dma_len 可用来抽取总线地址和缓冲长度来传递给设备, 当实现发散/汇聚操作时.</P>
+                          <DT><SPAN class=term><SPAN>dma_map_sg(struct device 
+                          *dev, struct scatterlist *list, int nents, enum 
+                          dma_data_direction direction);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>dma_unmap_sg(struct device 
+                          *dev, struct scatterlist *list, int nents, enum 
+                          dma_data_direction direction);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          dma_sync_sg_for_cpu(struct device *dev, struct 
+                          scatterlist *sg, int nents, enum dma_data_direction 
+                          direction);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          dma_sync_sg_for_device(struct device *dev, struct 
+                          scatterlist *sg, int nents, enum dma_data_direction 
+                          direction);</SPAN></SPAN> 
+                          <DD>
+                          <P>dma_map_sg 映射一个 发散/汇聚 操作, 并且 dma_unmap_sg 恢复这些映射. 
+                          如果在这个映射被激活时缓冲必须被存取, dma_sync_sg_* 可用来同步.</P>
+                          <DT><SPAN class=term><SPAN>/proc/dma </SPAN></SPAN>
+                          <DD>
+                          <P>包含在 DMA 控制器中的被分配的通道的文本快照的文件. 基于 PCI 的 DMA 不显示, 
+                          因为每个板独立工作, 不需要分配一个通道在 DMA 控制器中.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;asm/dma.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <P>定义或者原型化所有和 DMA 相关的函数和宏定义. 它必须被包含来使用任何下面符号.</P>
+                          <DT><SPAN class=term><SPAN>int request_dma(unsigned 
+                          int channel, const char *name);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void free_dma(unsigned int 
+                          channel);</SPAN></SPAN> 
+                          <DD>
+                          <P>存取 DMA 注册. 注册必须在使用 ISA DMA 通道之前进行.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          claim_dma_lock( );</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          release_dma_lock(unsigned long flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>获取和释放 DMA 自旋锁, 它必须被持有, 在调用其他的在这个列表中描述的 ISA DMA 
+                          函数之前. 它们在本地处理器上也关闭和重新使能中断</P>
+                          <DT><SPAN class=term><SPAN>void set_dma_mode(unsigned 
+                          int channel, char mode);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void set_dma_addr(unsigned 
+                          int channel, unsigned int addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void set_dma_count(unsigned 
+                          int channel, unsigned int count);</SPAN></SPAN> 
+                          <DD>
+                          <P>编程 DMA 信息在 DMA 控制器中. addr 是一个总线地址. </P>
+                          <DT><SPAN class=term><SPAN>void disable_dma(unsigned 
+                          int channel);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void enable_dma(unsigned 
+                          int channel);</SPAN></SPAN> 
+                          <DD>
+                          <P>一个 DMA 通道必须被关闭在配置期间. 这些函数改变 DMA 通道的状态.</P>
+                          <DT><SPAN class=term><SPAN>int 
+                          get_dma_residue(unsigned int channel);</SPAN></SPAN> 
+                          <DD>
+                          <P>如果这驱动需要知道一个 DMA 传送在进行, 它可调用这个函数, 返回尚未完成的数据传输的数目. 
+                          在成功的 DMA 完成后, 这个函数返回 0; 值是不可预测的当数据仍然在传送时.</P>
+                          <DT><SPAN class=term><SPAN>void clear_dma_ff(unsigned 
+                          int channel);</SPAN></SPAN> 
+                          <DD>
+                          <P>DMA flip-flop 被控制器用来传送 16-位值, 通过 2 个 8 位操作. 它必须被清除, 
+                          在发送任何数据给处理器之前.</P></DD></DL></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:37，已浏览68次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270151">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270151">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（15）内存映射和 DMA - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>

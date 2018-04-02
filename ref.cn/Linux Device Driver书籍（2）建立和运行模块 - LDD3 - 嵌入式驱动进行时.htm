@@ -1,0 +1,1271 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270072 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时" name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（2）建立和运行模块</B></FONT> 
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>第&nbsp;2&nbsp;章&nbsp;建立和运行模块</DIV>
+                        <DIV>
+                        <P>时间差不多该开始编程了. 本章介绍所有的关于模块和内核编程的关键概念. 在这几页里, 
+                        我们建立并运行一个完整(但是相对地没有什么用处)的模块, 并且查看一些被所有模块共用的基本代码. 
+                        开发这样的专门技术对任何类型的模块化的驱动都是重要的基础. 为避免一次抛出太多的概念, 本章只论及模块, 
+                        不涉及任何特别的设备类型.</P>
+                        <P>在这里介绍的所有的内核项 ( 函数, 变量, 头文件, 和宏 )在本章的结尾的参考一节里有说明.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=SettingUpYourTestSystem.sect1></A>2.1.&nbsp;设置你的测试系统</H2></DIV></DIV></DIV>
+                        <P>在本章开始, 我们提供例子模块来演示编程概念. ( 所有的例子都可从 O' Reilly' s 的 FTP 
+                        网站上得到, 如第 1 章解释的那样 )建立, 加载, 和修改这些例子, 
+                        是提高你对驱动如何工作以及如何与内核交互的理解的好方法. </P>
+                        <P>例子模块应该可以在大部分的 2.6.x 内核上运行, 包括那些由发布供应商提供的. 但是, 
+                        我们建议你获得一个主流内核, 直接从 kernel.org 的镜像网络, 并把它安装到你的系统中. 
+                        供应商的内核可能是主流内核被重重地打了补丁并且和主流内核有分歧; 偶尔, 
+                        供应商的补丁可能改变了设备驱动可见的内核 API. 如果你在编写一个必须在特别的发布上运行的驱动, 
+                        你当然要在相应的内核上建立和测试. 但是, 处于学习驱动编写的目的, 一个标准内核是最好的. </P>
+                        <P>不管你的内核来源, 建立 2.6.x 的模块需要你有一个配置好并建立好的内核树在你的系统中. 
+                        这个要求是从之前内核版本的改变, 之前只要有一套当前版本的头文件就足够了. 2.6 
+                        模块针对内核源码树里找到的目标文件连接; 结果是一个更加健壮的模块加载器, 还要求那些目标文件也是可用的. 
+                        因此你的第一个商业订单是具备一个内核源码树( 或者从 krenel.org 网络或者你的发布者的内核源码包), 
+                        建立一个新内核, 并且安装到你的系统. 因为我们稍后会见到的原因, 
+                        生活通常是最容易的如果当你建立模块时真正运行目标内核, 尽管这不是需要的.</P>
+                        <DIV class=note 
+                        style="MARGIN-LEFT: 0.5in; MARGIN-RIGHT: 0.5in">
+                        <TABLE summary=Note border=0>
+                          <TBODY>
+                          <TR>
+                            <TD vAlign=top align=middle width=25 
+                              rowSpan=2><IMG alt=[注意] 
+                              src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/note.png"></TD>
+                            <TH align=left>注意</TH></TR>
+                          <TR>
+                            <TD vAlign=top align=left>
+                              <P>你应当也考虑一下在哪里进行你的模块试验, 开发和测试. 
+                              我们已经尽力使我们的例子模块安全和正确, 但是 bug 的可能性是经常会有的. 
+                              内核代码中的错误可能会引起一个用户进程的死亡, 或者偶尔, 瘫痪整个系统. 
+                              它们正常地不会导致更严重地后果, 例如磁盘损伤. 然而, 
+                              还是建议你进行你的内核试验在一个没有包含你负担不起丢失的数据的系统, 并且没有进行重要的服务. 
+                              内核开发者典型地会保留一台"牺牲"系统来测试新的代码. 
+                        </P></TD></TR></TBODY></TABLE></DIV>
+                        <P>因此, 如果你还没有一个合适的系统, 带有一个配置好并建立好的源码树在磁盘上, 现在是时候建立了. 
+                        我们将等待. 一旦这个任务完成, 你就准备好开始摆布内核模块了. </P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=TheHelloWorldModule.sect1></A>2.2.&nbsp;Hello World 
+                        模块</H2></DIV></DIV></DIV>
+                        <P>许多编程书籍从一个 "hello world" 例子开始, 作为一个展示可能的最简单的程序的方法. 
+                        本书涉及的是内核模块而不是程序; 因此, 对无耐心的读者, 下面的代码是一个完整的 "hello 
+                        world"模块: </P><PRE class=programlisting>#include &lt;linux/init.h&gt;
+#include &lt;linux/module.h&gt;
+MODULE_LICENSE("Dual BSD/GPL");
+
+static int hello_init(void)
+{
+        printk(KERN_ALERT "Hello, world\n");
+        return 0;
+}
+static void hello_exit(void)
+{
+
+        printk(KERN_ALERT "Goodbye, cruel world\n");
+}
+
+module_init(hello_init);
+module_exit(hello_exit);
+</PRE>
+                        <P>这个模块定义了两个函数, 一个在模块加载到内核时被调用( hello_init 
+                        )以及一个在模块被去除时被调用( hello_exit ). moudle_init 和 module_exit 
+                        这几行使用了特别的内核宏来指出这两个函数的角色. 另一个特别的宏 (MODULE_LICENSE) 
+                        是用来告知内核, 该模块带有一个自由的许可证; 没有这样的说明, 在模块加载时内核会抱怨. </P>
+                        <P>printk 函数在 Linux 内核中定义并且对模块可用; 它与标准 C 库函数 printf 
+                        的行为相似. 内核需要它自己的打印函数, 因为它靠自己运行, 没有 C 库的帮助. 模块能够调用 printk 
+                        是因为, 在 insmod 加载了它之后, 模块被连接到内核并且可存取内核的公用符号 (函数和变量, 
+                        下一节详述). 字串 KERN_ALERT 是消息的优先级. <SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch02s02.html#ftn.id408271" 
+                        name=id408271><FONT 
+color=#0000ff>3</FONT></A>]</SUP></P>
+                        <P>我们在此模块中指定了一个高优先级, 因为使用缺省优先级的消息可能不会在任何有用的地方显示, 
+                        这依赖于你运行的内核版本, klogd 守护进程的版本, 以及你的配置. 现在你可以忽略这个因素; 我们在第 4 
+                        章讲解它. </P>
+                        <P>你可以用 insmod 和 rmmod 工具来测试这个模块. 注意只有超级用户可以加载和卸载模块. 
+</P><PRE class=screen>% make 
+make[1]: Entering directory `/usr/src/linux-2.6.10'
+ CC [M] /home/ldd3/src/misc-modules/hello.o
+ Building modules, stage 2.
+ MODPOST
+ CC /home/ldd3/src/misc-modules/hello.mod.o
+ LD [M] /home/ldd3/src/misc-modules/hello.ko 
+make[1]: Leaving directory `/usr/src/linux-2.6.10'
+% su
+root# insmod ./hello.ko
+Hello, world
+root# rmmod hello
+Goodbye cruel world
+root#
+</PRE>
+                        <P>请再一次注意, 为使上面的操作命令顺序工作, 你必须在某个地方有正确配置和建立的内核树, 在那里可以找到 
+                        makefile (/usr/src/linux-2.6.10, 在展示的例子里面 ). 我们在 "编译和加载" 
+                        这一节深入模块建立的细节. </P>
+                        <P>依据你的系统用来递交消息行的机制, 你的输出可能不同. 特别地, 前面的屏幕输出是来自一个字符控制台; 
+                        如果你从一个终端模拟器或者在窗口系统中运行 insmod 和 rmmod, 你不会在你的屏幕上看到任何东西. 
+                        消息进入了其中一个系统日志文件中, 例如 /var/log/messages (实际文件名子随 Linux 
+                        发布而变化). 内核递交消息的机制在第 4 章描述. </P>
+                        <P>如你能见到的, 编写一个模块不是如你想象的困难 -- 至少, 在模块没有要求做任何有用的事情时. 
+                        困难的部分是理解你的设备, 以及如何获得最高性能. 通过本章我们深入模块化内部并且将设备相关的问题留到后续章节. 
+                        </P>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch02s02.html#id408271" 
+                        name=ftn.id408271><FONT color=#0000ff>3</FONT></A>] 
+                        </SUP>优先级只是一个字串, 例如 &lt;1&gt;, 前缀于 printk 格式串之前. 注意在 
+                        KERN_ALERT 之后缺少一个逗号; 添加一个逗号在那里是一个普通的讨厌的错误 ( 幸运的是, 
+                        编译器会捕捉到 ).</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=KernelModulesVersusApplications.sect1></A>2.3.&nbsp;内核模块相比于应用程序</H2></DIV></DIV></DIV>
+                        <P>在我们深入之前, 有必要强调一下内核模块和应用程序之间的各种不同. </P>
+                        <P>不同于大部分的小的和中型的应用程序从头至尾处理一个单个任务, 每个内核模块只注册自己以便来服务将来的请求, 
+                        并且它的初始化函数立刻终止. 换句话说, 模块初始化函数的任务是为以后调用模块的函数做准备; 好像是模块说, " 
+                        我在这里, 这是我能做的."模块的退出函数( 例子里是 hello_exit )就在模块被卸载时调用. 
+                        它好像告诉内核, "我不再在那里了, 不要要求我做任何事了."这种编程的方法类似于事件驱动的编程, 
+                        但是虽然不是所有的应用程序都是事件驱动的, 每个内核模块都是. 另外一个主要的不同, 
+                        在事件驱动的应用程序和内核代码之间, 是退出函数: 一个终止的应用程序可以在释放资源方面懒惰, 
+                        或者完全不做清理工作, 但是模块的退出函数必须小心恢复每个由初始化函数建立的东西, 
+                        否则会保留一些东西直到系统重启. </P>
+                        <P>偶然地, 卸载模块的能力是你将最欣赏的模块化的其中一个特色, 因为它有助于减少开发时间; 
+                        你可测试你的新驱动的连续的版本, 而不用每次经历漫长的关机/重启周期. </P>
+                        <P>作为一个程序员, 你知道一个应用程序可以调用它没有定义的函数: 连接阶段使用合适的函数库解决了外部引用. 
+                        printf 是一个这种可调用的函数并且在 libc 里面定义. 一个模块, 在另一方面, 只连接到内核, 
+                        它能够调用的唯一的函数是内核输出的那些; 没有库来连接.在 hello.c 中使用的 printk 函数, 
+                        例如, 是在内核中定义的 printf 版本并且输出给模块. 它表现类似于原始的函数, 只有几个小的不同, 
+                        首要的一个是缺乏浮点的支持. </P>
+                        <P>图 <A title=图&nbsp;2.1.&nbsp;连接一个模块到内核 
+                        href="http://www.deansys.com/doc/ldd3/ch02s03.html#ldd3-2-1.fig"><FONT 
+                        color=#0000ff>连接一个模块到内核</FONT></A> 
+                        展示了函数调用和函数指针在模块中如何使用来增加新功能到一个运行中的内核. </P>
+                        <DIV class=figure><A name=ldd3-2-1.fig></A>
+                        <P class=title><B>图&nbsp;2.1.&nbsp;连接一个模块到内核</B></P>
+                        <DIV><IMG alt=连接一个模块到内核 
+                        src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/ldd3-2-1.png"></DIV></DIV>
+                        <P>因为没有库连接到模块中, 源文件不应当包含通常的头文件, 
+                        &lt;stdarg.h&gt;和非常特殊的情况是仅有的例外. 
+                        只有实际上是内核的一部分的函数才可以在内核模块里使用. 内核相关的任何东西都在头文件里声明, 
+                        这些头文件在你已建立和配置的内核源码树里; 大部分相关的头文件位于 include/linux 和 
+                        include/asm, 但是别的 include 的子目录已经添加到关联特定内核子系统的材料里了. </P>
+                        <P>单个内核头文件的作用在书中需要它们的时候进行介绍. </P>
+                        <P>另外一个在内核编程和应用程序编程之间的重要不同是每一个环境是如何处理错误: 
+                        在应用程序开发中段错误是无害的, 一个调试器常常用来追踪错误到源码中的问题, 而一个内核错误至少会杀掉当前进程, 
+                        如果不终止整个系统. 我们会在第 4 章看到如何跟踪内核错误. </P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=UserSpaceandKernelSpace.sect2></A>2.3.1.&nbsp;用户空间和内核空间</H3></DIV></DIV></DIV>A 
+                        module runs in kernel space, whereas applications run in 
+                        user space. This concept is at the base of operating 
+                        systems theory. 一个模块在内核空间运行, 而应用程序在用户空间运行. 
+                        这个概念是操作系统理论的基础. 
+                        <P>操作系统的角色, 实际上, 是给程序提供一个一致的计算机硬件的视角. 另外, 
+                        操作系统必须承担程序的独立操作和保护对于非授权的资源存取. 这一不平凡的任务只有 CPU 
+                        增强系统软件对应用程序的保护才有可能. </P>
+                        <P>每种现代处理器都能够加强这种行为. 选中的方法是 CPU 自己实现不同的操作形态(或者级别). 
+                        这些级别有不同的角色, 一些操作在低些级别中不允许; 程序代码只能通过有限的几个门从一种级别切换到另一个. 
+                        Unix 系统设计成利用了这种硬件特性, 使用了两个这样的级别. 所有当今的处理器至少有两个保护级别, 
+                        并且某些, 例如 x86 家族, 有更多级别; 当几个级别存在时, 使用最高和最低级别. 在 Unix 下, 
+                        内核在最高级运行( 也称之为超级模式 ), 这里任何事情都允许, 而应用程序在最低级运行(所谓的用户模式), 
+                        这里处理器控制了对硬件的直接存取以及对内存的非法存取. </P>
+                        <P>我们常常提到运行模式作为内核空间和用户空间. 这些术语不仅包含存在于这两个模式中不同特权级别, 
+                        还包含有这样的事实, 即每个模式有它自己的内存映射 -- 它自己的地址空间. </P>
+                        <P>Unix 从用户空间转换执行到内核空间, 无论何时一个应用程序发出一个系统调用或者被硬件中断挂起时. 
+                        执行系统调用的内核代码在进程的上下文中工作 -- 它代表调用进程并且可以存取该进程的地址空间. 换句话说, 
+                        处理中断的代码对进程来说是异步的, 不和任何特别的进程有关. </P>
+                        <P>模块的角色是扩展内核的功能; 模块化的代码在内核空间运行. 经常地一个驱动进行之前提到的两种任务: 
+                        模块中一些的函数作为系统调用的一部分执行, 一些负责中断处理. </P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ConcurrencyintheKernel.sect2></A>2.3.2.&nbsp;内核的并发</H3></DIV></DIV></DIV>
+                        <P>内核编程与传统应用程序编程方式很大不同的是并发问题. 大部分应用程序, 多线程的应用程序是一个明显的例外, 
+                        典型地是顺序运行的, 从头至尾, 不必要担心其他事情会发生而改变它们的环境. 
+                        内核代码没有运行在这样的简单世界中, 即便最简单的内核模块必须在这样的概念下编写, 
+很多事情可能马上发生.</P>
+                        <P>内核编程中有几个并发的来源. 自然的, Linux 系统运行多个进程, 在同一时间, 
+                        不止一个进程能够试图使用你的驱动. 大部分设备能够中断处理器; 中断处理异步运行, 
+                        并且可能在你的驱动试图做其他事情的同一时间被调用. 几个软件抽象( 例如内核定时器, 第 7 章介绍 
+                        )也异步运行. 而且, 当然, Linux 可以在对称多处理器系统( SMP )上运行, 
+                        结果是你的驱动可能在多个 CPU 上并发执行. 最后, 在 2.6, 内核代码已经是可抢占的了; 
+                        这个变化使得即便是单处理器会有许多与多处理器系统同样的并发问题.</P>
+                        <P>结果, Linux 内核代码, 包括驱动代码, 必须是可重入的 -- 它必须能够同时在多个上下文中运行. 
+                        数据结构必须小心设计以保持多个执行线程分开, 并且代码必须小心存取共享数据, 避免数据的破坏. 
+                        编写处理并发和避免竞争情况( 一个不幸的执行顺序导致不希望的行为的情形 )的代码需要仔细考虑并可能是微妙的. 
+                        正确的并发管理在编写正确的内核代码时是必须的; 由于这个理由, 本书的每一个例子驱动都是考虑了并发下编写的. 
+                        用到的技术在我们遇到它们时再讲解; 第 5 章也专门讲述这个问题, 以及并发管理的可用的内核原语. </P>
+                        <P>驱动程序员的一个通常的错误是假定并发不是一个问题, 只要一段特别的代码没有进入睡眠( 或者 "阻塞" ). 
+                        即便在之前的内核( 不可抢占), 这种假设在多处理器系统中也不成立. 在 2.6, 
+                        内核代码不能(极少)假定它能在一段给定代码上持有处理器. 如果你不考虑并发来编写你的代码, 
+                        就极有可能导致严重失效, 以至于非常难于调试.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheCurrentProcess.sect2></A>2.3.3.&nbsp;当前进程</H3></DIV></DIV></DIV>
+                        <P>尽管内核模块不象应用程序一样顺序执行, 内核做的大部分动作是代表一个特定进程的. 
+                        内核代码可以引用当前进程, 通过存取全局项 current, 它在 &lt;asm/current.h&gt; 
+                        中定义, 它产生一个指针指向结构 task_struct, 在 &lt;linux/sched.h&gt; 
+                        定义. current 指针指向当前在运行的进程. 在一个系统调用执行期间, 例如 open 或者 read, 
+                        当前进程是发出调用的进程. 内核代码可以通过使用 current 来使用进程特定的信息, 如果它需要这样. 
+                        这种技术的一个例子在第 6 章展示. </P>
+                        <P>实际上, current 不真正地是一个全局变量. 支持 SMP 系统的需要强迫内核开发者去开发一种机制, 
+                        在相关的 CPU 上来找到当前进程. 这种机制也必须快速, 因为对 current 的引用非常频繁地发生. 
+                        结果就是一个依赖体系的机制, 常常, 隐藏了一个指向 task_struct 的指针在内核堆栈内. 
+                        实现的细节对别的内核子系统保持隐藏, 一个设备驱动可以只包含 &lt;linux/sched.h&gt; 
+                        并且引用当前进程. 例如, 下面的语句打印了当前进程的进程 ID 和命令名称, 通过存取结构 
+                        task_struct 中的某些字段. </P><PRE class=programlisting>printk(KERN_INFO "The process is \"%s\" (pid %i)\n", current-&gt;comm, current-&gt;pid);
+</PRE>
+                        <P>存于 current-&gt;comm 的命令名称是由当前进程执行的程序文件的基本名称( 截短到 15 
+                        个字符, 如果需要 ). </P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=AFewOtherDetails.sect2></A>2.3.4.&nbsp;几个别的细节</H3></DIV></DIV></DIV>
+                        <P>内核编程与用户空间编程在许多方面不同. 我们将在本书的过程中指出它们, 但是有几个基础性的问题, 
+                        尽管没有保证它们自己有一节内容, 也值得一提. 因此, 当你深入内核时, 下面的事项应当牢记. </P>
+                        <P>应用程序存在于虚拟内存中, 有一个非常大的堆栈区. 堆栈, 当然, 
+                        是用来保存函数调用历史以及所有的由当前活跃的函数创建的自动变量. 内核, 相反, 有一个非常小的堆栈; 
+                        它可能小到一个, 4096 字节的页. 你的函数必须与这个内核空间调用链共享这个堆栈. 因此, 
+                        声明一个巨大的自动变量从来就不是一个好主意; 如果你需要大的结构, 你应当在调用时间内动态分配. </P>
+                        <P>常常, 当你查看内核 API 时, 你会遇到以双下划线(__)开始的函数名. 
+                        这样标志的函数名通常是一个低层的接口组件, 应当小心使用. 本质上讲, 双下划线告诉程序员:" 
+                        如果你调用这个函数, 确信你知道你在做什么." </P>
+                        <P>内核代码不能做浮点算术. 使能浮点将要求内核在每次进出内核空间的时候保存和恢复浮点处理器的状态 -- 
+                        至少, 在某些体系上. 在这种情况下, 内核代码真的没有必要包含浮点, 额外的负担不值得. </P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=CompilingandLoading.sect1></A>2.4.&nbsp;编译和加载</H2></DIV></DIV></DIV>
+                        <P>本章开头的 "hello world" 例子包含了一个简短的建立并加载模块到系统中去的演示. 当然, 
+                        整个过程比我们目前看到的多. 本节提供了更多细节关于一个模块作者如何将源码转换成内核中的运行的子系统. </P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=CompilingModules.sect2></A>2.4.1.&nbsp;编译模块</H3></DIV></DIV></DIV>
+                        <P>第一步, 我们需要看一下模块如何必须被建立. 模块的建立过程与用户空间的应用程序的建立过程有显著不同; 
+                        内核是一个大的, 独立的程序, 对于它的各个部分如何组合在一起有详细的明确的要求. 
+                        建立过程也与以前版本的内核的过程不同; 新的建立系统用起来更简单并且产生更正确的结果, 
+                        但是它看起来与以前非常不同. 内核建立系统是一头负责的野兽, 我们就看它一小部分. 在内核源码的 
+                        Document/kbuild 目录下发现的文件, 任何想理解表面之下的真实情况的人都要阅读一下. </P>
+                        <P>有几个前提, 你必须在能建立内核模块前解决. 第一个是保证你有版本足够新的编译器, 模块工具, 
+                        以及其他必要工具. 在内核文档目录下的文件 Documentation/Changes 
+                        一直列出了需要的工具版本; 你应当在向前走之前参考一下它. 试图建立一个内核(包括它的模块), 
+                        用错误的工具版本, 可能导致不尽的奇怪的难题. 注意, 偶尔地, 
+                        编译器的版本太新可能会引起和太老的版本引起的一样的问题. 内核源码对于编译器做了很大的假设, 
+                        新的发行版本有时会一时地破坏东西. </P>
+                        <P>如果你仍然没有一个内核树在手边, 或者还没有配置和建立内核, 现在是时间去做了. 
+                        没有源码树在你的文件系统上, 你无法为 2.6 内核建立可加载的模块. 实际运行为其而建立的内核也是有帮助的( 
+                        尽管不是必要的 ). </P>
+                        <P>一旦你已建立起所有东西, 给你的模块创建一个 makefile 就是直截了当的. 实际上, 
+                        对于本章前面展示的" hello world" 例子, 单行就够了: </P><PRE class=screen>obj-m := hello.o 
+</PRE>
+                        <P>熟悉 make , 但是对 2.6 内核建立系统不熟悉的读者, 可能奇怪这个 makefile 如何工作. 
+                        毕竟上面的这一行不是一个传统的 makefile 的样子. 答案, 当然, 是内核建立系统处理了余下的工作. 
+                        上面的安排( 它利用了由 GNU make 提供的扩展语法 )表明有一个模块要从目标文件 hello.o 建立. 
+                        在从目标文件建立后结果模块命名为 hello.ko. </P>
+                        <P>反之, 如果你有一个模块名为 module.ko, 是来自 2 个源文件( 姑且称之为, file1.c 
+                        和 file2.c ), 正确的书写应当是: </P><PRE class=screen>obj-m := module.o
+module-objs := file1.o file2.o
+</PRE>
+                        <P>对于一个象上面展示的要工作的 makefile, 它必须在更大的内核建立系统的上下文被调用. 
+                        如果你的内核源码数位于, 假设, 你的 ~/kernel-2.6 目录, 用来建立你的模块的 make 命令( 
+                        在包含模块源码和 makefile 的目录下键入 )会是: </P><PRE class=screen>make -C ~/kernel-2.6 M=`pwd` modules
+</PRE>
+                        <P>这个命令开始是改变它的目录到用 -C 选项提供的目录下( 就是说, 你的内核源码目录 ). 
+                        它在那里会发现内核的顶层 makefile. 这个 M= 选项使 makefile 在试图建立模块目标前, 
+                        回到你的模块源码目录. 这个目标, 依次地, 是指在 obj-m 变量中发现的模块列表, 在我们的例子里设成了 
+                        module.o. </P>
+                        <P>键入前面的 make 命令一会儿之后就会感觉烦, 所以内核开发者就开发了一种 makefile 方式, 
+                        使得生活容易些对于那些在内核树之外建立模块的人. 这个窍门是如下书写你的 makefile: </P><PRE class=screen># If KERNELRELEASE is defined, we've been invoked from the
+# kernel build system and can use its language.
+ifneq ($(KERNELRELEASE),)
+
+ obj-m := hello.o 
+# Otherwise we were called directly from the command
+# line; invoke the kernel build system.
+else
+
+ KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+ PWD := $(shell pwd) 
+default:
+ $(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+
+endif 
+</PRE>
+                        <P>再一次, 我们看到了扩展的 GNU make 语法在起作用. 这个 makefile 
+                        在一次典型的建立中要被读 2 次. 当从命令行中调用这个 makefile , 它注意到 
+                        KERNELRELEASE 变量没有设置. 它利用这样一个事实来定位内核源码目录, 
+                        即已安装模块目录中的符号连接指回内核建立树. 如果你实际上没有运行你在为其而建立的内核, 你可以在命令行提供一个 
+                        KERNELDIR= 选项, 设置 KERNELDIR 环境变量, 或者重写 makefile 中设置 
+                        KERNELDIR 的那一行. 一旦发现内核源码树, makefile 调用 default: 目标, 来运行第 
+                        2 个 make 命令( 在 makefile 里参数化成 
+                        $(MAKE))象前面描述过的一样来调用内核建立系统. 在第 2 次读, makefile 设置 obj-m, 
+                        并且内核的 makefile 文件完成实际的建立模块工作. </P>
+                        <P>这种建立模块的机制你可能感觉笨拙模糊. 一旦你习惯了它, 但是, 
+                        你很可能会欣赏这种已经编排进内核建立系统的能力. 注意, 上面的不是一个完整的 makefile; 一个真正的 
+                        makefile 包含通常的目标类型来清除不要的文件, 安装模块等等. 一个完整的例子可以参考例子代码目录的 
+                        makefile. </P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=LoadingandUnloadingModules.sect2></A>2.4.2.&nbsp;加载和卸载模块</H3></DIV></DIV></DIV>
+                        <P>模块建立之后, 下一步是加载到内核. 如我们已指出的, insmod 为你完成这个工作. 
+                        这个程序加载模块的代码段和数据段到内核, 接着, 执行一个类似 ld 的函数, 
+                        它连接模块中任何未解决的符号连接到内核的符号表上. 但是不象连接器, 内核不修改模块的磁盘文件, 
+                        而是内存内的拷贝. insmod 接收许多命令行选项(详情见 manpage), 它能够安排值给你模块中的参数, 
+                        在连接到当前内核之前. 因此, 如果一个模块正确设计了, 它能够在加载时配置; 
+                        加载时配置比编译时配置给了用户更多的灵活性, 有时仍然在用. 加载时配置在本章后面的 "模块参数" 一节讲解. 
+                        </P>
+                        <P>感兴趣的读者可能想看看内核如何支持 insmod: 它依赖一个在 kernel/module.c 
+                        中定义的系统调用. 函数 sys_init_module 分配内核内存来存放模块 ( 这个内存用 vmalloc 
+                        分配; 看第 8 章的 "vmalloc 和其友" ); 它接着拷贝模块的代码段到这块内存区, 
+                        借助内核符号表解决模块中的内核引用, 并且调用模块的初始化函数来启动所有东西. </P>
+                        <P>如果你真正看了内核代码, 你会发现系统调用的名子以 sys_ 为前缀. 这对所有系统调用都是成立的, 
+                        并且没有别的函数. 记住这个有助于在源码中查找系统调用. </P>
+                        <P>modprobe 工具值得快速提及一下. modprobe, 如同 insmod, 加载一个模块到内核. 
+                        它的不同在于它会查看要加载的模块, 看是否它引用了当前内核没有定义的符号. 如果发现有, modprobe 
+                        在定义相关符号的当前模块搜索路径中寻找其他模块. 当 modprobe 找到这些模块( 要加载模块需要的 ), 
+                        它也把它们加载到内核. 如果你在这种情况下代替以使用 insmod , 命令会失败, 在系统日志文件中留下一条 
+                        " unresolved symbols "消息. </P>
+                        <P>如前面提到, 模块可以用 rmmod 工具从内核去除. 注意, 如果内核认为模块还在用( 就是说, 
+                        一个程序仍然有一个打开文件对应模块输出的设备 ), 或者内核被配置成不允许模块去除, 模块去除会失败. 
+                        可以配置内核允许"强行"去除模块, 甚至在它们看来是忙的. 如果你到了需要这选项的地步, 但是, 
+                        事情可能已经错的太严重以至于最好的动作就是重启了. </P>
+                        <P>lsmod 程序生成一个内核中当前加载的模块的列表. 一些其他信息, 例如使用了一个特定模块的其他模块, 
+                        也提供了. lsmod 通过读取 /proc/modules 虚拟文件工作. 当前加载的模块的信息也可在位于 
+                        /sys/module 的 sysfs 虚拟文件系统找到. </P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=VersionDependency.sect2></A>2.4.3.&nbsp;版本依赖</H3></DIV></DIV></DIV>
+                        <P>记住, 你的模块代码一定要为每个它要连接的内核版本重新编译 -- 至少, 在缺乏 modversions 
+                        时, 这里不涉及因为它们更多的是给内核发布制作者, 而不是开发者. 
+                        模块是紧密结合到一个特殊内核版本的数据结构和函数原型上的; 模块见到的接口可能一个内核版本与另一个有很大差别. 
+                        当然, 在开发中的内核更加是这样. </P>
+                        <P>内核不只是认为一个给定模块是针对一个正确的内核版本建立的. 
+                        建立过程的其中一步是对一个当前内核树中的文件(称为 vermagic.o)连接你的模块; 
+                        这个东东含有相当多的有关要为其建立模块的内核的信息, 包括目标内核版本, 编译器版本, 
+                        以及许多重要配置变量的设置. 当尝试加载一个模块, 这些信息被检查与运行内核的兼容性. 如果不匹配, 
+                        模块不会加载; 代之的是你见到如下内容: </P><PRE class=screen># insmod hello.ko
+Error inserting './hello.ko': -1 Invalid module format
+</PRE>
+                        <P>看一下系统日志文件(/var/log/message 
+                        或者任何你的系统被配置来用的)将发现导致模块无法加载特定的问题.</P>
+                        <P>如果你需要编译一个模块给一个特定的内核版本, 你将需要使用这个特定版本的建立系统和源码树. 
+                        前面展示过的在例子 makefile 中简单修改 KERNELDIR 变量, 就完成这个动作. </P>
+                        <P>内核接口在各个发行之间常常变化. 
+                        如果你编写一个模块想用来在多个内核版本上工作(特别地是如果它必须跨大的发行版本), 你可能只能使用宏定义和 
+                        #ifdef 来使你的代码正确建立. 本书的这个版本只关心内核的一个主要版本, 
+                        因此不会在我们的例子代码中经常见到版本检查. 但是这种需要确实有时会有. 在这样情况下, 你要利用在 
+                        linux/version.h 中发现的定义. 这个头文件, 自动包含在 linux/module.h, 
+                        定义了下面的宏定义: </P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>UTS_RELEASE </SPAN></SPAN>
+                          <DD>
+                          <P>这个宏定义扩展成字符串, 描述了这个内核树的版本. 例如, "2.6.10". </P>
+                          <DT><SPAN class=term><SPAN>LINUX_VERSION_CODE 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>这个宏定义扩展成内核版本的二进制形式, 版本号发行号的每个部分用一个字节表示. 例如, 2.6.10 
+                          的编码是 132618 ( 就是, 0x02060a ). <SUP>[<A 
+                          href="http://www.deansys.com/doc/ldd3/ch02s04.html#ftn.id409823" 
+                          name=id409823><FONT 
+                          color=#0000ff>4</FONT></A>]</SUP>有了这个信息, 
+                          你可以(几乎是)容易地决定你在处理的内核版本. </P>
+                          <DT><SPAN 
+                          class=term><SPAN>KERNEL_VERSION(major,minor,release)</SPAN></SPAN> 
+
+                          <DD>
+                          <P>这个宏定义用来建立一个整型版本编码, 从组成一个版本号的单个数字. 例如, 
+                          KERNEL_VERSION(2.6.10) 扩展成 132618. 这个宏定义非常有用, 
+                          当你需要比较当前版本和一个已知的检查点. </P></DD></DL></DIV>
+                        <P>大部分的基于内核版本的依赖性可以使用预处理器条件解决, 通过利用 KERNEL_VERSION 和 
+                        LINUX_VERSION_VODE. 版本依赖不应当, 但是, 用繁多的 #ifdef 条件来搞乱驱动的代码; 
+                        处理不兼容的最好的方式是把它们限制到特定的头文件. 作为一个通用的原则, 
+                        明显版本(或者平台)依赖的代码应当隐藏在一个低级的宏定义或者函数后面. 高层的代码就可以只调用这些函数, 
+                        而不必关心低层的细节. 这样书写的代码易读并且更健壮. </P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=PlatformDependency.sect2></A>2.4.4.&nbsp;平台依赖性</H3></DIV></DIV></DIV>
+                        <P>每个电脑平台有其自己的特点, 内核设计者可以自由使用所有的特性来获得更好的性能. in the 
+                        target object file ??? </P>
+                        <P>不象应用程序开发者, 他们必须和预编译的库一起连接他们的代码, 依附在参数传递的规定上, 
+                        内核开发者可以专用某些处理器寄存器给特别的用途, 他们确实这样做了. 更多的, 内核代码可以为一个 CPU 
+                        族里的特定处理器优化, 以最好地利用目标平台; 不象应用程序那样常常以二进制格式发布, 
+                        一个定制的内核编译可以为一个特定的计算机系列优化. </P>
+                        <P>例如, IA32 (x86) 结构分为几个不同的处理器类型. 老式的 80386 处理器仍然被支持( 
+                        到现在 ), 尽管它的指令集, 以现代的标准看, 非常有限. 这个体系中更加现代的处理器已经引入了许多新特性, 
+                        包括进入内核的快速指令, 处理器间的加锁, 拷贝数据, 等等. 更新的处理器也可采用 36 位( 或者更大 
+                        )的物理地址, 当在适当的模式下, 以允许他们寻址超过 4 GB 的物理内存. 其他的处理器家族也有类似的改进. 
+                        内核, 依赖不同的配置选项, 可以被建立来使用这些附加的特性. </P>
+                        <P>清楚地, 如果一个模块与一个给定内核工作, 它必须以与内核相同的对目标处理器的理解来建立. 再一次, 
+                        vermagic.o 目标文件登场. 当加载一个模块, 内核为模块检查特定处理器的配置选项, 
+                        确认它们匹配运行的内核. 如果模块用不同选项编译, 它不会加载. </P>
+                        <P>如果你计划为通用的发布编写驱动, 你可能很奇怪你怎么可能支持所有这些不同的变体. 最好的答案, 当然, 
+                        是发行你的驱动在 GPL 兼容的许可之下, 并且贡献它给主流内核. 如果没有那样, 
+                        以源码形式和一套脚本发布你的驱动, 以便在用户系统上编译可能是最好的答案. 
+                        一些供应商已发行了工具来简化这个工作. 如果你必须发布你的驱动以二进制形式, 
+                        你需要查看由你的目标发布所提供的不同的内核, 并且为每个提供一个模块版本. 
+                        要确认考虑到了任何在产生发布后可能发行的勘误内核. 接着, 要考虑许可权的问题, 如同我们在第 1 章的" 
+                        许可条款" 一节中讨论的. 作为一个通用的规则, 以源码形式发布东西是你行于世的易途. </P></DIV>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch02s04.html#id409823" 
+                        name=ftn.id409823><FONT color=#0000ff>4</FONT></A>] 
+                        </SUP>这允许在稳定版本之间多达 256 个开发版本.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=TheKernelSymbolTable.sect1></A>2.5.&nbsp;内核符号表</H2></DIV></DIV></DIV>
+                        <P>我们已经看到 insmod 如何对应共用的内核符号来解决未定义的符号. 表中包含了全局内核项的地址 -- 
+                        函数和变量 -- 需要来完成模块化的驱动. 当加载一个模块, 如何由模块输出的符号成为内核符号表的一部分. 
+                        通常情况下, 一个模块完成它自己的功能不需要输出如何符号. 你需要输出符号, 但是, 
+                        在任何别的模块能得益于使用它们的时候. </P>
+                        <P>新的模块可以用你的模块输出的符号, 你可以堆叠新的模块在其他模块之上. 模块堆叠在主流内核源码中也实现了: 
+                        msdos 文件系统依赖 fat 模块输出的符号, 某一个输入 USB 设备模块堆叠在 usbcore 
+                        和输入模块之上. </P>
+                        <P>模块堆叠在复杂的工程中有用处. 如果一个新的抽象以驱动程序的形式实现, 
+                        它可能提供一个特定硬件实现的插入点. 例如, video-for-linux 系列驱动分成一个通用模块, 
+                        输出了由特定硬件的低层设备驱动使用的符号. 根据你的设置, 你加载通用的视频模块和你的已安装硬件对应的特定模块. 
+                        对并口的支持和众多可连接设备以同样的方式处理, 如同 USB 内核子系统. 在并口子系统的堆叠在图 <A 
+                        title=图&nbsp;2.2.&nbsp;并口驱动模块的堆叠 
+                        href="http://www.deansys.com/doc/ldd3/ch02s05.html#ldd3-2-2.fig"><FONT 
+                        color=#0000ff>并口驱动模块的堆叠</FONT></A> 中显示; 
+                        箭头显示了模块和内核编程接口间的通讯. </P>
+                        <DIV class=figure><A name=ldd3-2-2.fig></A>
+                        <P class=title><B>图&nbsp;2.2.&nbsp;并口驱动模块的堆叠</B></P>
+                        <DIV><IMG alt=并口驱动模块的堆叠 
+                        src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/ldd3-2-2.png"></DIV></DIV>
+                        <P>当使用堆叠的模块时, 熟悉 modprobe 工具是有帮助的. 如我们前面讲的, modprobe 
+                        函数很多地方与 insmod 相同, 但是它也加载任何你要加载的模块需要的其他模块. 所以, 一个 
+                        modprobe 命令有时可能代替几次使用 insmod( 尽管你从当前目录下加载你自己模块仍将需要 
+                        insmod, 因为 modprobe 只查找标准的已安装模块目录 ). </P>
+                        <P>使用堆叠来划分模块成不同层, 这有助于通过简化每一层来缩短开发时间. 这同我们在第 1 
+                        章讨论的区分机制和策略是类似的. </P>
+                        <P>linux 内核头文件提供了方便来管理你的符号的可见性, 因此减少了命名空间的污染( 
+                        将与在内核别处已定义的符号冲突的名子填入命名空间), 并促使了正确的信息隐藏. 
+                        如果你的模块需要输出符号给其他模块使用, 应当使用下面的宏定义: </P><PRE class=programlisting>EXPORT_SYMBOL(name);
+EXPORT_SYMBOL_GPL(name);
+</PRE>
+                        <P>上面宏定义的任一个使得给定的符号在模块外可用. _GPL 版本的宏定义只能使符号对 GPL 
+                        许可的模块可用. 符号必须在模块文件的全局部分输出, 在任何函数之外, 
+                        因为宏定义扩展成一个特殊用途的并被期望是全局存取的变量的声明. 这个变量存储于模块的一个特殊的可执行部分( 一个 
+                        "ELF 段" ), 内核用这个部分在加载时找到模块输出的变量. ( 感兴趣的读者可以看 
+                        &lt;linux/module.h&gt; 获知详情, 尽管并不需要这些细节使东西动起来. ) </P>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=Preliminaries.sect1></A>2.6.&nbsp;预备知识</H2></DIV></DIV></DIV>
+                        <P>我们正在接近去看一些实际的模块代码. 但是首先, 我们需要看一些需要出现在你的模块源码文件中的东西. 
+                        内核是一个独特的环境, 它将它的要求强加于要和它接口的代码上. </P>
+                        <P>大部分内核代码包含了许多数量的头文件来获得函数, 数据结构和变量的定义. 我们将在碰到它们时检查这些文件, 
+                        但是有几个文件对模块是特殊的, 必须出现在每一个可加载模块中. 因此, 几乎所有模块代码都有下面内容: </P><PRE class=programlisting>#include &lt;linux/module.h&gt;
+#include &lt;linux/init.h&gt;
+</PRE>
+                        <P>moudle.h 包含了大量加载模块需要的函数和符号的定义. 你需要 init.h 
+                        来指定你的初始化和清理函数, 如我们在上面的 "hello world" 例子里见到的, 
+                        这个我们在下一节中再讲. 大部分模块还包含 moudleparam.h, 使得可以在模块加载时传递参数给模块. 
+                        我们将很快遇到. </P>
+                        <P>不是严格要求的, 但是你的模块确实应当指定它的代码使用哪个许可. 做到这一点只需包含一行 
+                        MODULE_LICENSE: </P><PRE class=programlisting>MODULE_LICENSE("GPL"); 
+</PRE>
+                        <P>内核认识的特定许可有, "GPL"( 适用 GNU 通用公共许可的任何版本 ), "GPL v2"( 
+                        只适用 GPL 版本 2 ), "GPL and additional rights", "Dual 
+                        BSD/GPL", "Dual MPL/GPL", 和 "Proprietary". 
+                        除非你的模块明确标识是在内核认识的一个自由许可下, 否则就假定它是私有的, 内核在模块加载时被"弄污浊"了. 
+                        象我们在第 1 章"许可条款"中提到的, 内核开发者不会热心帮助在加载了私有模块后遇到问题的用户. </P>
+                        <P>可以在模块中包含的其他描述性定义有 MODULE_AUTHOR ( 声明谁编写了模块 ), 
+                        MODULE_DESCRIPION( 一个人可读的关于模块做什么的声明 ), MODULE_VERSION ( 
+                        一个代码修订版本号; 看 &lt;linux/module.h&gt; 的注释以便知道创建版本字串使用的惯例), 
+                        MODULE_ALIAS ( 模块为人所知的另一个名子 ), 以及 MODULE_DEVICE_TABLE ( 
+                        来告知用户空间, 模块支持那些设备 ). 我们会讨论 MODULE_ALIAS 在第 11 章以及 
+                        MUDULE_DEVICE_TABLE 在第 12 章. </P>
+                        <P>各种 MODULE_ 声明可以出现在你的源码文件的任何函数之外的地方. 但是, 
+                        一个内核代码中相对近期的惯例是把这些声明放在文件末尾. </P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=InitializationandShutdown.sect1></A>2.7.&nbsp;初始化和关停</H2></DIV></DIV></DIV>
+                        <P>如已提到的, 模块初始化函数注册模块提供的任何功能. 这些功能, 我们指的是新功能, 
+                        可以由应用程序存取的或者一整个驱动或者一个新软件抽象. 实际的初始化函数定义常常如: </P><PRE class=programlisting>static int __init initialization_function(void)
+{
+
+ /* Initialization code here */
+}
+module_init(initialization_function);
+</PRE>
+                        <P>初始化函数应当声明成静态的, 因为它们不会在特定文件之外可见; 没有硬性规定这个, 然而, 
+                        因为没有函数能输出给内核其他部分, 除非明确请求. 声明中的 __init 标志可能看起来有点怪; 
+                        它是一个给内核的暗示, 给定的函数只是在初始化使用. 模块加载者在模块加载后会丢掉这个初始化函数, 
+                        使它的内存可做其他用途. 一个类似的标签 (__initdata) 给只在初始化时用的数据. 使用 __init 
+                        和 __initdata 是可选的, 但是它带来的麻烦是值得的. 
+                        只是要确认不要用在那些在初始化完成后还使用的函数(或者数据结构)上. 你可能还会遇到 __devinit 和 
+                        __devinitdata 在内核源码里; 这些只在内核没有配置支持 hotplug 设备时转换成 __init 
+                        和 _initdata. 我们会在 14 章谈论 hotplug 支持. </P>
+                        <P>使用 moudle_init 是强制的. 这个宏定义增加了特别的段到模块目标代码中, 
+                        表明在哪里找到模块的初始化函数. 没有这个定义, 你的初始化函数不会被调用.</P>
+                        <P>模块可以注册许多的不同设施, 包括不同类型的设备, 文件系统, 加密转换, 以及更多. 对每一个设施, 
+                        有一个特定的内核函数来完成这个注册. 传给内核注册函数的参数常常是一些数据结构的指针, 
+                        描述新设施以及要注册的新设施的名子. 数据结构常常包含模块函数指针, 模块中的函数就是这样被调用的. </P>
+                        <P>能够注册的项目远远超出第 1 章中提到的设备类型列表. 它们包括, 其他的, 串口, 多样设备, 
+                        sysfs 入口, /proc 文件, 执行域, 链路规程. 这些可注册项的大部分都支持不直接和硬件相关的函数, 
+                        但是处于"软件抽象"区域里. 这些项可以注册, 是因为它们以各种方式(例如象 /proc 
+                        文件和链路规程)集成在驱动的功能中. </P>
+                        <P>对某些驱动有其他的设施可以注册作为补充, 但它们的使用太特别, 所以不值得讨论它们. 它们使用堆叠技术, 
+                        在"内核符号表"一节中讲过. 如果你想深入探求, 你可以在内核源码里查找 EXPORT_SYMBOL , 
+                        找到由不同驱动提供的入口点. 大部分注册函数以 register_ 做前缀, 
+                        因此找到它们的另外一个方法是在内核源码里查找 register_ . </P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheCleanupFunction.sect2></A>2.7.1.&nbsp;清理函数</H3></DIV></DIV></DIV>
+                        <P>每个非试验性的模块也要求有一个清理函数, 它注销接口, 在模块被去除之前返回所有资源给系统. 
+                        这个函数定义为:</P><PRE class=programlisting>static void __exit cleanup_function(void)
+{
+ /* Cleanup code here */
+}
+
+module_exit(cleanup_function);
+</PRE>
+                        <P>清理函数没有返回值, 因此它被声明为 void. __exit 修饰符标识这个代码是只用于模块卸载( 
+                        通过使编译器把它放在特殊的 ELF 段). 如果你的模块直接建立在内核里, 
+                        或者如果你的内核配置成不允许模块卸载, 标识为 __exit 的函数被简单地丢弃. 因为这个原因, 一个标识 
+                        __exit 的函数只在模块卸载或者系统停止时调用; 任何别的使用是错的. 再一次, moudle_exit 
+                        声明对于使得内核能够找到你的清理函数是必要的.</P>
+                        <P>如果你的模块没有定义一个清理函数, 内核不会允许它被卸载. </P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ErrorHandlingDuringInitialization.sect2></A>2.7.2.&nbsp;初始化中的错误处理</H3></DIV></DIV></DIV>
+                        <P>你必须记住一件事, 在注册内核设施时, 注册可能失败. 即便最简单的动作常常需要内存分配, 
+                        分配的内存可能不可用. 因此模块代码必须一直检查返回值, 并且确认要求的操作实际上已经成功. </P>
+                        <P>如果在你注册工具时发生任何错误, 首先第一的事情是决定模块是否能够无论如何继续初始化它自己. 常常, 
+                        在一个注册失败后模块可以继续操作, 如果需要可以功能降级. 在任何可能的时候, 你的模块应当尽力向前, 
+                        并提供事情失败后具备的能力.</P>
+                        <P>如果证实你的模块在一个特别类型的失败后完全不能加载, 你必须取消任何在失败前注册的动作. 
+                        内核不保留已经注册的设施的每模块注册, 因此如果初始化在某个点失败, 模块必须能自己退回所有东西. 
+                        如果你无法注销你获取的东西, 内核就被置于一个不稳定状态; 它包含了不存在的代码的内部指针. 这种情况下, 
+                        经常地, 唯一的方法就是重启系统. 在初始化错误发生时, 你确实要小心地将事情做正确. </P>
+                        <P>错误恢复有时用 goto 语句处理是最好的. 我们通常不愿使用 goto, 但是在我们的观念里, 
+                        这是一个它有用的地方. 在错误情形下小心使用 goto 可以去掉大量的复杂, 过度对齐的, "结构形" 的逻辑. 
+                        因此, 在内核里, goto 是处理错误经常用到, 如这里显示的. </P>
+                        <P>下面例子代码( 使用设施注册和注销函数)在初始化在任何点失败时做得正确: </P><PRE class=programlisting>int __init my_init_function(void)
+{
+        int err;
+        /* registration takes a pointer and a name */
+        err = register_this(ptr1, "skull");
+        if (err)
+                goto fail_this;
+        err = register_that(ptr2, "skull");
+        if (err)
+                goto fail_that;
+        err = register_those(ptr3, "skull");
+        if (err)
+                goto fail_those;
+        return 0; /* success */
+fail_those:
+        unregister_that(ptr2, "skull");
+fail_that:
+        unregister_this(ptr1, "skull");
+fail_this:
+        return err; /* propagate the error */
+
+}
+</PRE>
+                        <P>这段代码试图注册 3 个(虚构的)设施. goto 语句在失败情况下使用, 
+                        在事情变坏之前只对之前已经成功注册的设施进行注销. </P>
+                        <P>另一个选项, 不需要繁多的 goto 语句, 是跟踪已经成功注册的, 
+                        并且在任何出错情况下调用你的模块的清理函数. 清理函数只回卷那些已经成功完成的步骤. 然而这种选择, 
+                        需要更多代码和更多 CPU 时间, 因此在快速途径下, 你仍然依赖于 goto 作为最好的错误恢复工具. 
+</P>
+                        <P>my_init_function 的返回值, err, 是一个错误码. 在 Linux 内核里, 
+                        错误码是负数, 属于定义于 &lt;linux/errno.h&gt; 的集合. 
+                        如果你需要产生你自己的错误码代替你从其他函数得到的返回值, 你应当包含 
+                        &lt;linux/errno.h&gt; 以便使用符号式的返回值, 例如 -ENODEV, -ENOMEM, 
+                        等等. 返回适当的错误码总是一个好做法, 因为用户程序能够把它们转变为有意义的字串, 使用 perror 
+                        或者类似的方法.</P>
+                        <P>显然, 模块清理函数必须撤销任何由初始化函数进行的注册, 
+                        并且惯例(但常常不是要求的)是按照注册时相反的顺序注销设施. </P><PRE class=programlisting>void __exit my_cleanup_function(void) 
+{
+ unregister_those(ptr3, "skull");
+ unregister_that(ptr2, "skull");
+ unregister_this(ptr1, "skull");
+ return;
+
+} 
+</PRE>
+                        <P>如果你的初始化和清理比处理几项复杂, goto 方法可能变得难于管理, 
+                        因为所有的清理代码必须在初始化函数里重复, 包括几个混合的标号. 有时, 因此, 一种不同的代码排布证明更成功. 
+                        </P>
+                        <P>使代码重复最小和所有东西流线化, 你应当做的是无论何时发生错误都从初始化里调用清理函数. 
+                        清理函数接着必须在撤销它的注册前检查每一项的状态. 以最简单的形式, 代码看起来象这样: </P><PRE class=programlisting>struct something *item1;
+struct somethingelse *item2;
+int stuff_ok;
+
+void my_cleanup(void)
+{
+        if (item1)
+                release_thing(item1);
+        if (item2)
+                release_thing2(item2);
+        if (stuff_ok)
+                unregister_stuff();
+        return;
+}
+
+int __init my_init(void)
+{
+        int err = -ENOMEM;
+
+        item1 = allocate_thing(arguments);
+        item2 = allocate_thing2(arguments2);
+        if (!item2 || !item2)
+                goto fail;
+
+        err = register_stuff(item1, item2);
+        if (!err)
+                stuff_ok = 1;
+        else
+                goto fail;
+        return 0; /* success */
+
+fail:
+        my_cleanup();
+        return err;
+}
+</PRE>
+                        <P>如这段代码所示, 你也许需要, 也许不要外部的标志来标识初始化步骤的成功, 
+                        要依赖你调用的注册/分配函数的语义. 不管要不要标志, 这种初始化会变得包含大量的项, 
+                        常常比之前展示的技术要好. 注意, 但是, 清理函数当由非退出代码调用时不能标志为 __exit, 
+                        如同前面的例子. </P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ModuleLoadingRaces.sect2></A>2.7.3.&nbsp;模块加载竞争</H3></DIV></DIV></DIV>
+                        <P>到目前, 我们的讨论已来到一个模块加载的重要方面: 竞争情况. 如果你在如何编写你的初始化函数上不小心, 
+                        你可能造成威胁到整个系统的稳定的情形. 我们将在本书稍后讨论竞争情况; 现在, 快速提几点就足够了: </P>
+                        <P>首先时你应该一直记住, 内核的某些别的部分会在注册完成之后马上使用任何你注册的设施. 这是完全可能的, 
+                        换句话说, 内核将调用进你的模块, 在你的初始化函数仍然在运行时. 所以你的代码必须准备好被调用, 
+                        一旦它完成了它的第一个注册. 不要注册任何设施, 直到所有的需要支持那个设施的你的内部初始化已经完成. </P>
+                        <P>你也必须考虑到如果你的初始化函数决定失败会发生什么, 但是内核的一部分已经在使用你的模块已注册的设施. 
+                        如果这种情况对你的模块是可能的, 你应当认真考虑根本不要使初始化失败. 毕竟, 
+                        模块已清楚地成功输出一些有用的东西. 如果初始化必须失败, 必须小心地处理任何可能的在内核别处发生的操作, 
+                        直到这些操作已完成. </P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=ModuleParameters.sect1></A>2.8.&nbsp;模块参数</H2></DIV></DIV></DIV>
+                        <P>驱动需要知道的几个参数因不同的系统而不同. 从使用的设备号( 如我们在下一章见到的 
+                        )到驱动应当任何操作的几个方面. 例如, SCSI 适配器的驱动常常有选项控制标记命令队列的使用, IDE 
+                        驱动允许用户控制 DMA 操作. 如果你的驱动控制老的硬件, 还需要被明确告知哪里去找硬件的 I/O 端口或者 
+                        I/O 内存地址. 内核通过在加载驱动的模块时指定可变参数的值, 支持这些要求. </P>
+                        <P>这些参数的值可由 insmod 或者 modprobe 在加载时指定; 
+                        后者也可以从它的配置文件(/etc/modprobe.conf)读取参数的值. 
+                        这些命令在命令行里接受几类规格的值. 作为演示这种能力的一种方法, 想象一个特别需要的对本章开始的"hello 
+                        world"模块(称为 hellop)的改进. 我们增加 2 个参数: 一个整型值, 称为 howmany, 
+                        一个字符串称为 whom. 我们的特别多功能的模块就在加载时, 欢迎 whom 不止一次, 而是 howmany 
+                        次. 这样一个模块可以用这样的命令行加载: </P><PRE class=screen>insmod hellop howmany=10 whom="Mom" 
+</PRE>
+                        <P>一旦以那样的方式加载, hellop 会说 "hello, Mom" 10 次. </P>
+                        <P>但是, 在 insmod 可以修改模块参数前, 模块必须使它们可用. 参数用 moudle_param 
+                        宏定义来声明, 它定义在 moduleparam.h. module_param 使用了 3 个参数: 变量名, 
+                        它的类型, 以及一个权限掩码用来做一个辅助的 sysfs 入口. 这个宏定义应当放在任何函数之外, 
+                        典型地是出现在源文件的前面. 因此 hellop 将声明它的参数, 并如下使得对 insmod 可用: </P><PRE class=programlisting>static char *whom = "world";
+static int howmany = 1;
+module_param(howmany, int, S_IRUGO);
+module_param(whom, charp, S_IRUGO);
+</PRE>
+                        <P>模块参数支持许多类型: </P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>bool </SPAN></SPAN>
+                          <DD>
+                          <DT><SPAN class=term><SPAN>invbool </SPAN></SPAN>
+                          <DD>
+                          <P>一个布尔型( true 或者 false)值(相关的变量应当是 int 类型). invbool 
+                          类型颠倒了值, 所以真值变成 false, 反之亦然. </P>
+                          <DT><SPAN class=term><SPAN>charp </SPAN></SPAN>
+                          <DD>
+                          <P>一个字符指针值. 内存为用户提供的字串分配, 指针因此设置. </P>
+                          <DT><SPAN class=term><SPAN>int</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>long</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>short</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>uint</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>ulong</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>ushort </SPAN></SPAN>
+                          <DD>
+                          <P>基本的变长整型值. 以 u 开头的是无符号值. </P></DD></DL></DIV>
+                        <P>数组参数, 用逗号间隔的列表提供的值, 模块加载者也支持. 声明一个数组参数, 使用:</P><PRE class=programlisting>module_param_array(name,type,num,perm);
+</PRE>
+                        <P>这里 name 是你的数组的名子(也是参数名), type 是数组元素的类型, num 是一个整型变量, 
+                        perm 是通常的权限值. 如果数组参数在加载时设置, num 被设置成提供的数的个数. 
+                        模块加载者拒绝比数组能放下的多的值.</P>
+                        <P>如果你确实需要一个没有出现在上面列表中的类型, 在模块代码里有钩子会允许你来定义它们; 
+                        任何使用它们的细节见 moduleparam.h. 所有的模块参数应当给定一个缺省值; insmod 
+                        只在用户明确告知它的时候才改变这些值. 模块可检查明显的参数, 通过对应它们的缺省值检查这些参数. </P>
+                        <P>最后的 module_param 字段是一个权限值; 你应当使用 &lt;linux/stat.h&gt; 
+                        中定义的值. 这个值控制谁可以存取这些模块参数在 sysfs 中的表示. 如果 perm 被设为 0, 
+                        就根本没有 sysfs 项. 否则, 它出现在 /sys/module<SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch02s08.html#ftn.id410890" 
+                        name=id410890><FONT color=#0000ff>5</FONT></A>]</SUP> 
+                        下面, 带有给定的权限. 使用 S_IRUGO 作为参数可以被所有人读取, 但是不能改变; 
+                        S_IRUGO|S_IWUSR 允许 root 来改变参数. 注意, 如果一个参数被 sysfs 修改, 
+                        你的模块看到的参数值也改变了, 但是你的模块没有任何其他的通知. 你应当不要使模块参数可写, 
+                        除非你准备好检测这个改变并且因而作出反应.</P>
+                        <DIV class=footnotes><BR>
+                        <HR align=left width=100>
+
+                        <DIV class=footnote>
+                        <P><SUP>[<A 
+                        href="http://www.deansys.com/doc/ldd3/ch02s08.html#id410890" 
+                        name=ftn.id410890><FONT color=#0000ff>5</FONT></A>] 
+                        </SUP>然而, 在本书写作时, 有讨论将参数移出 sysfs. </P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=DoingItinUserSpace.sect1></A>2.9.&nbsp;在用户空间做</H2></DIV></DIV></DIV>
+                        <P>一个第一次涉及内核问题的 Unix 程序员, 可能会紧张写一个模块. 
+                        编写一个用户程序来直接读写设备端口可能容易些. </P>
+                        <P>确实, 有几个论据倾向于用户空间编程, 有时编写一个所谓的用户空间设备驱动对比钻研内核是一个明智的选择. 
+                        在本节, 我们讨论几个理由, 为什么你可能在用户空间编写驱动. 本书是关于内核空间驱动的, 但是, 
+                        所以我们不超越这个介绍性的讨论.</P>
+                        <P>用户空间驱动的好处在于: </P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>完整的 C 库可以连接. 驱动可以进行许多奇怪的任务, 不用依靠外面的程序(实现使用策略的工具程序, 
+                          常常随着驱动自身发布).</P>
+                          <LI>
+                          <P>程序员可以在驱动代码上运行常用的调试器, 而不必走调试一个运行中的内核的弯路. </P>
+                          <LI>
+                          <P>如果一个用户空间驱动挂起了, 你可简单地杀掉它. 驱动的问题不可能挂起整个系统, 
+                          除非被控制的硬件真的疯掉了.</P>
+                          <LI>
+                          <P>用户内存是可交换的, 不象内核内存. 一个不常使用的却有很大一个驱动的设备不会占据别的程序可以用到的 
+                          RAM, 除了在它实际在用时. </P>
+                          <LI>
+                          <P>一个精心设计的驱动程序仍然可以, 如同内核空间驱动, 允许对设备的并行存取. </P>
+                          <LI>
+                          <P>如果你必须编写一个封闭源码的驱动, 
+                          用户空间的选项使你容易避免不明朗的许可的情况和改变的内核接口带来的问题. 
+</P></LI></UL></DIV>
+                        <P>例如, USB 驱动能够在用户空间编写; 看(仍然年幼) libusb 项目, 在 
+                        libusb.sourceforge.net 和 "gadgetfs" 在内核源码里. 另一个例子是 X 
+                        服务器: 它确切地知道它能处理哪些硬件, 哪些不能, 并且它提供图形资源给所有的 X 客户. 注意, 然而, 
+                        有一个缓慢但是固定的漂移向着基于 frame-buffer 的图形环境, X 服务器只是作为一个服务器, 
+                        基于一个内核空间的真实的设备驱动, 这个驱动负责真正的图形操作.</P>
+                        <P>常常, 用户空间驱动的编写者完成一个服务器进程, 从内核接管作为单个代理的负责硬件控制的任务. 
+                        客户应用程序就可以连接到服务器来进行实际的操作; 因此, 一个聪明的驱动经常可以允许对设备的并行存取. 这就是 
+                        X 服务器如何工作的. </P>
+                        <P>但是用户空间的设备驱动的方法有几个缺点. 最重要的是:</P>
+                        <DIV class=itemizedlist>
+                        <UL type=disc>
+                          <LI>
+                          <P>中断在用户空间无法用. 在某些平台上有对这个限制的解决方法, 例如在 IA32 体系上的 vm86 
+                          系统调用.</P>
+                          <LI>
+                          <P>只可能通过内存映射 /dev/mem 来使用 DMA, 而且只有特权用户可以这样做.</P>
+                          <LI>
+                          <P>存取 I/O 端口只能在调用 ioperm 或者 iopl 之后. 此外, 
+                          不是所有的平台支持这些系统调用, 而存取/dev/port可能太慢而无效率. 
+                          这些系统调用和设备文件都要求特权用户.</P>
+                          <LI>
+                          <P>响应时间慢, 因为需要上下文切换在客户和硬件之间传递信息或动作.</P>
+                          <LI>
+                          <P>更不好的是, 如果驱动已被交换到硬盘, 响应时间会长到不可接受. 使用 mlock 
+                          系统调用可能会有帮助, 但是常常的你将需要锁住许多内存页, 因为一个用户空间程序依赖大量的库代码. 
+                          mlock, 也, 限制在授权用户上.</P>
+                          <LI>
+                          <P>最重要的设备不能在用户空间处理, 包括但不限于, 
+网络接口和块设备.</P></LI></UL></DIV>
+                        <P>如你所见, 用户空间驱动不能做的事情毕竟太多. 感兴趣的应用程序还是存在: 例如, 对 SCSI 
+                        扫描器设备的支持( 由 SANE 包实现 )和 CD 刻录器 ( 由 cdrecord 和别的工具实现 ). 
+                        在两种情况下, 用户级别的设备情况依赖 "SCSI gneric" 内核驱动, 它输出了低层的 SCSI 
+                        功能给用户程序, 因此它们可以驱动它们自己的硬件. </P>
+                        <P>一种在用户空间工作的情况可能是有意义的, 当你开始处理新的没有用过的硬件时. 
+                        这样你可以学习去管理你的硬件, 不必担心挂起整个系统. 一旦你完成了, 
+                        在一个内核模块中封装软件就会是一个简单操作了. </P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=QuickReference.sect1></A>2.10.&nbsp;快速参考</H2></DIV></DIV></DIV>
+                        <P>本节总结了我们在本章接触到的内核函数, 变量, 宏定义, 和 /proc 文件. 它的用意是作为一个参考. 
+                        每一项列都在相关头文件的后面, 如果有. 从这里开始, 在几乎每章的结尾会有类似一节, 总结一章中介绍的新符号. 
+                        本节中的项通常以在本章中出现的顺序排列: </P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>insmod</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>modprobe</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>rmmod </SPAN></SPAN>
+                          <DD>
+                          <P>用户空间工具, 加载模块到运行中的内核以及去除它们.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/init.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>module_init(init_function);</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>module_exit(cleanup_function);</SPAN></SPAN> 
+
+                          <DD>
+                          <P>指定模块的初始化和清理函数的宏定义.</P>
+                          <DT><SPAN class=term><SPAN>__init</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>__initdata</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>__exit</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>__exitdata </SPAN></SPAN>
+                          <DD>
+                          <P>函数( __init 和 __exit )和数据 (__initdata 和 
+                          __exitdata)的标记, 只用在模块初始化或者清理时间. 为初始化所标识的项可能会在初始化完成后丢弃; 
+                          退出的项可能被丢弃如果内核没有配置模块卸载. 这些标记通过使相关的目标在可执行文件的特定的 ELF 
+                          节里被替换来工作.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/sched.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <P>最重要的头文件中的一个. 这个文件包含很多驱动使用的内核 API 的定义, 
+                          包括睡眠函数和许多变量声明.</P>
+                          <DT><SPAN class=term><SPAN>struct task_struct 
+                          *current;</SPAN></SPAN> 
+                          <DD>
+                          <P>当前进程.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>current-&gt;pid</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>current-&gt;comm 
+                          </SPAN></SPAN>
+                          <DD>
+                          <P>进程 ID 和 当前进程的命令名.</P>
+                          <DT><SPAN class=term><SPAN>obj-m </SPAN></SPAN>
+                          <DD>
+                          <P>一个 makefile 符号, 内核建立系统用来决定当前目录下的哪个模块应当被建立.</P>
+                          <DT><SPAN class=term><SPAN>/sys/module </SPAN></SPAN>
+                          <DD>
+                          <DT><SPAN class=term><SPAN>/proc/modules 
+</SPAN></SPAN>
+                          <DD>
+                          <P>/sys/module 是一个 sysfs 目录层次, 包含当前加载模块的信息. 
+                          /proc/moudles 是旧式的, 那种信息的单个文件版本. 其中的条目包含了模块名, 
+                          每个模块占用的内存数量, 以及使用计数. 另外的字串追加到每行的末尾来指定标志, 
+                          对这个模块当前是活动的.</P>
+                          <DT><SPAN class=term><SPAN>vermagic.o </SPAN></SPAN>
+                          <DD>
+                          <P>来自内核源码目录的目标文件, 描述一个模块为之建立的环境.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/module.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <P>必需的头文件. 它必须在一个模块源码中包含.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/version.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <P>头文件, 包含在建立的内核版本信息.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>LINUX_VERSION_CODE</SPAN></SPAN> 
+                          <DD>
+                          <P>整型宏定义, 对 #ifdef 版本依赖有用.</P>
+                          <DT><SPAN class=term><SPAN>EXPORT_SYMBOL 
+                          (symbol);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>EXPORT_SYMBOL_GPL 
+                          (symbol);</SPAN></SPAN> 
+                          <DD>
+                          <P>宏定义, 用来输出一个符号给内核. 第 2 种形式输出没有版本信息, 第 3 种限制输出给 GPL 
+                          许可的模块.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>MODULE_AUTHOR(author);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>MODULE_DESCRIPTION(description);</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>MODULE_VERSION(version_string);</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>MODULE_DEVICE_TABLE(table_info);</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>MODULE_ALIAS(alternate_name);</SPAN></SPAN> 
+
+                          <DD>
+                          <P>放置文档在目标文件的模块中.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>module_init(init_function);</SPAN></SPAN> 
+
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>module_exit(exit_function);</SPAN></SPAN> 
+
+                          <DD>
+                          <P>宏定义, 声明一个模块的初始化和清理函数.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/moduleparam.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>module_param(variable, 
+                          type, perm);</SPAN></SPAN> 
+                          <DD>
+                          <P>宏定义, 创建模块参数, 可以被用户在模块加载时调整( 或者在启动时间, 对于内嵌代码). 类型可以是 
+                          bool, charp, int, invbool, short, ushort, uint, ulong, 
+                          或者 intarray.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/kernel.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int printk(const char * 
+                          fmt, ...);</SPAN></SPAN> 
+                          <DD>
+                          <P>内核代码的 printf 
+                        类似物.</P></DD></DL></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:28，已浏览44次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270072">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270072">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（2）建立和运行模块 - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>

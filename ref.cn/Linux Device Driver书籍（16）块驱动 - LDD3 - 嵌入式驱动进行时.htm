@@ -1,0 +1,1722 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://blog.chinaunix.net/u2/78225/showart.php?id=1270153 -->
+<HTML><HEAD><TITLE>Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gbk"><LINK 
+href="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/index.css" 
+rel=stylesheet></LINK><LINK title="ChinaUnix Blog RSS Feed" 
+href="http://blog.chinaunix.net/u/rss.php?id=78225" type=application/rss+xml 
+rel=alternate></LINK>
+<META content="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时" name=keywords>
+<META 
+content="中国最大的IT技术博客-ChinaUnix博客：Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时" 
+name=description>
+<META content="MSHTML 6.00.2900.3243" name=GENERATOR></HEAD>
+<BODY style="BACKGROUND: #ffffff" leftMargin=0 topMargin=0 align="center" 
+marginheight="0" marginwidth="0">
+<TABLE style="BORDER-COLLAPSE: collapse; HEIGHT: 25px" height=25 cellSpacing=0 
+cellPadding=0 width="100%" align=center 
+background="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/tophem1.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD id=tool-bar noWrap align=left>&nbsp; <A 
+      href="http://blog.chinaunix.net/" target=_blank>博客首页</A> <A 
+      href="http://blog.chinaunix.net/register.php" target=_blank>注册</A> <A 
+      href="http://bbs.chinaunix.net/forumdisplay.php?fid=51" 
+      target=_blank>建议与交流</A> <A href="http://blog.chinaunix.net/top/" 
+      target=_blank>排行榜</A> <A 
+      onclick="NewWindows('http://www.cublog.cn/addlink.php?url='+location.href+'&amp;title='+document.title);return false;" 
+      href="http://blog.chinaunix.net/u2/78225/" target=_blank>加入友情链接</A> </TD>
+    <FORM id=loginForm action=/search.php method=get target=_blank>
+    <TD noWrap align=right><IMG id=starimg height=12 alt="" 
+      src="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/userstar.gif" 
+      width=55 border=0> <A id=star title=给此博客推荐值 
+      onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/star.php?blogid=78225">推荐</A> <A 
+      id=complaint title=投诉此博客 onclick="NewWindows(this.href);return false;" 
+      href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225">投诉</A> 
+      搜索：<INPUT name=q> <INPUT class=button1 type=submit value=搜索> <A 
+      href="http://blog.chinaunix.net/help/">帮助</A></TD></FORM></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+<!--
+
+navHover = function() {
+var lis = document.getElementById("navmenu").getElementsByTagName("LI");
+for (var i=0; i<lis.length; i++) {
+lis[i].onmouseover=function() {
+this.className+=" iehover";
+}
+lis[i].onmouseout=function() {
+this.className=this.className.replace(new RegExp(" iehover\\b"), "");
+}
+}
+}
+
+function NewWindows(shref){
+var xx=(window.screen.width-450)/2;
+var yy=(window.screen.height-200)/2;
+pp=window.open(shref,"win","menubar=no,location=no,resizable=no,scrollbars=no,status=no,left="+xx+",top="+yy+",Width=450,Height=200");
+}
+function $(s){return document.getElementById(s);}
+//-->
+</SCRIPT>
+
+<TABLE 
+style="BACKGROUND-IMAGE: url(http://www.cublog.cn/templates/newgreen/images/bg_top.gif); BACKGROUND-REPEAT: no-repeat; BORDER-COLLAPSE: collapse" 
+height=143 cellSpacing=0 cellPadding=0 width="100%" align=center bgColor=#187218 
+border=0>
+  <TBODY>
+  <TR>
+    <TD width=360></TD>
+    <TD align=middle width=500>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14pt" 
+      color=#ffffff><B>
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><FONT style="FONT-SIZE: 14px" 
+      color=#ffffff><B>嵌入式驱动进行时 </B></FONT></P></B></FONT>
+      <P></P></TD>
+    <TD width=360>学习学习再学习！</TD></TR>
+  <TR>
+    <TD colSpan=3>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style="BORDER-COLLAPSE: collapse" height=27 cellSpacing=0 cellPadding=0 
+width="100%" align=center bgColor=#ffffff 
+background="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/bg_menu.gif" 
+border=0>
+  <TBODY>
+  <TR>
+    <TD align=middle width=30><IMG height=29 alt="" 
+      src="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/img_menu_left.gif" 
+      width=26 border=0></TD>
+    <TD width=200><A class=list1 href="http://yuchuan2008.cublog.cn/" 
+      target=_blank>yuchuan2008.cublog.cn</A> </TD>
+    <TD style="COLOR: #2a5200" align=right width=750>
+      <UL id=navmenu>
+        <LI class=ul0><A class=list1 href="http://control.cublog.cn/" 
+        target=_blank>管理博客</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://control.cublog.cn/article_new.php" target=_blank>发表文章</A> 
+        </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/guestbook.html">留言</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/links.html">收藏夹</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/group.html">博客圈</A> </LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/music.html">音乐</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/photo.html">相册</A> 
+        <!-- 0 --></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/article.html">文章</A> 
+        <UL class=ul1>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96075.html">· 
+          Bootloader（转载）<!-- a96075 --></A><!-- 96075 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95828.html">· 
+          嵌入式C语言基础（转载）<!-- a95828 --></A><!-- 95828 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95774.html">· 
+          Linux设备驱动（转载）&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96083.html">· LDD3<!-- a96083 --></A><!-- 96083 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96060.html">· 
+            Linux设备驱动理论<!-- a96060 --></A><!-- 96060 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95966.html">· 
+            Linux字符设备驱动<!-- a95966 --></A><!-- 95966 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95967.html">· 
+            Linux块设备驱动<!-- a95967 --></A><!-- 95967 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95969.html">· 
+            Linux总线驱动<!-- a95969 --></A><!-- 95969 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_95968.html">· 
+            Linux网络设备驱动<!-- a95968 --></A><!-- 95968 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96065.html">· 
+            Linux复杂设备驱动<!-- a96065 --></A><!-- 96065 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96073.html">· 
+          Linux内核（转载）<!-- a96073 --></A><!-- 96073 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96055.html">· 
+          学习&amp;&amp;工作&nbsp;&nbsp;&nbsp;<FONT face="Wingdings 3">}</FONT></A>
+          <UL class=ul2>
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96507.html">· 
+            嵌入式系统开发<!-- a96507 --></A><!-- 96507 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96918.html">· 
+            Embest 2410<!-- a96918 --></A><!-- 96918 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96639.html">· 
+            LINUX下C应用编程<!-- a96639 --></A><!-- 96639 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96508.html">· 
+            Linux驱动开发<!-- a96508 --></A><!-- 96508 --> 
+            <LI><A 
+            href="http://blog.chinaunix.net/u2/78225/article_96509.html">· 测试技术<!-- a96509 --></A><!-- 96509 --> </LI></UL>
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95777.html">· 
+          交叉编译（转载）<!-- a95777 --></A><!-- 95777 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96080.html">· 
+          ARM技术（转载）<!-- a96080 --></A><!-- 96080 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_97102.html">· 
+          嵌入式系统开发（转载）<!-- a97102 --></A><!-- 97102 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95775.html">· 
+          Linux基础（转载）<!-- a95775 --></A><!-- 95775 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_95854.html">· 
+          Linux应用程序（转载）<!-- a95854 --></A><!-- 95854 --> 
+          <LI><A href="http://blog.chinaunix.net/u2/78225/article_96053.html">· 
+          其他<!-- a96053 --></A><!-- 96053 --> </LI></UL></LI>
+        <LI class=ul0><A class=list1 
+        href="http://blog.chinaunix.net/u2/78225/index.html">首页</A> </LI></UL></TD>
+    <TD width=10></TD></TR>
+  <TR>
+    <TD colSpan=4>
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+      cellPadding=0 width=980 border=0>
+        <TBODY>
+        <TR>
+          <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>
+function $(s){return document.getElementById(s);}
+function ShowHideDiv(divid,iImg){
+if($(divid).style.display == "none"){
+iImg.src="../../templates/newgreen/images/dot2.gif";
+$(divid).style.display = "block";
+iImg.title="收起";
+}else{
+iImg.src="../../templates/newgreen/images/dot4.gif";
+$(divid).style.display = "none";
+iImg.title="展开";
+}
+}
+navHover();
+</SCRIPT>
+
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD height=3></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#111111 cellSpacing=0 
+cellPadding=0 width="90%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_top.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_top.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_top.gif" 
+      border=0></TD></TR>
+  <TR>
+    <TD width=18 
+    background="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_left.gif"></TD>
+    <TD align=middle bgColor=#f5fdee><BR><FONT style="FONT-SIZE: 14pt" 
+      color=#295200><B>Linux Device Driver书籍（16）块驱动</B></FONT> 
+      <TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+      cellPadding=0 width="100%" border=1>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+            cellSpacing=0 cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD align=middle>
+                  <TABLE 
+                  style="BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <DIV id=art style="MARGIN: 15px">
+                        <DIV>第&nbsp;16&nbsp;章&nbsp;块驱动</DIV>
+                        <DIV>
+                        <P>至今, 我们的讨论一直限于字符驱动. 但是, 在 Linux 系统中有其他类型的驱动, 
+                        并且到时候要开阔我们的视野了. 因此, 本章讨论块驱动.</P>
+                        <P>一个块驱动提供设备的存取, 这个设备可随机地以固定大小的块传送数据--主要的是, 磁盘驱动. Linux 
+                        内核看待块设备根本上不同于字符设备; 结果, 块驱动有明显不同的接口和它们自己的特殊的挑战.</P>
+                        <P>高效的块驱动对于性能是重要的 -- 不只是为在用户应用程序的明确的读和写. 
+                        现代的有虚拟内存的系统将不需要的数据移向(希望地)二级存储中, 它常常是一个磁盘驱动器. 
+                        块驱动是核心内存和二级存储之间的导管; 因此, 它们可组成虚拟内存子系统的一部分. 
+                        虽然可能编写一个块驱动不必知道 struct page 和其他重要的内存概念, 
+                        任何需要编写一个高性能驱动的人必须使用 15 章所涉及的内容.</P>
+                        <P>许多块层的设计围绕性能. 许多字符设备可在它们的最大速率以下运行, 并且系统的总体性能不被影响. 
+                        但是如果它的块 I/O 子系统没有调整好, 系统不能很好地运行. Linux 
+                        块驱动接口允许你从一个块设备中获得最多输出, 但是有必要, 施加一些你必须处理的复杂性. 好的是, 2.6 
+                        的块接口比之前的内核很大提高.</P>
+                        <P>如你会期望的, 本章的讨论集中在一个例子驱动, 它实现了一个面向块的, 基于内存的设备. 基本上, 
+                        它是一个 ramdisk. 内核硬件包含了一个很高级的 ramdisk 实现, 但是我们的驱动(称为 
+                        sbull)让我们演示创建一个块驱动, 同时最小化无关的复杂性.</P>
+                        <P>在进入细节之前, 我们精确定义几个词语. 一个块是一个固定大小的数据块, 大小由内核决定. 块常常是 
+                        4096 字节, 但是这个值可依赖体系和使用的文件系统而变化. 一个扇区, 相反, 是一个小块, 
+                        它的大小常常由底层的硬件决定. 内核期望处理实现 512-字节扇区的设备. 如果你的设备使用不同的大小, 
+                        内核调整并且避免产生硬件无法处理的 I/O 请求. 但是, 它值得记住, 任何时候内核给你一个扇区号, 
+                        它是工作在一个 512-字节扇区的世界. 如果你使用不同的硬件扇区大小, 你必须相应地调整内核的扇区号. 我们在 
+                        sbull 驱动中见如何完成这个.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=Registration.sect1></A>16.1.&nbsp;注册</H2></DIV></DIV></DIV>
+                        <P>块驱动, 象字符驱动, 必须使用一套注册接口来使内核可使用它们的设备. 概念是类似的, 
+                        但是块设备注册的细节是都不同的. 你有一整套新的数据结构和设备操作要学习.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=BlockDriverRegistration.sect2></A>16.1.1.&nbsp;块驱动注册</H3></DIV></DIV></DIV>
+                        <P>大部分块驱动采取的第一步是注册它们自己到内核. 这个任务的函数是 register_blkdev(在 
+                        &lt;linux/fs.h&gt; 中定义):</P><PRE class=programlisting>int register_blkdev(unsigned int major, const char *name); 
+</PRE>
+                        <P>参数是你的设备要使用的主编号和关联的名子(内核将显示它在 /proc/devices). 如果 major 
+                        传递为0, 内核分配一个新的主编号并且返回它给调用者. 如常, 自 register_blkdev 
+                        的一个负的返回值指示已发生了一个错误.</P>
+                        <P>取消注册的对应函数是:</P><PRE class=programlisting>int unregister_blkdev(unsigned int major, const char *name); 
+</PRE>
+                        <P>这里, 参数必须匹配传递给 register_blkdev 的那些, 否则这个函数返回 -EINVAL 
+                        并且什么都不注销.</P>
+                        <P>在2.6内核, 对 register_blkdev 的调用完全是可选的. 由 
+                        register_blkdev 所进行的功能已随时间正在减少; 这个调用唯一的任务是 (1) 如果需要, 
+                        分配一个动态主编号, 并且 (2) 在 /proc/devices 创建一个入口. 在将来的内核, 
+                        register_blkdev 可能被一起去掉. 同时, 但是, 大部分驱动仍然调用它; 
+                        它是惯例.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=DiskRegistration.sect2></A>16.1.2.&nbsp;磁盘注册</H3></DIV></DIV></DIV>
+                        <P>虽然 register_blkdev 可用来获得一个主编号, 它不使任何磁盘驱动器对系统可用. 
+                        有一个分开的注册接口你必须使用来管理单独的驱动器. 使用这个接口要求熟悉一对新结构, 这就是我们的起点.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Blockdeviceoperations.sect3></A>16.1.2.1.&nbsp;块设备操作</H4></DIV></DIV></DIV>
+                        <P>字符设备通过 file_ 操作结构使它们的操作对系统可用. 一个类似的结构用在块设备上; 它是 
+                        struct block_device_operations, 定义在 &lt;linux/fs.h&gt;. 
+                        下面是一个对这个结构中的成员的简短的概览; 当我们进入 sbull 驱动的细节时详细重新访问它们.</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>int (*open)(struct inode 
+                          *inode, struct file *filp);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int (*release)(struct inode 
+                          *inode, struct file *filp);</SPAN></SPAN> 
+                          <DD>
+                          <P>就像它们的字符驱动对等体一样工作的函数; 无论何时设备被打开和关闭都调用它们. 
+                          一个字符驱动可能通过启动设备或者锁住门(为可移出的介质)来响应一个 open 调用. 如果你将介质锁入设备, 
+                          你当然应当在 release 方法中解锁.</P>
+                          <DT><SPAN class=term><SPAN>int (*ioctl)(struct inode 
+                          *inode, struct file *filp, unsigned int cmd, unsigned 
+                          long arg);</SPAN></SPAN> 
+                          <DD>
+                          <P>实现 ioctl 系统调用的方法. 但是, 块层首先解释大量的标准请求; 因此大部分的块驱动 
+                          ioctl 方法相当短.</P>
+                          <DT><SPAN class=term><SPAN>int (*media_changed) 
+                          (struct gendisk *gd);</SPAN></SPAN> 
+                          <DD>
+                          <P>被内核调用来检查是否用户已经改变了驱动器中的介质的方法, 如果是这样返回一个非零值. 显然, 
+                          这个方法仅适用于支持可移出的介质的驱动器(并且最好给驱动一个"介质被改变"标志); 
+                          在其他情况下可被忽略.</P>
+                          <P>struct gendisk 参数是内核任何表示单个磁盘; 我们将在下一节查看这个结构.</P>
+                          <DT><SPAN class=term><SPAN>int (*revalidate_disk) 
+                          (struct gendisk *gd);</SPAN></SPAN> 
+                          <DD>
+                          <P>revalidate_disk 方法被调用来响应一个介质改变; 
+                          它给驱动一个机会来进行需要的任何工作使新介质准备好使用. 这个函数返回一个 int 值, 
+                          但是值被内核忽略.</P>
+                          <DT><SPAN class=term><SPAN>struct module 
+                          *owner;</SPAN></SPAN> 
+                          <DD>
+                          <P>一个指向拥有这个结构的模块的指针; 它应当常常被初始化为 
+                        THIS_MODULE.</P></DD></DL></DIV>
+                        <P>专心的读者可能已注意到这个列表一个有趣的省略: 没有实际读或写数据的函数. 在块 I/O 子系统, 
+                        这些操作由请求函数处理, 它们应当有它们自己的一节并且在本章后面讨论. 在我们谈论服务请求之前, 
+                        我们必须完成对磁盘注册的讨论.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Thegendiskstructure.sect3></A>16.1.2.2.&nbsp;gendisk 
+                        结构</H4></DIV></DIV></DIV>
+                        <P>struct gendisk (定义于 &lt;linux/genhd.h&gt;) 
+                        是单独一个磁盘驱动器的内核表示. 事实上, 内核还使用 gendisk 来表示分区, 但是驱动作者不必知道这点. 
+                        struct gedisk 中有几个成员, 必须被一个块驱动初始化:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>int major;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          first_minor;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int minors;</SPAN></SPAN> 
+                          <DD>
+                          <P>描述被磁盘使用的设备号的成员. 至少, 一个驱动器必须使用最少一个次编号. 如果你的驱动会是可分区的, 
+                          但是(并且大部分应当是), 你要分配一个次编号给每个可能的分区. 次编号的一个普通的值是 16, 
+                          它允许"全磁盘"设备盒 15 个分区. 一些磁盘驱动使用 64 个次编号给每个设备.</P>
+                          <DT><SPAN class=term><SPAN>char 
+                          disk_name[32];</SPAN></SPAN> 
+                          <DD>
+                          <P>应当被设置为磁盘驱动器名子的成员. 它出现在 /proc/partitions 和 
+sysfs.</P>
+                          <DT><SPAN class=term><SPAN>struct 
+                          block_device_operations *fops;</SPAN></SPAN> 
+                          <DD>
+                          <P>来自前一节的设备操作集合.</P>
+                          <DT><SPAN class=term><SPAN>struct request_queue 
+                          *queue;</SPAN></SPAN> 
+                          <DD>
+                          <P>被内核用来管理这个设备的 I/O 请求的结构; 我们在"请求处理"一节中检查它.</P>
+                          <DT><SPAN class=term><SPAN>int flags;</SPAN></SPAN> 
+                          <DD>
+                          <P>一套标志(很少使用), 描述驱动器的状态. 如果你的设备有可移出的介质, 你应当设置 
+                          GENHD_FL_REMOVABLE. CD-ROM 驱动器可设置 GENHD_FL_CD. 如果, 
+                          由于某些原因, 你不需要分区信息出现在 /proc/partitions, 设置 
+                          GENHD_FL_SUPPRESS_PARTITIONS_INFO.</P>
+                          <DT><SPAN class=term><SPAN>sector_t 
+                          capacity;</SPAN></SPAN> 
+                          <DD>
+                          <P>这个驱动器的容量, 以512-字节扇区来计. sector_t 类型可以是 64 位宽. 
+                          驱动不应当直接设置这个成员; 相反, 传递扇区数目给 set_capacity.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          *private_data;</SPAN></SPAN> 
+                          <DD>
+                          <P>块驱动可使用这个成员作为一个指向它们自己内部数据的指针.</P></DD></DL></DIV>
+                        <P>内核提供了一小部分函数来使用 gendisk 结构. 我们在这里介绍它们, 接着看 sbull 
+                        如何使用它们来使系统可使用它的磁盘驱动器.</P>
+                        <P>struct gendisk 是一个动态分配的结构, 它需要特别的内核操作来初始化; 
+                        驱动不能自己分配这个结构. 相反, 你必须调用:</P><PRE class=programlisting>struct gendisk *alloc_disk(int minors); 
+</PRE>
+                        <P>minors 参数应当是这个磁盘使用的次编号数目; 注意你不能在之后改变 minors 
+                        成员并且期望事情可以正确工作. 当不再需要一个磁盘时, 它应当被释放, 使用:</P><PRE class=programlisting>void del_gendisk(struct gendisk *gd);
+</PRE>
+                        <P>一个 gendisk 是一个被引用计数的结构(它含有一个 kobject). 有 get_disk 和 
+                        put_disk 函数用来操作引用计数, 但是驱动应当从不需要做这个. 正常地, 对 del_gendisk 
+                        的调用去掉了最一个 gendisk 的最终的引用, 但是不保证这样. 因此, 
+                        这个结构可能继续存在(并且你的方法可能被调用)在调用 del_gendisk 之后. 但是, 
+                        如果你删除这个结构当没有用户时(即, 在最后的释放之后, 或者在你的模块清理函数), 
+                        你可确信你不会再收到它的信息.</P>
+                        <P>分配一个 gendisk 结构不能使系统可使用这个磁盘. 要做到这点, 你必须初始化这个结构并且调用 
+                        add_disk:</P><PRE class=programlisting>void add_disk(struct gendisk *gd); 
+</PRE>
+                        <P>这里记住一件重要的事情:一旦你调用add_disk, 这个磁盘是"活的"并且它的方法可被在任何时间被调用. 
+                        实际上, 这样的第一个调用将可能发生, 即便在 add_disk 返回之前; 
+                        内核将读前几个字节以试图找到一个分区表. 因此你不应当调用 add_disk 
+                        直到你的驱动被完全初始化并且准备好响应对那个磁盘的请求.</P></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=Initializationinsbull.sect2></A>16.1.3.&nbsp;在 
+                        sbull 中的初始化</H3></DIV></DIV></DIV>
+                        <P>是时间进入一些例子了. sbull 驱动(从 O'Reilly 的 FTP 网站, 
+                        以及其他例子源码)实现一套内存中的虚拟磁盘驱动器. 对每个驱动器, sbull 分配(使用 vmalloc, 
+                        为了简单)一个内存数组; 它接着使这个数组可通过块操作来使用. 这个 sbull 驱动可通过分区这个驱动器, 
+                        在上面建立文件系统, 以及加载到系统层级中来测试. </P>
+                        <P>象我们其他的例子驱动一样, sbull 允许一个主编号在编译或者模块加载时被指定. 如果没有指定, 
+                        动态分配一个. 因为对 register_blkdev 的调用被用来动态分配, sbull 应当这样做:</P><PRE class=programlisting>sbull_major = register_blkdev(sbull_major, "sbull");
+if (sbull_major &lt;= 0)
+{
+        printk(KERN_WARNING "sbull: unable to get major number\n");
+        return -EBUSY;
+}
+</PRE>
+                        <P>同样, 象我们在本书已展现的其他虚拟设备, sbull 设备由一个内部结构描述:</P><PRE class=programlisting>struct sbull_dev {
+ int size;  /* Device size in sectors */ 
+ u8 *data;  /* The data array */ 
+ short users;  /* How many users */ 
+ short media_change;  /* Flag a media change? */ 
+ spinlock_t lock;  /* For mutual exclusion */ 
+ struct request_queue *queue;  /* The device request queue */ 
+ struct gendisk *gd;  /* The gendisk structure */ 
+ struct timer_list timer;  /* For simulated media changes */  
+};  
+</PRE>
+                        <P>需要几个步骤来初始化这个结构, 并且使系统可用关联的设备. 我们从基本的初始化开始, 
+                        并且分配底层的内存:</P><PRE class=programlisting>memset (dev, 0, sizeof (struct sbull_dev));
+dev-&gt;size = nsectors*hardsect_size;
+dev-&gt;data = vmalloc(dev-&gt;size);
+if (dev-&gt;data == NULL)
+{
+        printk (KERN_NOTICE "vmalloc failure.\n");
+        return;
+}
+spin_lock_init(&amp;dev-&gt;lock);
+</PRE>
+                        <P>重要的是在下一步之前分配和初始化一个自旋锁, 下一步是分配请求队列. 我们在进入请求处理时详细看这个过程; 
+                        现在, 只需说必要的调用是:</P><PRE class=programlisting>dev-&gt;queue = blk_init_queue(sbull_request, &amp;dev-&gt;lock); 
+</PRE>
+                        <P>这里, sbull_request 是我们的请求函数 -- 实际进行块读和写请求的函数. 
+                        当我们分配一个请求队列时, 我们必须提供一个自旋锁来控制对那个队列的存取. 
+                        这个锁由驱动提供而不是内核通常的部分, 因为, 常常, 请求队列和其他的驱动数据结构在相同的临界区; 
+                        它们可能被同时存取. 如同任何分配内存的函数, blk_init_queue 可能失败, 
+                        因此你必须在继续之前检查返回值.</P>
+                        <P>一旦我们有我们的设备内存和请求队列, 我们可分配, 初始化, 并且安装对应的 gendisk 结构. 
+                        做这个工作的代码是:</P><PRE class=programlisting>dev-&gt;gd = alloc_disk(SBULL_MINORS);
+if (! dev-&gt;gd)
+{
+        printk (KERN_NOTICE "alloc_disk failure\n");
+        goto out_vfree;
+}
+dev-&gt;gd-&gt;major = sbull_major;
+dev-&gt;gd-&gt;first_minor = which*SBULL_MINORS;
+dev-&gt;gd-&gt;fops = &amp;sbull_ops;
+dev-&gt;gd-&gt;queue = dev-&gt;queue;
+dev-&gt;gd-&gt;private_data = dev;
+snprintf (dev-&gt;gd-&gt;disk_name, 32, "sbull%c", which + 'a');
+set_capacity(dev-&gt;gd, nsectors*(hardsect_size/KERNEL_SECTOR_SIZE));
+add_disk(dev-&gt;gd);
+</PRE>
+                        <P>这里, SBULL_MINORS 是每个 sbull 设备所支持的次编号的数目. 
+                        当我们设置第一个次编号给每个设备, 我们必须考虑被之前的设备所用的全部编号. 磁盘的名子被设置, 这样第一个是 
+                        sbulla, 第二个是 sbullb, 等等. 用户空间可接着添加分区号以便它们在第 2 个设备上的分区可能是 
+                        /dev/sbull3. </P>
+                        <P>一旦所有的都被设置, 我们以对 add_disk 的调用来结束. 我们的几个方法将在 add_disk 
+                        返回时被调用, 因此我们负责做这个调用, 这是初始化我们的设备的最后一步.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ANoteonSectorSizes.sect2></A>16.1.4.&nbsp;注意扇区大小</H3></DIV></DIV></DIV>
+                        <P>如同我们之前提到的, 内核对待每个磁盘如同一个 512-字节扇区的数组. 
+                        不是所有的硬件都使用那个扇区大小, 但是. 使一个有不同扇区大小的设备工作不是一件很难的事; 
+                        只要小心处理几个细节. sbull 设备输出一个 hardsect_size 参数, 
+                        可被用来改变设备的"硬件"扇区大小. 通过看它的实现, 你可见到如何添加这个支持到你自己的驱动.</P>
+                        <P>这些细节中的第一个是通知内核你的设备支持的扇区大小. 硬件扇区大小是一个在请求队列的参数, 而不是在 
+                        gendisk 结构. 这个大小通过调用 blk_queue_hardsect_size 设置的, 
+                        在分配队列后马上进行:</P><PRE class=programlisting>blk_queue_hardsect_size(dev-&gt;queue, hardsect_size); 
+</PRE>
+                        <P>一旦完成那个, 内核坚持你的设备的硬件扇区大小. 所有的 I/O 请求被正确对齐到一个硬件扇区的起始, 
+                        并且每个请求的长度是一个整数的扇区数. 你必须记住, 但是, 内核一直以 512-字节扇区表述自己; 因此, 
+                        有必要相应地转换所有的扇区号. 因此, 例如, 当 sbull 在它的 gendisk 结构中设置设备的容量时, 
+                        这个调用看来象:</P><PRE class=programlisting>set_capacity(dev-&gt;gd, nsectors*(hardsect_size/KERNEL_SECTOR_SIZE));
+</PRE>
+                        <P>KERNEL_SECTOR_SIZE 是一个本地定义的常量, 我们用来调整内核的 
+                        512-字节和任何我们已被告知要使用的大小. 在我们查看 sbull 
+                        请求处理逻辑中会不时看到这类计算出来.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=TheBlockDeviceOperations.sect1></A>16.2.&nbsp;块设备操作</H2></DIV></DIV></DIV>
+                        <P>在前面一节中我们对 block_device_operations 有了简短的介绍. 
+                        现在我们详细些看看这些操作, 在进入请求处理之前. 为此, 是时间提到 sbull 驱动的另一个特性: 
+                        它假装是一个可移出的设备. 无论何时最后一个用户关闭设备, 一个 30 秒的定时器被设置; 
+                        如果设备在这个时间内不被打开, 设备的内容被清除, 并且内核被告知介质已被改变. 30 秒延迟给了用户时间, 
+                        例如, 来卸载一个 sbull 设备在创建一个文件系统之后.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheopenandreleaseMethods.sect2></A>16.2.1.&nbsp;open 
+                        和 release 方法</H3></DIV></DIV></DIV>
+                        <P>为实现模拟的介质移出, 当最后一个用户已关闭设备时 sbull 必须知道. 一个用户计数被驱动维护. 它是 
+                        open 和 close 方法的工作来保持这个计数最新.</P>
+                        <P>open 方法看起来非常类似于它的字符驱动对等体; 它用相关的节点和文件结构指针作为参数. 
+                        当一个节点引用一个块设备, i_bdev-&gt;bd_disk 包含一个指向关联 gendisk 结构的指针; 
+                        这个指针可用来获得一个驱动的给设备的内部数据结构. 即, 实际上, sbull open 
+                        方法做的第一件事:</P><PRE class=programlisting>static int sbull_open(struct inode *inode, struct file *filp)
+{
+        struct sbull_dev *dev = inode-&gt;i_bdev-&gt;bd_disk-&gt;private_data;
+        del_timer_sync(&amp;dev-&gt;timer);
+        filp-&gt;private_data = dev;
+        spin_lock(&amp;dev-&gt;lock)
+        ;
+        if (! dev-&gt;users)
+                check_disk_change(inode-&gt;i_bdev);
+        dev-&gt;users++;
+        spin_unlock(&amp;dev-&gt;lock)
+        ;
+        return 0;
+}
+</PRE>
+                        <P>一旦 sbull_open 有它的设备结构指针, 它调用 del_timer_sync 
+                        来去掉"介质移出"定时器, 如果有一个是活的. 注意我们不加锁设备自旋锁, 直到定时器被删除后; 
+                        如果定时器函数在我们可删除它之前运行, 反过来做会有死锁. 在设备加锁下, 我们调用一个内核函数, 称为 
+                        check_disk_change, 来检查是否已发生一个介质改变. 可能有人争论说内核应当做这个调用, 
+                        但是标准模式是为驱动来在打开时处理它.</P>
+                        <P>最后一步是递增用户计数并且返回.</P>
+                        <P>释放方法的任务是, 相反, 来递减用户计数, 以及, 如果被指示了, 启动介质移出定时器:</P><PRE class=programlisting>static int sbull_release(struct inode *inode, struct file *filp)
+{
+        struct sbull_dev *dev = inode-&gt;i_bdev-&gt;bd_disk-&gt;private_data;
+        spin_lock(&amp;dev-&gt;lock)
+        ;
+        dev-&gt;users--;
+        if (!dev-&gt;users)
+        {
+                dev-&gt;timer.expires = jiffies + INVALIDATE_DELAY;
+                add_timer(&amp;dev-&gt;timer);
+        }
+
+        spin_unlock(&amp;dev-&gt;lock)
+        ;
+        return 0;
+}
+</PRE>
+                        <P>在一个处理真实的硬件设备的驱动中, open 和 release 方法应当相应地设置驱动和硬件的状态. 
+                        这个工作可能包括起停磁盘, 加锁一个可移出设备的门, 分配 DMA 缓冲, 等等.</P>
+                        <P>你可能奇怪谁实际上打开了一个块设备. 有一些操作可导致一个块设备从用户空间直接打开; 这包括分区一个磁盘, 
+                        在一个分区上建立一个文件系统, 或者运行一个文件系统检查器. 当加载一个分区时, 块驱动也可看到一个 open 
+                        调用. 在这个情况下, 没有用户空间进程持有一个这个设备的打开的文件描述符; 相反, 打开的文件被内核自身持有. 
+                        块驱动无法知道一个加载操作(它从内核打开设备)和调用如 mkfs 
+                        工具(从用户空间打开它)之间的差别.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=SupportingRemovableMedia.sect2></A>16.2.2.&nbsp;支持可移出的介质</H3></DIV></DIV></DIV>
+                        <P>block_device_operations 结构包含 2 个方法来支持可移出介质. 
+                        如果你为一个非可移出设备编写一个驱动, 你可安全地忽略这些方法. 它们的实现是相对直接的.</P>
+                        <P>media_changed 方法被调用( 从 check_disk_change ) 
+                        来看是否介质已经被改变; 它应当返回一个非零值, 如果已经发生. sbull 实现是简单的; 
+                        它查询一个已被设置的标志, 如果介质移出定时器已超时:</P><PRE class=programlisting>int sbull_media_changed(struct gendisk *gd)
+{
+        struct sbull_dev *dev = gd-&gt;private_data;
+        return dev-&gt;media_change;
+}
+</PRE>
+                        <P>revalidate 方法在介质改变后被调用; 它的工作是做任何需要的事情来准备驱动对新介质的操作, 
+                        如果有. 在调用 revalidate 之后, 内核试图重新读分区表并且启动这个设备. sbull 
+                        的实现仅仅复位 media_change 标志并且清零设备内存来模拟一个空盘插入.</P><PRE class=programlisting>int sbull_revalidate(struct gendisk *gd)
+{
+        struct sbull_dev *dev = gd-&gt;private_data;
+
+        if (dev-&gt;media_change)
+        {
+                dev-&gt;media_change = 0;
+                memset (dev-&gt;data, 0, dev-&gt;size);
+        }
+        return 0;
+}
+</PRE></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheioctlMethod.sect2></A>16.2.3.&nbsp;ioctl 
+                        方法</H3></DIV></DIV></DIV>
+                        <P>块设备可提供一个 ioctl 方法来进行设备控制函数. 
+                        高层的块子系统代码在你的驱动能见到它们之前解释许多的 ioctl 命令, 但是( 全部内容见 
+                        drivers/block/ioctl.c , 在内核源码中). 实际上, 一个现代的块驱动根本不必实现许多的 
+                        ioctl 命令. </P>
+                        <P>sbull ioctl 方法只处理一个命令 -- 一个对设备的结构的请求:</P><PRE class=programlisting>int sbull_ioctl (struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg)
+{
+        long size;
+        struct hd_geometry geo;
+        struct sbull_dev *dev = filp-&gt;private_data;
+
+        switch(cmd)
+        {
+        case HDIO_GETGEO:
+                /*
+                * Get geometry: since we are a virtual device, we have to make
+                * up something plausible. So we claim 16 sectors, four heads,
+                * and calculate the corresponding number of cylinders. We set the
+                * start of data at sector four.
+                */ 
+                size = dev-&gt;size*(hardsect_size/KERNEL_SECTOR_SIZE);
+                geo.cylinders = (size &amp; ~0x3f) &gt;&gt; 6;
+                geo.heads = 4;
+                geo.sectors = 16;
+                geo.start = 4;
+                if (copy_to_user((void __user *) arg, &amp;geo, sizeof(geo)))
+                        return -EFAULT;
+                return 0;
+        }
+
+        return -ENOTTY; /* unknown command */
+}
+</PRE>
+                        <P>提供排列信息可能看来象一个奇怪的任务, 因为我们的设备是纯粹虚拟的并且和磁道和柱面没任何关系. 
+                        甚至大部分真正的块硬件都已很多年不再有很多更复杂的结构. 内核不关心一个块设备的排列; 
+                        只把它看作一个扇区的线性数组. 但是, 有某些用户工具仍然想能够查询一个磁盘的排列. 特别的, fdisk 
+                        工具, 它编辑分区表, 依靠柱面信息并且如果这个信息没有则不能正确工作.</P>
+                        <P>我们希望 sbull 设备是可分区的, 即便使用老的, 简单的工具. 因此, 我们已提供了一个 ioctl 
+                        方法, 这个方法提供了一个可靠的能够匹配我们设备容量的排列的假象. 大部分磁盘驱动做类似的事情. 注意, 
+                        象通常, 扇区计数被转换, 如果需要, 来匹配内核使用的 512-字节 的惯例.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=RequestProcessing.sect1></A>16.3.&nbsp;请求处理</H2></DIV></DIV></DIV>
+                        <P>每个块驱动的核心是它的请求函数. 这个函数是真正做工作的地方 --或者至少开始的地方; 剩下的都是开销. 
+                        因此, 我们花不少时间来看在块驱动中的请求处理.</P>
+                        <P>一个磁盘驱动的性能可能是系统整个性能的关键部分. 因此, 内核的块子系统编写时在性能上考虑了很多; 
+                        它做所有可能的事情来使你的驱动从它控制的设备上获得最多. 这是一个好事情, 其中它盲目地使能快速 I/O. 
+                        另一方面, 块子系统没必要在驱动 API 中曝露大量复杂性. 有可能编写一个非常简单的请求函数( 我们将很快见到 
+                        ), 但是如果你的驱动必须在一个高层次上操作复杂的硬件, 它可能是任何样子.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=IntroductiontotherequestMethod.sect2></A>16.3.1.&nbsp;对请求方法的介绍</H3></DIV></DIV></DIV>
+                        <P>块驱动的请求方法有下面的原型:</P><PRE class=programlisting>void request(request_queue_t *queue); 
+</PRE>
+                        <P>这个函数被调用, 无论何时内核认为你的驱动是时候处理对设备的读, 写, 或者其他操作. 
+                        请求函数在返回之前实际不需要完成所有的在队列中的请求; 实际上, 它可能不完成它们任何一个, 对大部分真实设备. 
+                        它必须, 但是, 驱动这些请求并且确保它们最终被驱动全部处理.</P>
+                        <P>每个设备有一个请求队列. 这是因为实际的从和到磁盘的传输可能在远离内核请求它们时发生, 
+                        并且因为内核需要这个灵活性来调度每个传送, 在最好的时刻(将影响磁盘上邻近扇区的请求集合到一起, 例如). 
+                        并且这个请求函数, 你可能记得, 和一个请求队列相关, 当这个队列被创建时. 让我们回顾 sbull 
+                        如何创建它的队列: </P><PRE class=programlisting>dev-&gt;queue = blk_init_queue(sbull_request, &amp;dev-&gt;lock); 
+</PRE>
+                        <P>这样, 当这个队列被创建时, 请求函数和它关联到一起. 我们还提供了一个自旋锁作为队列创建过程的一部分. 
+                        无论何时我们的请求函数被调用, 内核持有这个锁. 结果, 请求函数在原子上下文中运行; 它必须遵循所有的 5 
+                        章讨论过的原子代码的通用规则.</P>
+                        <P>在你的请求函数持有锁时, 队列锁还阻止内核去排队任何对你的设备的其他请求. 在一些条件下, 
+                        你可能考虑在请求函数运行时丢弃这个锁. 如果你这样做, 但是, 你必须保证不存取请求队列, 
+                        或者任何其他的被这个锁保护的数据结构, 在这个锁不被持有时. 你必须重新请求这个锁, 在请求函数返回之前. 
+                        </P>
+                        <P>最后, 请求函数的启动(常常地)与任何用户空间进程之间是完全异步的. 
+                        你不能假设内核运行在发起当前请求的进程上下文. 你不知道由这个请求提供的 I/O 缓冲是否在内核或者用户空间. 
+                        因此任何类型的明确存取用户空间的操作都是错误的并且将肯定引起麻烦. 如你将见到的, 
+                        你的驱动需要知道的关于请求的所有事情, 都包含在通过请求队列传递给你的结构中.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=ASimplerequestMethod.sect2></A>16.3.2.&nbsp;一个简单的请求方法</H3></DIV></DIV></DIV>
+                        <P>sbull 例子驱动提供了几个不同的方法给请求处理. 缺省地, sbull 使用一个方法, 称为 
+                        sbull_request, 它打算作为一个最简单地请求方法的例子. 别忙, 它在这里:</P><PRE class=programlisting>static void sbull_request(request_queue_t *q)
+{
+        struct request *req;
+        while ((req = elv_next_request(q)) != NULL) {
+                struct sbull_dev *dev = req-&gt;rq_disk-&gt;private_data;
+                if (! blk_fs_request(req)) {
+
+                        printk (KERN_NOTICE "Skip non-fs request\n");
+                        end_request(req, 0);
+                        continue;
+                }
+                sbull_transfer(dev, req-&gt;sector, req-&gt;current_nr_sectors,
+                               req-&gt;buffer, rq_data_dir(req));
+                end_request(req, 1);
+        }
+}
+</PRE>
+                        <P>这个函数介绍了 struct request 结构. 我们之后将详细检查 struct request; 
+                        现在, 只需说它表示一个我们要执行的块 I/O 请求.</P>
+                        <P>内核提供函数 elv_next_request 来获得队列中第一个未完成的请求; 
+                        当没有请求要被处理时这个函数返回 NULL. 注意 elf_next 不从队列里去除请求. 如果你连续调用它 2 
+                        次, 它 2 次都返回同一个请求结构. 在这个简单的操作模式中, 请求只在它们完成时被剥离队列.</P>
+                        <P>一个块请求队列可包含实际上不从磁盘和自磁盘移动块的请求. 这些请求可包括供应商特定的, 
+                        低层的诊断操作或者和特殊设备模式相关的指令, 例如给可记录介质的报文写模式. 
+                        大部分块驱动不知道如何处理这样的请求, 并且简单地失败它们; sbull 也以这种方式工作. 对 
+                        block_fs_request 的调用告诉我们是否我们在查看一个文件系统请求--一个一旦数据块的. 
+                        如果这个请求不是一个文件系统请求, 我们传递它到 end_request:</P><PRE class=programlisting>void end_request(struct request *req, int succeeded); 
+</PRE>
+                        <P>当我们处理了非文件系统请求, 之后我们传递 succeeded 为 0 来指示我们没有成功完成这个请求. 
+                        否则, 我们调用 sbull_transfer 来真正移动数据, 使用一套在请求结构中提供的成员:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>sector_t 
+                          sector;</SPAN></SPAN> 
+                          <DD>
+                          <P>我们设备上起始扇区的索引. 记住这个扇区号, 象所有这样的在内核和驱动之间传递的数目, 是以 
+                          512-字节扇区来表示的. 如果你的硬件使用一个不同的扇区大小, 你需要相应地调整扇区. 例如, 如果硬件是 
+                          2048-字节的扇区, 你需要用 4 来除起始扇区号, 在安放它到对硬件的请求之前.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          nr_sectors;</SPAN></SPAN> 
+                          <DD>
+                          <P>要被传送的扇区(512-字节)数目.</P>
+                          <DT><SPAN class=term><SPAN>char *buffer;</SPAN></SPAN> 
+
+                          <DD>
+                          <P>一个指向缓冲的指针, 数据应当被传送到或者从的缓冲. 
+                          这个指针是一个内核虚拟地址并且可被驱动直接解引用, 如果需要.</P>
+                          <DT><SPAN class=term><SPAN>rq_data_dir(struct request 
+                          *req);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个宏从请求中抽取传送的方向; 一个 0 返回值表示从设备中读, 非 0 
+                          返回值表示写入设备.</P></DD></DL></DIV>
+                        <P>有了这个信息, sbull 驱动可实现实际的数据传送, 使用一个简单的 memcpy 调用 -- 
+                        我们数据已经在内存, 毕竟. 进行这个拷贝操作的函数( sbull_transfer ) 也处理扇区大小的调整, 
+                        并确保我们没有拷贝超过我们的虚拟设备的尾.</P><PRE class=programlisting>static void sbull_transfer(struct sbull_dev *dev, unsigned long sector, unsigned long nsect, char *buffer, int write)
+{
+        unsigned long offset = sector*KERNEL_SECTOR_SIZE;
+        unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
+        if ((offset + nbytes) &gt; dev-&gt;size)
+        {
+                printk (KERN_NOTICE "Beyond-end write (%ld %ld)\n", offset, nbytes);
+                return;
+        }
+        if (write)
+                memcpy(dev-&gt;data + offset, buffer, nbytes);
+        else
+                memcpy(buffer, dev-&gt;data + offset, nbytes);
+}
+</PRE>
+                        <P>用这个代码, sbull 实现了一个完整的, 简单的基于 RAM 的磁盘设备. 但是, 
+                        对于很多类型的设备, 它不是一个实际的驱动, 由于几个理由.</P>
+                        <P>这些原因的第一个是 sbull 同步执行请求, 一次一个. 高性能的磁盘设备能够在同时有很多个请求停留; 
+                        磁盘的板上控制器因此可以优化的顺序(有人希望)执行它们. 如果我们只处理队列中的第一个请求, 
+                        我们在给定时间不能有多个请求被满足. 能够工作于多个请求要求对请求队列和请求结构的深入理解; 
+                        下面几节会帮助来建立这种理解.</P>
+                        <P>但是, 有另外一个问题要考虑. 当系统进行大的传输, 包含多个在一起的磁盘扇区, 就获得最好的性能. 
+                        磁盘操作的最高开销常常是读写头的定位; 一旦这个完成, 实际上需要的读或者写数据的时间几乎可忽略. 
+                        设计和实现文件系统和虚拟内存子系统的开发者理解这点, 因此他们尽力在磁盘上连续地查找相关的数据, 
+                        并且在一次请求中传送尽可能多扇区. 块子系统也在这个方面起作用; 
+                        请求队列包含大量逻辑,目的是找到邻近的请求并且接合它们为更大的操作.</P>
+                        <P>sbull 驱动, 但是, 采取所有这些工作并且简单地忽略它. 一次只有一个缓冲被传送, 
+                        意味着最大的单次传送几乎从不超过单个页的大小. 一个块驱动能做的比那个要好的多, 
+                        但是它需要一个对请求结构和bio结构的更深的理解, 请求是从它们建立的.</P>
+                        <P>下面几节更深入地研究块层如何完成它的工作, 已经这些工作导致的数据结构.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=RequestQueues.sect2></A>16.3.3.&nbsp;请求队列</H3></DIV></DIV></DIV>
+                        <P>最简单的说, 一个块请求队列就是: 一个块 I/O 请求的队列. 如果你往下查看, 
+                        一个请求队列是一令人吃惊得复杂的数据结构. 幸运的是, 驱动不必担心大部分的复杂性.</P>
+                        <P>请求队列跟踪等候的块I/O请求. 但是它们也在这些请求的创建中扮演重要角色. 请求队列存储参数, 
+                        来描述这个设备能够支持什么类型的请求: 它们的最大大小, 多少不同的段可进入一个请求, 硬件扇区大小, 
+                        对齐要求, 等等. 如果你的请求队列被正确配置了, 它应当从不交给你一个你的设备不能处理的请求.</P>
+                        <P>请求队列还实现一个插入接口, 这个接口允许使用多 I/O 调度器(或者电梯). 一个 I/O 
+                        调度器的工作是提交 I/O 请求给你的驱动, 以最大化性能的方式. 为此, 大部分 I/O 调度器累积批量的 
+                        I/O 请求, 排列它们为递增(或递减)的块索引顺序, 并且以那个顺序提交请求给驱动. 磁头, 
+                        当给定一列排序的请求时, 从磁盘的一头到另一头工作, 非常象一个满载的电梯, 
+                        在一个方向移动直到所有它的"请求"(等待出去的人)已被满足. 2.6 内核包含一个"底线调度器", 
+                        它努力确保每个请求在预设的最大时间内被满足, 以及一个"预测调度器", 它实际上短暂停止设备, 
+                        在一个预想中的读请求之后, 这样另一个邻近的读将几乎是马上到达. 到本书为止, 缺省的调度器是预测调度器, 
+                        它看来有最好的交互的系统性能.</P>
+                        <P>I/O 调度器还负责合并邻近的请求. 当一个新 I/O 请求被提交给调度器, 
+                        它在队列里搜寻包含邻近扇区的请求; 如果找到一个, 并且如果结果的请求不是太大, 这 2 个请求被合并.</P>
+                        <P>请求队列有一个 struct request_queue 或者 request_queue_t 类型. 
+                        这个类型, 和许多操作它的函数, 定义在 &lt;linux/blkdev.h&gt;. 
+                        如果你对请求队列的实现感兴趣, 你可找到大部分代码在 drivers/block/ll_rw_block.c 和 
+                        elevator.c.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Queuecreationanddeletion.sect3></A>16.3.3.1.&nbsp;队列的创建和删除</H4></DIV></DIV></DIV>
+                        <P>如同我们在我们的例子代码中见到的, 一个请求队列是一个动态的数据结构, 它必须被块 I/O 子系统创建. 
+                        这个创建和初始化一个队列的函数是:</P><PRE class=programlisting>request_queue_t *blk_init_queue(request_fn_proc *request, spinlock_t *lock); 
+</PRE>
+                        <P>当然, 参数是, 这个队列的请求函数和一个控制对队列存取的自旋锁. 这个函数分配内存(实际上, 
+                        不少内存)并且可能失败因为这个; 你应当一直检查返回值, 在试图使用这个队列之前.</P>
+                        <P>作为初始化一个请求队列的一部分, 你可设置成员 queuedata(它是一个 void * 指针 
+                        )为任何你喜欢的值. 这个成员是请求队列的对于我们在其他结构中见到的 private_data 
+的对等体.</P>
+                        <P>为返回一个请求队列给系统(在模块卸载时间, 通常), 调用 blk_cleanup_queue:</P><PRE class=programlisting>void blk_cleanup_queue(request_queue_t *); 
+</PRE>
+                        <P>这个调用后, 你的驱动从给定的队列中不再看到请求,并且不应当再次引用它.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Queueingfunctions.sect3></A>16.3.3.2.&nbsp;排队函数</H4></DIV></DIV></DIV>
+                        <P>有非常少的函数来操作队列中的请求 -- 至少, 考虑到驱动. 你必须持有队列锁, 
+                        在你调用这些函数之前.</P>
+                        <P>返回要处理的下一个请求的函数是 elv_next_request:</P><PRE class=programlisting>struct request *elv_next_request(request_queue_t *queue); 
+</PRE>
+                        <P>我们已经在简单的 sbull 例子中见到这个函数. 它返回一个指向下一个要处理的请求的指针(由 I/O 
+                        调度器所决定的)或者 NULL 如果没有请求要处理. elv_next_request 留这个请求在队列上, 
+                        但是标识它为活动的; 这个标识阻止了 I/O 调度器试图合并其他的请求到这些你开始执行的.</P>
+                        <P>为实际上从一个队列中去除一个请求, 使用 blkdev_dequeue_request:</P><PRE class=programlisting>void blkdev_dequeue_request(struct request *req); 
+</PRE>
+                        <P>如果你的驱动同时从同一个队列中操作多个请求, 它必须以这样的方式将它们解出队列.</P>
+                        <P>如果你由于同样的理由需要放置一个出列请求回到队列中, 你可以调用:</P><PRE class=programlisting>void elv_requeue_request(request_queue_t *queue, struct request *req); 
+</PRE></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Queuecontrolfunctions.sect3></A>16.3.3.3.&nbsp;队列控制函数</H4></DIV></DIV></DIV>
+                        <P>块层输出了一套函数, 可被驱动用来控制一个请求队列如何操作. 这些函数包括:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_stop_queue(request_queue_t *queue);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_start_queue(request_queue_t *queue);</SPAN></SPAN> 
+
+                          <DD>
+                          <P>如果你的设备已到到达一个状态, 它不能处理等候的命令, 你可调用 blk_stop_queue 
+                          来告知块层. 在这个调用之后, 你的请求函数将不被调用直到你调用 blk_start_queue. 不用说, 
+                          你不应当忘记重启队列, 当你的设备可处理更多请求时. 队列锁必须被持有当调用任何一个这些函数时.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_bounce_limit(request_queue_t *queue, u64 
+                          dma_addr);</SPAN></SPAN> 
+                          <DD>
+                          <P>告知内核你的设备可进行 DMA 的最高物理地址的函数. 如果一个请求包含一个超出这个限制的内存引用, 
+                          一个反弹缓冲将被用来给这个操作; 当然, 这是一个进行块 I/O 的昂贵方式, 并且应当尽量避免. 
+                          你可在这个参数中提供任何可能的值, 或者使用预先定义的符号 
+                          BLK_BOUNCE_HIGH(使用反弹缓冲给高内存页), BLK_BOUNCE_ISA (驱动只可 DMA 
+                          到 16MB 的 ISA 区), 或者BLK_BOUCE_ANY(驱动可进行 DMA 到任何地址). 
+                          缺省值是 BLK_BOUNCE_HIGH.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_max_sectors(request_queue_t *queue, unsigned 
+                          short max);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_max_phys_segments(request_queue_t *queue, 
+                          unsigned short max);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_max_hw_segments(request_queue_t *queue, 
+                          unsigned short max);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_max_segment_size(request_queue_t *queue, 
+                          unsigned int max);</SPAN></SPAN> 
+                          <DD>
+                          <P>设置参数的函数, 这些参数描述可被设备满足的请求. blk_queue_max 
+                          可用来以扇区方式设置任一请求的最大的大小; 缺省是 255. 
+                          blk_queue_max_phys_segments 和 
+                          blk_queue_max_hw_segments 
+                          都控制多少物理段(系统内存中不相邻的区)可包含在一个请求中. 使用 
+                          blk_queue_max_phys_segments 来说你的驱动准备处理多少段; 例如, 
+                          这可能是一个静态分配的散布表的大小. blk_queue_max_hw_segments, 相反, 
+                          是设备可处理的最多的段数. 这 2 个参数缺省都是 128. 最后, 
+                          blk_queue_max_segment_size 告知内核任一个请求的段可能是多大字节; 缺省是 
+                          65,536 字节.</P>
+                          <DT><SPAN 
+                          class=term><SPAN>blk_queue_segment_boundary(request_queue_t 
+                          *queue, unsigned long mask);</SPAN></SPAN> 
+                          <DD>
+                          <P>一些设备无法处理跨越一个特殊大小内存边界的请求; 如果你的设备是其中之一, 
+                          使用这个函数来告知内核这个边界. 例如, 如果你的设备处理跨 4-MB 边界的请求有困难, 传递一个 
+                          0x3fffff 掩码. 缺省的掩码是 0xffffffff.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_dma_alignment(request_queue_t *queue, int 
+                          mask);</SPAN></SPAN> 
+                          <DD>
+                          <P>告知内核关于你的设备施加于 DMA 传送的内存对齐限制的函数. 所有的请求被创建有给定的对齐, 
+                          并且请求的长度也匹配这个对齐. 缺省的掩码是 0x1ff, 它导致所有的请求被对齐到 512-字节边界. 
+                          </P>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_hardsect_size(request_queue_t *queue, 
+                          unsigned short max);</SPAN></SPAN> 
+                          <DD>
+                          <P>告知内核你的设备的硬件扇区大小. 所有由内核产生的请求是这个大小的倍数并且被正确对齐. 
+                          所有的在块层和驱动之间的通讯继续以 512-字节扇区来表达, 
+                        但是.</P></DD></DL></DIV></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TheAnatomyofaRequest.sect2></A>16.3.4.&nbsp;请求的分析</H3></DIV></DIV></DIV>
+                        <P>在我们的简单例子里, 我们遇到了这个请求结构. 但是, 我们未曾接触这个复杂的数据结构. 在本节, 
+                        我们看, 详细地, 块 I/O 请求在 Linux 内核中如何被表示.</P>
+                        <P>每个请求结构代表一个块 I/O 请求, 尽管它可能是由几个独立的请求在更高层次合并而成. 
+                        对任何特殊的请求而传送的扇区可能分布在整个主内存, 尽管它们常常对应块设备中的多个连续的扇区. 
+                        这个请求被表示为多个段, 每个对应一个内存中的缓冲. 内核可能合并多个涉及磁盘上邻近扇区的请求, 
+                        但是它从不合并在单个请求结构中的读和写操作. 内核还确保不合并请求, 
+                        如果结果会破坏任何的在前面章节中描述的请求队列限制.</P>
+                        <P>基本上, 一个请求结构被实现为一个 bio 结构的链表, 结合一些维护信息来使驱动可以跟踪它的位置, 
+                        当它在完成这个请求中. 这个 bio 结构是一个块 I/O 请求移植的低级描述; 我们现在看看它.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Thebiostructure.sect3></A>16.3.4.1.&nbsp;bio 
+                        结构</H4></DIV></DIV></DIV>
+                        <P>当内核, 以一个文件系统的形式, 虚拟文件子系统, 或者一个系统调用, 决定一组块必须传送到或从一个块 
+                        I/O 设备; 它装配一个 bio 结构来描述那个操作. 那个结构接着被递给这个块 I/O 代码, 
+                        这个代码合并它到一个存在的请求结构, 或者, 如果需要, 创建一个新的. 这个 bio 
+                        结构包含一个块驱动需要来进行请求的任何东西, 而不必涉及使这个请求启动的用户空间进程.</P>
+                        <P>bio 结构, 在 &lt;linux/bio.h&gt; 中定义, 
+                        包含许多成员对驱动作者是有用的:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>sector_t 
+                          bi_sector;</SPAN></SPAN> 
+                          <DD>
+                          <P>这个 bio 要被传送的第一个(512字节)扇区.</P>
+                          <DT><SPAN class=term><SPAN>unsigned int 
+                          bi_size;</SPAN></SPAN> 
+                          <DD>
+                          <P>被传送的数据大小, 以字节计. 相反, 常常更易使用 bio_sectors(bio), 
+                          一个给定以扇区计的大小的宏.</P>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          bi_flags;</SPAN></SPAN> 
+                          <DD>
+                          <P>一组描述 bio 的标志; 最低有效位被置位如果这是一个写请求(尽管宏 
+                          bio_data_dir(bio)应当用来代替直接加锁这个标志).</P>
+                          <DT><SPAN class=term><SPAN>unsigned short 
+                          bio_phys_segments;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned short 
+                          bio_hw_segments;</SPAN></SPAN> 
+                          <DD>
+                          <P>包含在这个 BIO 中的物理段的数目, 和在 DMA 映射完成后被硬件看到的段数目, 
+                          分别地.</P></DD></DL></DIV>
+                        <P>一个 bio 的核心, 但是, 是一个称为 bi_io_vec 的数组, 它由下列结构组成:</P><PRE class=programlisting>struct bio_vec {
+ struct page  *bv_page; 
+ unsigned int  bv_len; 
+ unsigned int  bv_offset;  
+};  
+</PRE>
+                        <P>图 <A title="图&nbsp;16.1.&nbsp;bio 结构" 
+                        href="http://www.deansys.com/doc/ldd3/ch16s03.html#ldd3-16-1.fig"><FONT 
+                        color=#0000ff>bio 结构</FONT></A>显示了这些结构如何结合在一起. 如同你所见到的, 
+                        在一个块 I/O 请求被转换为一个 bio 结构后, 它已被分为单独的物理内存页. 
+                        所有的一个驱动需要做的事情是步进全部这个结构数组(它们有 bi_vcnt 个), 和在每个页内传递数据(但是只 
+                        len 字节, 从 offset 开始).</P>
+                        <DIV class=figure><A name=ldd3-16-1.fig></A>
+                        <P class=title><B>图&nbsp;16.1.&nbsp;bio 结构</B></P>
+                        <DIV><IMG alt="bio 结构" 
+                        src="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/ldd3-16-1.png"></DIV></DIV>
+                        <P>直接使用 bi_io_vec 数组不被推荐, 为了内核开发者可以在以后改变 bio 结构而不会引起破坏. 
+                        为此, 一组宏被提供来简化使用 bio 结构. 开始的地方是 bio_for_each_segment, 
+                        它简单地循环 bi_io_vec 数组中每个未被处理的项. 这个宏应当如下用: </P><PRE class=programlisting>int segno;
+struct bio_vec *bvec;
+
+bio_for_each_segment(bvec, bio, segno) {
+ /* Do something with this segment
+}
+</PRE>
+                        <P>在这个循环中, bvec 指向当前的 bio_vec 项, 并且 segno 是当前的段号. 
+                        这些值可被用来设置 DMA 发送器(一个使用 blk_rq_map_sg 的替代方法在"块请求和 
+                        DMA"一节中描述). 如果你需要直接存取页, 你应当首先确保一个正确的内核虚拟地址存在; 为此, 
+                        你可使用:</P><PRE class=programlisting>char *__bio_kmap_atomic(struct bio *bio, int i, enum km_type type); 
+void __bio_kunmap_atomic(char *buffer, enum km_type type);
+</PRE>
+                        <P>这个底层的函数允许你直接映射在一个给定的 bio_vec 中找到的缓冲, 由索引 i 所指定的. 
+                        一个原子的 kmap 被创建; 调用者必须提供合适的来使用的槽位(如同在 15 章的"内存映射和 struct 
+                        page"一节中描述的).</P>
+                        <P>块层还维护一组位于 bio 结构的指针来跟踪请求处理的当前状态. 几个宏来提供对这个状态的存取:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *bio_page(struct bio *bio);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回一个指向页结构的指针, 表示下一个被传送的页.</P>
+                          <DT><SPAN class=term><SPAN>int bio_offset(struct bio 
+                          *bio);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回页内的被传送的数据的偏移.</P>
+                          <DT><SPAN class=term><SPAN>int bio_cur_sectors(struct 
+                          bio *bio);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回要被传送出当前页的扇区数.</P>
+                          <DT><SPAN class=term><SPAN>char *bio_data(struct bio 
+                          *bio);</SPAN></SPAN> 
+                          <DD>
+                          <P>返回一个内核逻辑地址, 指向被传送的数据. 注意这个地址可用仅当请求的页不在高内存中; 
+                          在其他情况下调用它是一个错误. 缺省地, 块子系统不传递高内存缓冲到你的驱动, 但是如果你已使用 
+                          blk_queue_bounce_limit 改变设置, 你可能不该使用 bio_data.</P>
+                          <DT><SPAN class=term><SPAN>char *bio_kmap_irq(struct 
+                          bio *bio, unsigned long *flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void bio_kunmap_irq(char 
+                          *buffer, unsigned long *flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>bio_kmap_irq 给任何缓冲返回一个内核虚拟地址, 不管它是否在高或低内存. 一个原子 
+                          kmap 被使用, 因此你的驱动在这个映射被激活时不能睡眠. 使用 bio_kunmap_irq 
+                          来去映射缓冲. 注意因为使用一个原子 kmap, 
+                        你不能一次映射多于一个段.</P></DD></DL></DIV>
+                        <P>刚刚描述的所有函数都存取当前缓冲 -- 还未被传送的第一个缓冲, 只要内核知道. 驱动常常想使用 bio 
+                        中的几个缓冲, 在它们任何一个指出完成之前(使用 end_that_request_first, 马上就讲到), 
+                        因此这些函数常常没有用. 几个其他的宏存在来使用 bio 结构的内部接口(详情见 
+                        &lt;linux/bio.h&gt;).</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Requeststructurefields.sect3></A>16.3.4.2.&nbsp;请求结构成员</H4></DIV></DIV></DIV>
+                        <P>现在我们有了 bio 结构如何工作的概念, 我们可以深入 struct request 
+                        并且看请求处理如何工作. 这个结构的成员包括:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>sector_t 
+                          hard_sector;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned long 
+                          hard_nr_sectors;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>unsigned int 
+                          hard_cur_sectors;</SPAN></SPAN> 
+                          <DD>
+                          <P>追踪请求硬件完成的扇区的成员. 第一个尚未被传送的扇区被存储到 hard_sector, 
+                          已经传送的扇区总数在 hard_nr_sectors, 并且在当前 bio 中剩余的扇区数是 
+                          hard_cur_sectors. 这些成员打算只用在块子系统; 驱动不应当使用它们.</P>
+                          <DT><SPAN class=term><SPAN>struct bio 
+                          *bio;</SPAN></SPAN> 
+                          <DD>
+                          <P>bio 是给这个请求的 bio 结构的链表. 你不应当直接存取这个成员; 使用 
+                          rq_for_each_bio(后面描述) 代替.</P>
+                          <DT><SPAN class=term><SPAN>char *buffer;</SPAN></SPAN> 
+
+                          <DD>
+                          <P>在本章前面的简单驱动例子使用这个成员来找到传送的缓冲. 随着我们的深入理解, 
+                          我们现在可见到这个成员仅仅是在当前 bio 上调用 bio_data 的结果.</P>
+                          <DT><SPAN class=term><SPAN>unsigned short 
+                          nr_phys_segments;</SPAN></SPAN> 
+                          <DD>
+                          <P>被这个请求在物理内存中占用的独特段的数目, 在邻近页已被合并后.</P>
+                          <DT><SPAN class=term><SPAN>struct list_head 
+                          queuelist;</SPAN></SPAN> 
+                          <DD>
+                          <P>链表结构(如同在 11 章中"链表"一节中描述的), 连接这个请求到请求队列. 
+                          如果(并且只是)你从队列中去除 blkdev_dequeue_request, 
+                          你可能使用这个列表头来跟踪这个请求, 在一个被你的驱动维护的内部列表中.</P></DD></DL></DIV>
+                        <P>图 <A title=图&nbsp;16.2.&nbsp;一个带有一个部分被处理的请求的请求队列 
+                        href="http://www.deansys.com/doc/ldd3/ch16s03.html#ldd3-16-2.fig"><FONT 
+                        color=#0000ff>一个带有一个部分被处理的请求的请求队列</FONT></A> 
+                        展示了请求队列和它的组件 bio 结构如何对应到一起. 在图中, 这个请求已被部分满足. cbio 和 
+                        buffer 处于指向尚未传送的第一个 bio.</P>
+                        <DIV class=figure><A name=ldd3-16-2.fig></A>
+                        <P 
+                        class=title><B>图&nbsp;16.2.&nbsp;一个带有一个部分被处理的请求的请求队列</B></P>
+                        <DIV><IMG alt=一个带有一个部分被处理的请求的请求队列 
+                        src="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/ldd3-16-2.png"></DIV></DIV>
+                        <P>有许多不同的字段在请求结构中, 但是本节中的列表应当对大部分驱动编写者是足够的.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Barrierrequests.sect3></A>16.3.4.3.&nbsp;屏障请求</H4></DIV></DIV></DIV>
+                        <P>块层在你的驱动见到它们之前重新排序来提高 I/O 性能. 你的驱动, 也可以重新排序请求, 
+                        如果有理由这样做. 常常地, 这种重新排序通过传递多个请求到驱动并且使硬件考虑优化的顺序来实现. 但是, 
+                        对于不严格的请求顺序有一个问题: 有些应用程序要求保证某些操作在其他的启动前完成. 例如, 关系数据库管理者, 
+                        必须绝对确保它们的日志信息刷新到驱动器, 在执行在数据库内容上的一次交易之前. 日志式文件系统, 现在在大部分 
+                        Linux 系统中使用, 有非常类似的排序限制. 如果错误的操作被重新排序, 结果可能是严重的, 
+                        无法探测的数据破坏.</P>
+                        <P>2.6 块层解决这个问题通过一个屏障请求的概念. 如果一个请求被标识为 REQ_HARDBARRER 
+                        标志, 它必须被写入驱动器在任何后续的请求被初始化之前. "被写入设备", 
+                        我们意思是数据必须实际位于并且是持久的在物理介质中. 许多的驱动器进行写请求的缓存; 这个缓存提高了性能, 
+                        但是它可能使屏障请求的目的失败. 如果一个电力失效在关键数据仍然在驱动器的缓存中时发生, 
+                        数据仍然被丢失即便驱动器报告完成. 
+                        因此一个实现屏障请求的驱动器必须采取步骤来强制驱动器真正写这些数据到介质中.</P>
+                        <P>如果你的驱动器尊敬屏障请求, 第一步是通知块层这个事实. 屏障处理是另一个请求队列; 它被设置为:</P><PRE class=programlisting>void blk_queue_ordered(request_queue_t *queue, int flag);
+</PRE>
+                        <P>为指示你的驱动实现了屏障请求, 设置 flag 参数为一个非零值.</P>
+                        <P>实际的屏障请求实现是简单地测试在请求结构中关联的标志. 已经提供了一个宏来进行这个测试:</P><PRE class=programlisting>int blk_barrier_rq(struct request *req); 
+</PRE>
+                        <P>如果这个宏返回一个非零值, 这个请求是一个屏障请求. 根据你的硬件如何工作, 
+                        你可能必须停止从队列中获取请求, 直到屏障请求已经完成. 另外的驱动器能理解屏障请求; 在这个情况中, 
+                        你的驱动所有的必须做的是对这些驱动器发出正确的操作.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Nonretryablerequests.sect3></A>16.3.4.4.&nbsp;不可重入请求</H4></DIV></DIV></DIV>
+                        <P>块驱动常常试图重试第一次失败的请求. 这个做法可产生一个更加可靠的系统并且帮助来避免数据丢失. 内核, 
+                        但是, 有时标识请求为不可重入的. 这样的请求应当完全尽快失败, 如果它们无法在第一次试的时候执行.</P>
+                        <P>如果你的驱动在考虑重试一个失败的请求, 他应当首先调用:</P><PRE class=programlisting>int blk_noretry_request(struct request *req); 
+</PRE>
+                        <P>如果这个宏返回非零值, 你的驱动应当放弃这个请求, 
+                        使用一个错误码来代替重试它.</P></DIV></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=RequestCompletionFunctions.sect2></A>16.3.5.&nbsp;请求完成函数</H3></DIV></DIV></DIV>
+                        <P>如同我们将见到的, 有几个不同的方式来使用一个请求结构. 它们所有的都使用几个通用的函数, 但是, 
+                        它们处理一个 I/O 请求或者部分请求的完成. 这 2 
+                        个函数都是原子的并且可从一个原子上下文被安全地调用.</P>
+                        <P>当你的设备已经完成传送一些或者全部扇区, 在一个 I/O 请求中, 它必须通知块子系统, 使用:</P><PRE class=programlisting>int end_that_request_first(struct request *req, int success, int count); 
+</PRE>
+                        <P>这个函数告知块代码, 你的驱动已经完成 count 个扇区地传送, 从你最后留下的地方开始. 如果 I/O 
+                        是成功的, 传递 success 为 1; 否则传递 0. 注意你必须指出完成, 
+                        按照从第一个扇区到最后一个的顺序; 如果你的驱动和设备有些共谋来乱序完成请求, 
+                        你必须存储这个乱序的完成状态直到介入的扇区已经被传递.</P>
+                        <P>从 end_that_request_first 的返回值是一个指示, 
+                        指示是否所有的这个请求中的扇区已经被传送或者没有. 一个 0 返回值表示所有的扇区已经被传送并且这个请求完成. 
+                        在这点, 你必须使用 blkdev_dequeue_request 
+                        来从队列中解除请求(如果你还没有这样做)并且传递它到:</P><PRE class=programlisting>void end_that_request_last(struct request *req); 
+</PRE>
+                        <P>end_that_request_last 通知任何在等待这个请求的人, 
+                        这个请求已经完成并且回收这个请求结构; 它必须在持有队列锁时被调用.</P>
+                        <P>在我们的简单的 sbull 例子里, 我们不使用任何上面的函数. 相反, 那个例子, 被称为 
+                        end_request. 为显示这个调用的效果, 这里有整个的 end_request 函数, 如果在 
+                        2.6.10 内核中见到的:</P><PRE class=programlisting>void end_request(struct request *req, int uptodate)
+{
+
+ if (!end_that_request_first(req, uptodate, req-&gt;hard_cur_sectors)) {
+ add_disk_randomness(req-&gt;rq_disk);
+ blkdev_dequeue_request(req);
+ end_that_request_last(req);
+ }
+}
+</PRE>
+                        <P>函数 add_disk_randomness 使用块 I/O 请求的定时来贡献熵给系统的随机数池; 
+                        它应当被调用仅当磁盘的定时是真正的随机的. 对大部分的机械设备这是真的, 
+                        但是对一个基于内存的虚拟设备它不是真的, 例如 sbull. 因此, 下一节中更复杂的 sbull 版本不调用 
+                        add_disk_randomness.</P>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Workingwithbios.sect3></A>16.3.5.1.&nbsp;使用 
+                        bio</H4></DIV></DIV></DIV>
+                        <P>现在你了解了足够多的来编写一个块驱动, 可直接使用组成一个请求的 bio 结构. 但是, 
+                        一个例子可能会有帮助. 如果这个 sbull 驱动被加载为 request_mode 参数被设为 1, 
+                        它注册一个知道 bio 的请求函数来代替我们上面见到的简单函数. 那个函数看来如此:</P><PRE class=programlisting>static void sbull_full_request(request_queue_t *q)
+{
+        struct request *req;
+        int sectors_xferred;
+        struct sbull_dev *dev = q-&gt;queuedata;
+        while ((req = elv_next_request(q)) != NULL) {
+                if (! blk_fs_request(req)) {
+                        printk (KERN_NOTICE "Skip non-fs request\n");
+
+                        end_request(req, 0);
+                        continue;
+                }
+                sectors_xferred = sbull_xfer_request(dev, req);
+                if (! end_that_request_first(req, 1, sectors_xferred)) {
+                        blkdev_dequeue_request(req);
+                        end_that_request_last(req);
+                }
+        }
+}
+</PRE>
+                        <P>这个函数简单地获取每个请求, 传递它到 sbull_xfer_request, 接着使用 
+                        end_that_request_first 和, 如果需要, end_that_request_last 
+                        来完成它. 因此, 这个函数在处理高级队列并且请求管理部分问题. 真正执行一个请求的工作, 但是, 落入 
+                        sbull_xfer_request:</P><PRE class=programlisting>static int sbull_xfer_request(struct sbull_dev *dev, struct request *req)
+{
+        struct bio *bio;
+        int nsect = 0;
+
+        rq_for_each_bio(bio, req)
+        {
+                sbull_xfer_bio(dev, bio);
+                nsect += bio-&gt;bi_size/KERNEL_SECTOR_SIZE;
+
+        }
+        return nsect;
+}
+</PRE>
+                        <P>这里我们介绍另一个宏: rq_for_each_bio. 如同你可能期望的, 这个宏简单地步入请求中的每个 
+                        bio 结构, 给我们一个可传递给 sbull_xfer_bio 用于传输的指针. 那个函数看来如此:</P><PRE class=programlisting>static int sbull_xfer_bio(struct sbull_dev *dev, struct bio *bio)
+{
+        int i;
+        struct bio_vec *bvec;
+        sector_t sector = bio-&gt;bi_sector;
+
+        /* Do each segment independently. */
+        bio_for_each_segment(bvec, bio, i)
+        {
+                char *buffer = __bio_kmap_atomic(bio, i, KM_USER0);
+                sbull_transfer(dev, sector, bio_cur_sectors(bio),
+
+                               buffer, bio_data_dir(bio) == WRITE);
+                sector += bio_cur_sectors(bio);
+                __bio_kunmap_atomic(bio, KM_USER0);
+
+        }
+        return 0; /* Always "succeed" */
+}
+</PRE>
+                        <P>这个函数简单地步入每个 bio 结构中的段, 获得一个内核虚拟地址来存取缓冲, 
+                        接着调用之前我们见到的同样的 sbull_transfer 函数来拷贝数据.</P>
+                        <P>每个设备有它自己的需要, 但是, 作为一个通用的规则, 刚刚展示的代码应当作为一个模型, 给许多的需要深入 
+                        bio 结构的情形.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=BlockrequestsandDMA.sect3></A>16.3.5.2.&nbsp;块请求和 
+                        DMA</H4></DIV></DIV></DIV>
+                        <P>如果你工作在一个高性能块驱动上, 你有机会使用 DMA 来进行真正的数据传输. 一个块驱动当然可步入 
+                        bio 结构, 如同上面描述的, 为每一个创建一个 DMA 映射, 并且传递结构给设备. 但是, 
+                        有一个更容易的方法, 如果你的驱动可进行发散/汇聚 I/O. 函数:</P><PRE class=programlisting>int blk_rq_map_sg(request_queue_t *queue, struct request *req, struct scatterlist *list);
+</PRE>
+                        <P>使用来自给定请求的全部段填充给定的列表. 内存中邻近的段在插入散布表之前被接合, 
+                        因此你不需要自己探测它们. 返回值是列表中的项数. 这个函数还回传, 在它第 3 个参数, 一个适合传递给 
+                        dma_map_sg 的散布表.(关于 dma_map_sg 的更多信息见 15 章的"发散-汇聚映射"一节). 
+                        </P>
+                        <P>你的驱动必须在调用 blk_rq_map_sg 之前给散布表分配存储. 
+                        这个列表必须能够至少持有这个请求有的物理段那么多的项; struct request 成员 
+                        nr_phys_segments 持有那个数量, 它不能超过由 
+                        blk_queue_max_phys_segments 指定的物理段的最大数目.</P>
+                        <P>如果你不想 blk_rq_map_sg 来接合邻近的段, 你可改变这个缺省的行为, 
+                        使用一个调用诸如:</P><PRE class=programlisting>clear_bit(QUEUE_FLAG_CLUSTER, &amp;queue-&gt;queue_flags); 
+</PRE>
+                        <P>一些 SCSI 磁盘驱动用这样的方式标识它们的请求队列, 
+因为它们没有从接合请求中获益.</P></DIV>
+                        <DIV class=sect3 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H4 class=title><A 
+                        name=Doingwithoutarequestqueue.sect3></A>16.3.5.3.&nbsp;不用一个请求队列</H4></DIV></DIV></DIV>
+                        <P>前面, 我们已经讨论了内核所作的在队列中优化请求顺序的工作; 这个工作包括排列请求和, 或许, 
+                        甚至延迟队列来允许一个预期的请求到达. 这些技术在处理一个真正的旋转的磁盘驱动器时有助于系统的性能. 但是, 
+                        使用一个象 sbull 的设备它们是完全浪费了. 许多面向块的设备, 例如闪存阵列, 
+                        用于数字相机的存储卡的读取器, 并且 RAM 盘真正地有随机存取的性能, 包含从高级的请求队列逻辑中获益. 
+                        其他设备, 例如软件 RAID 阵列或者被逻辑卷管理者创建的虚拟磁盘, 没有这个块层的请求队列被优化的性能特征. 
+                        对于这类设备, 它最好直接从块层接收请求, 并且根本不去烦请求队列.</P>
+                        <P>对于这些情况, 块层支持"无队列"的操作模式. 为使用这个模式, 你的驱动必须提供一个"制作请求"函数, 
+                        而不是一个请求函数. make_request 函数有这个原型:</P><PRE class=programlisting>typedef int (make_request_fn) (request_queue_t *q, struct bio *bio); 
+</PRE>
+                        <P>注意一个请求队列仍然存在, 即便它从不会真正有任何请求. make_request 函数用一个 bio 
+                        结构作为它的主要参数, 这个 bio 结构表示一个或多个要传送的缓冲. make_request 函数做 2 
+                        个事情之一: 它可或者直接进行传输, 或者重定向这个请求到另一个设备.</P>
+                        <P>直接进行传送只是使用我们前面描述的存取者方法来完成这个 bio. 因为没有使用请求结构, 但是, 
+                        你的函数应当通知这个 bio 结构的创建者直接指出完成, 使用对 bio_endio 的调用:</P><PRE class=programlisting>void bio_endio(struct bio *bio, unsigned int bytes, int error);
+</PRE>
+                        <P>这里, bytes 是你至今已经传送的字节数. 它可小于由这个 bio 整体所代表的字节数; 
+                        在这个方式中, 你可指示部分完成, 并且更新在 bio 中的内部的"当前缓冲"指针. 你应当再次调用 
+                        bio_endio 在你的设备进行进一步处理时, 或者当你不能完成这个请求指出一个错误. 
+                        错误是通过提供一个非零值给 error 参数来指示的; 这个值通常是一个错误码, 例如 -EIO. 
+                        make_request 应当返回 0, 不管这个 I/O 是否成功.</P>
+                        <P>如果 sbull 用 request_mode=2 加载, 它操作一个 make_request 函数. 
+                        因为 sbull 已经有一个函数看传送单个 bio, 这个 make_request 函数简单:</P><PRE class=programlisting>static int sbull_make_request(request_queue_t *q, struct bio *bio)
+{
+        struct sbull_dev *dev = q-&gt;queuedata;
+        int status;
+        status = sbull_xfer_bio(dev, bio);
+        bio_endio(bio, bio-&gt;bi_size, status);
+        return 0;
+}
+</PRE>
+                        <P>请注意你应当从不调用 bio_endio 从一个通常的请求函数; 那个工作由 
+                        end_that_request_first 代替来处理.</P>
+                        <P>一些块驱动, 例如那些实现卷管理者和软件 RAID 阵列的, 真正需要重定向请求到另一个设备来处理真正的 
+                        I/O. 编写这样的一个驱动超出了本书的范围. 我们, 但是, 注意如果 make_request 
+                        函数返回一个非零值, bio 被再次提交. 一个"堆叠"驱动, 可, 因此, 修改 bi_bdev 
+                        成员来指向一个不同的设备, 改变起始扇区值, 接着返回; 块系统接着传递 bio 到新设备. 还有一个 
+                        bio_split 调用来划分一个 bio 到多个块以提交给多个设备. 尽管如果队列参数被之前设置, 划分一个 
+                        bio 几乎从不需要.</P>
+                        <P>任何一个方式, 你都必须告知块子系统, 你的驱动在使用一个自定义的 make_request 函数. 
+                        为此, 你必须分配一个请求队列, 使用:</P><PRE class=programlisting>request_queue_t *blk_alloc_queue(int flags); 
+</PRE>
+                        <P>这个函数不同于 blk_init_queue, 它不真正建立队列来持有请求. flags 
+                        参数是一组分配标志被用来为队列分配内存; 常常地正确值是 GFP_KERNEL. 一旦你有一个队列, 
+                        传递它和你的 make_request 函数到 blk_queue_make_request:</P><PRE class=programlisting>void blk_queue_make_request(request_queue_t *queue, make_request_fn *func); 
+</PRE>
+                        <P>sbull 代码来设置 make_request 函数, 象:</P><PRE class=programlisting>dev-&gt;queue = blk_alloc_queue(GFP_KERNEL);
+if (dev-&gt;queue == NULL)
+        goto out_vfree;
+blk_queue_make_request(dev-&gt;queue, sbull_make_request);
+</PRE>
+                        <P>对于好奇的人, 花些时间深入 drivers/block/ll_rw_block.c 会发现, 
+                        所有的队列都有一个 make_request 函数. 缺省的版本, generic_make_request, 
+                        处理 bio 和一个请求结构的结合. 通过提供一个它自己的 make_request 函数, 
+                        一个驱动真正只覆盖一个特定的请求队列方法, 并且排序大部分工作.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=SomeOtherDetails.sect1></A>16.4.&nbsp;一些其他的细节</H2></DIV></DIV></DIV>
+                        <P>本节涵盖块层的几个其他的方面, 对于高级读者可能有兴趣. 对于编写一个正确的驱动下面的内容都不需要, 
+                        但是它们在某些情况下可能是有用的.</P>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=CommandPrePreparation.sect2></A>16.4.1.&nbsp;命令预准备</H3></DIV></DIV></DIV>
+                        <P>块层为驱动提供一个进制来检查和预处理请求, 在它们被从 elv_next_request 返回前. 
+                        这个机制允许驱动提前设立真正的驱动器命令, 决定是否这个请求可被完全处理, 或者进行其他的维护工作.</P>
+                        <P>如果你想使用这个特性, 创建一个命令准备函数, 它要适应这个原型:</P><PRE class=programlisting>typedef int (prep_rq_fn) (request_queue_t *queue, struct request *req); 
+</PRE>
+                        <P>请求结构包含一个成员 cmd, 它是一个 BLK_MAX_CDB 字节的数组; 
+                        这个数组可被这个准备函数用来存储实际的硬件命令(或者任何其他的有用信息). 
+这个函数应当返回一个下列的值:</P>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>BLKPREP_OK </SPAN></SPAN>
+                          <DD>
+                          <P>命令准备正常进行, 并且这个请求可被传递给你的驱动的请求函数.</P>
+                          <DT><SPAN class=term><SPAN>BLKPREP_KILL </SPAN></SPAN>
+                          <DD>
+                          <P>这个请求不能完成; 它带有一个错误码而失败.</P>
+                          <DT><SPAN class=term><SPAN>BLKPREP_DEFER 
+</SPAN></SPAN>
+                          <DD>
+                          <P>这个请求这次无法完成. 它位于队列的前面, 
+但是不能传递给请求函数.</P></DD></DL></DIV>
+                        <P>准备函数被 elv_next_request 在请求返回到你的驱动之前立刻调用. 如果这个函数返回 
+                        BLKPREP_DEFER, 从 elv_next_request 返回给你的驱动的返回值是 NULL. 
+                        这个操作描述可能是有用的, 如果, 例如你的设备已达到它能够等候的请求的最大数目.</P>
+                        <P>为使块层调用你的准备函数, 传递它到:</P><PRE class=programlisting>void blk_queue_prep_rq(request_queue_t *queue, prep_rq_fn *func); 
+</PRE>
+                        <P>缺省地, 请求队列没有准备函数.</P></DIV>
+                        <DIV class=sect2 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H3 class=title><A 
+                        name=TaggedCommandQueueing.sect2></A>16.4.2.&nbsp;被标识的命令排队</H3></DIV></DIV></DIV>
+                        <P>可同时有多个请求被激活的硬件, 常常支持某种被标识的命令排队(TCQ). TCQ 简单地说是关联一个整数 
+                        "tag" 到每个请求的技术, 注意当驱动器完成每个请求时, 他可告知驱动是哪一个. 在以前的内核版本, 实现 
+                        TCQ 的块驱动不得不自己做所有的工作; 在2.6, 一个 TCQ 支持框架已经被添加到块层, 
+                        以给所有的驱动来使用.</P>
+                        <P>如果你的驱动器进行标记命令排队, 你应当在初始化时通知内核这个事实, 使用:</P><PRE class=programlisting>int blk_queue_init_tags(request_queue_t *queue, int depth, struct blk_queue_tag *tags);
+</PRE>
+                        <P>这里, queue 是你的请求队列, 而 depth 是你的设备能够在任何时间拥有的等待的标记请求的数目. 
+                        tags 是一个可选的指针指向一个 struct blk_queue_tag 结构数组; 必须有 depth 
+                        个. 正常地, tags 可用 NULL, 并且 blk_queue_init_tags 分配这个 数组. 
+                        如果, 但是, 你需要和多个设备分享通用的 tags, 你可传递这个标记数组指针(存储在 queue_tags 
+                        成员)从另一个请求队列. 你应当从不真正自己分配这个标记数组; 
+                        块层需要初始化这个数组并且不输出这个初始化函数给模块.</P>
+                        <P>因为 blk_queue_init_tags 分配内存, 它可能失败. 
+                        在那个情况下它返回一个负的错误码给调用者.</P>
+                        <P>如果你的设备可处理的标记的数目改变了, 你可通知内核, 使用:</P><PRE class=programlisting>int blk_queue_resize_tags(request_queue_t *queue, int new_depth); 
+</PRE>
+                        <P>这个队列锁必须在这个调用期间被持有. 这个调用可能失败, 返回一个负错误码.</P>
+                        <P>一个标记和一个请求结构的关联被 blk_queue_start_tag 来完成, 
+                        它必须在成员队列锁被持有时调用:</P><PRE class=programlisting>int blk_queue_start_tag(request_queue_t *queue, struct request *req); 
+</PRE>
+                        <P>如果一个 tag 可用, 这个函数分配它给这个请求, 存储这个标识号在 req-&gt;tag, 并且返回 
+                        0. 它还从队列中解除这个请求, 并且连接它到它自己的标识跟踪结构, 
+                        因此你的驱动应当小心不从队列中解除这个请求, 如果在使用标识. 如果没有标识可用, 
+                        blk_queue_start_tag 将这个请求留在队列并且返回一个非零值.</P>
+                        <P>当一个给定的请求的所有的传送都已完成, 你的驱动应当返回标识, 使用:</P><PRE class=programlisting>void blk_queue_end_tag(request_queue_t *queue, struct request *req); 
+</PRE>
+                        <P>再一次, 你必须持有队列锁, 在调用这个函数之前. 这个调用应当在 
+                        end_that_request_first 返回 0 之后进行(意味着这个请求完成), 但要在调用 
+                        end_that_request_last 之前. 记住这个请求已经从队列中解除, 
+                        因此它对于你的驱动在此点这样做可能是一个错误.</P>
+                        <P>如果你需要找到关联到一个给定标识上的请求(当驱动器报告完成, 例如), 使用 
+                        blk_queue_find_tag:</P><PRE class=programlisting>struct request *blk_queue_find_tag(request_queue_t *qeue, int tag);
+</PRE>
+                        <P>返回值是关联的请求结构, 除非有些事情已经真的出错了.</P>
+                        <P>如果事情真地出错了, 你的请求可能发现它自己不得不复位或者对其中一个它的设备进行一些其他的大动作. 
+                        在这种情况下, 任何等待中的标识命令将不会完成. 块层提供一个函数可用帮助在这种情况下恢复:</P><PRE class=programlisting>void blk_queue_invalidate_tags(request_queue_t *queue); 
+</PRE>
+                        <P>这个函数返回所有的等待的标识给这个池, 并且将关联的请求放回请求队列. 
+                        你调用这个函数时必须持有队列锁.</P>
+                        <DIV class=sect1 lang=zh-cn>
+                        <DIV class=titlepage>
+                        <DIV>
+                        <DIV>
+                        <H2 class=title style="CLEAR: both"><A 
+                        name=BlockDriversqr.sect1></A>16.5.&nbsp;快速参考</H2></DIV></DIV></DIV>
+                        <DIV class=variablelist>
+                        <DL>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/fs.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          register_blkdev(unsigned int major, const char 
+                          *name);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          unregister_blkdev(unsigned int major, const char 
+                          *name);</SPAN></SPAN> 
+                          <DD>
+                          <P>register_blkdev 注册一个块驱动到内核, 并且, 可选地, 获得一个主编号. 
+                          一个驱动可被注销, 使用 unregister_blkdev.</P>
+                          <DT><SPAN class=term><SPAN>struct 
+                          block_device_operations </SPAN></SPAN>
+                          <DD>
+                          <P>持有大部分块驱动的方法的结构.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/genhd.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct 
+                          gendisk;</SPAN></SPAN> 
+                          <DD>
+                          <P>描述内核中单个块设备的结构.</P>
+                          <DT><SPAN class=term><SPAN>struct gendisk 
+                          *alloc_disk(int minors);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void add_disk(struct 
+                          gendisk *gd);</SPAN></SPAN> 
+                          <DD>
+                          <P>分配 gendisk 结构的函数, 并且返回它们到系统. </P>
+                          <DT><SPAN class=term><SPAN>void set_capacity(struct 
+                          gendisk *gd, sector_t sectors);</SPAN></SPAN> 
+                          <DD>
+                          <P>存储设备能力(以 512-字节)在 gendisk 结构中. </P>
+                          <DT><SPAN class=term><SPAN>void add_disk(struct 
+                          gendisk *gd);</SPAN></SPAN> 
+                          <DD>
+                          <P>添加一个磁盘到内核. 一旦调用这个函数, 你的磁盘的方法可被内核调用. </P>
+                          <DT><SPAN class=term><SPAN>int 
+                          check_disk_change(struct block_device 
+                          *bdev);</SPAN></SPAN> 
+                          <DD>
+                          <P>一个内核函数, 检查在给定磁盘驱动器中的介质改变, 
+并且采取要求的清理动作当检测到这样一个改变.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/blkdev.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>request_queue_t 
+                          blk_init_queue(request_fn_proc *request, spinlock_t 
+                          *lock);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_cleanup_queue(request_queue_t *);</SPAN></SPAN> 
+                          <DD>
+                          <P>处理块请求队列的创建和删除的函数.</P>
+                          <DT><SPAN class=term><SPAN>struct request 
+                          *elv_next_request(request_queue_t 
+                          *queue);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void end_request(struct 
+                          request *req, int success);</SPAN></SPAN> 
+                          <DD>
+                          <P>elv_next_request 从一个请求队列中获得下一个请求; end_request 
+                          可用在每个简单驱动器中来标识一个(或部分)请求完成.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          blkdev_dequeue_request(struct request 
+                          *req);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          elv_requeue_request(request_queue_t *queue, struct 
+                          request *req);</SPAN></SPAN> 
+                          <DD>
+                          <P>从队列中除去一个请求, 并且放回它的函数如果需要.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_stop_queue(request_queue_t *queue);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_start_queue(request_queue_t *queue);</SPAN></SPAN> 
+
+                          <DD>
+                          <P>如果你需要阻止对你的请求函数的进一步调用, 调用 blk_stop_queue 来完成. 调用 
+                          blk_start_queue 来使你的请求方法被再次调用.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_bounce_limit(request_queue_t *queue, u64 
+                          dma_addr);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_max_sectors(request_queue_t *queue, unsigned 
+                          short max);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_max_phys_segments(request_queue_t *queue, 
+                          unsigned short max);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_max_hw_segments(request_queue_t *queue, 
+                          unsigned short max);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_max_segment_size(request_queue_t *queue, 
+                          unsigned int max);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN 
+                          class=term><SPAN>blk_queue_segment_boundary(request_queue_t 
+                          *queue, unsigned long mask);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_dma_alignment(request_queue_t *queue, int 
+                          mask);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_hardsect_size(request_queue_t *queue, 
+                          unsigned short max);</SPAN></SPAN> 
+                          <DD>
+                          <P>设置各种队列参数的函数, 来控制请求如何被创建给一个特殊设备; 
+                          这些参数在"队列控制函数"一节中描述.</P>
+                          <DT><SPAN class=term><SPAN>#include 
+                          &lt;linux/bio.h&gt;</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct bio;</SPAN></SPAN> 
+                          <DD>
+                          <P>低级函数, 表示一个块 I/O 请求的一部分.</P>
+                          <DT><SPAN class=term><SPAN>bio_sectors(struct bio 
+                          *bio);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>bio_data_dir(struct bio 
+                          *bio);</SPAN></SPAN> 
+                          <DD>
+                          <P>2 个宏定义, 表示一个由 bio 结构描述的传送的大小和方向.</P>
+                          <DT><SPAN class=term><SPAN>bio_for_each_segment(bvec, 
+                          bio, segno);</SPAN></SPAN> 
+                          <DD>
+                          <P>一个伪控制结构, 用来循环组成一个 bio 结构的各个段.</P>
+                          <DT><SPAN class=term><SPAN>char 
+                          *__bio_kmap_atomic(struct bio *bio, int i, enum 
+                          km_type type);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          __bio_kunmap_atomic(char *buffer, enum km_type 
+                          type);</SPAN></SPAN> 
+                          <DD>
+                          <P>__bio_kmap_atomic 可用来创建一个内核虚拟地址给一个在 bio 结构中的给定的段. 
+                          映射必须使用 __bio_kunmap_atomic 来恢复.</P>
+                          <DT><SPAN class=term><SPAN>struct page 
+                          *bio_page(struct bio *bio);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int bio_offset(struct bio 
+                          *bio);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int bio_cur_sectors(struct 
+                          bio *bio);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>char *bio_data(struct bio 
+                          *bio);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>char *bio_kmap_irq(struct 
+                          bio *bio, unsigned long *flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void bio_kunmap_irq(char 
+                          *buffer, unsigned long *flags);</SPAN></SPAN> 
+                          <DD>
+                          <P>一组存取者宏定义, 提供对一个 bio 结构中的"当前"段的存取.</P>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_ordered(request_queue_t *queue, int 
+                          flag);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int blk_barrier_rq(struct 
+                          request *req);</SPAN></SPAN> 
+                          <DD>
+                          <P>如果你的驱动实现屏障请求, 调用 blk_queue_ordered -- 如同它应当做的. 宏 
+                          blk_barrier_rq 返回一个非零值如果当前请求是一个屏障请求.</P>
+                          <DT><SPAN class=term><SPAN>int 
+                          blk_noretry_request(struct request 
+                          *req);</SPAN></SPAN> 
+                          <DD>
+                          <P>这个宏返回一个非零值, 如果给定的请求不应当在出错时重新尝试.</P>
+                          <DT><SPAN class=term><SPAN>int 
+                          end_that_request_first(struct request *req, int 
+                          success, int count);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          end_that_request_last(struct request 
+                          *req);</SPAN></SPAN> 
+                          <DD>
+                          <P>使用 end_that_request_firest 来指示一个块 I/O 请求的一部分完成. 
+                          当那个函数返回 0, 请求完成并且应当被传递给 end_that_request_last.</P>
+                          <DT><SPAN class=term><SPAN>rq_for_each_bio(bio, 
+                          request)</SPAN></SPAN> 
+                          <DD>
+                          <P>另一个用宏定义来实现的控制结构; 它步入构成一个请求的每个 bio.</P>
+                          <DT><SPAN class=term><SPAN>int 
+                          blk_rq_map_sg(request_queue_t *queue, struct request 
+                          *req, struct scatterlist *list);</SPAN></SPAN> 
+                          <DD>
+                          <P>为一次 DMA 传送填充给定的散布表, 用需要来映射给定请求中的缓冲的信息</P>
+                          <DT><SPAN class=term><SPAN>typedef int 
+                          (make_request_fn) (request_queue_t *q, struct bio 
+                          *bio);</SPAN></SPAN> 
+                          <DD>
+                          <P>make_request 函数的原型.</P>
+                          <DT><SPAN class=term><SPAN>void bio_endio(struct bio 
+                          *bio, unsigned int bytes, int error);</SPAN></SPAN> 
+                          <DD>
+                          <P>指示一个给定 bio 的完成. 这个函数应当只用在你的驱动直接获取 bio , 通过 
+                          make_request 函数从块层.</P>
+                          <DT><SPAN class=term><SPAN>request_queue_t 
+                          *blk_alloc_queue(int flags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_make_request(request_queue_t *queue, 
+                          make_request_fn *func);</SPAN></SPAN> 
+                          <DD>
+                          <P>使用 blk_alloc_queue 来分配由定制的 make_request 函数使用的请求队列, 
+                          . 那个函数应当使用 blk_queue_make_request 来设置.</P>
+                          <DT><SPAN class=term><SPAN>typedef int (prep_rq_fn) 
+                          (request_queue_t *queue, struct request 
+                          *req);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_prep_rq(request_queue_t *queue, prep_rq_fn 
+                          *func);</SPAN></SPAN> 
+                          <DD>
+                          <P>一个命令准备函数的原型和设置函数, 它可用来准备必要的硬件命令, 
+                          在请求被传递给你的请求函数之前.</P>
+                          <DT><SPAN class=term><SPAN>int 
+                          blk_queue_init_tags(request_queue_t *queue, int depth, 
+                          struct blk_queue_tag *tags);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          blk_queue_resize_tags(request_queue_t *queue, int 
+                          new_depth);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>int 
+                          blk_queue_start_tag(request_queue_t *queue, struct 
+                          request *req);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_end_tag(request_queue_t *queue, struct 
+                          request *req);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>struct request 
+                          *blk_queue_find_tag(request_queue_t *qeue, int 
+                          tag);</SPAN></SPAN> 
+                          <DD>
+                          <DT><SPAN class=term><SPAN>void 
+                          blk_queue_invalidate_tags(request_queue_t 
+                          *queue);</SPAN></SPAN> 
+                          <DD>
+                          <P>驱动使用被标记的命令队列的支持函数.</P></DD></DL></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV></DIV>
+                        <DIV></DIV></DIV></TD></TR></TBODY></TABLE>
+                  <P style="MARGIN: 5px; LINE-HEIGHT: 150%"><A 
+                  href="http://blog.chinaunix.net/u2/78225/showart.php?id=1270012" 
+                  target=_blank>回目录 Linux Device Driver书籍</A> </P></TD></TR>
+              <TR>
+                <TD align=middle height=25><FONT color=#295200>发表于： 2008-09-28 
+                  ，修改于： 2008-10-06 16:37，已浏览57次，有评论0条</FONT> <A id=star 
+                  title=推荐这篇文章 onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/star.php?blogid=78225&amp;artid=1270153">推荐</A> 
+                  <A id=complaint title=投诉这篇文章 
+                  onclick="NewWindows(this.href);return false;" 
+                  href="http://blog.chinaunix.net/u2/complaint.php?blogid=78225&amp;artid=1270153">投诉</A> 
+                </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD>
+    <TD width=18 
+    background="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_right.gif"></TD></TR>
+  <TR>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_left_bottom.gif" 
+      border=0></TD>
+    <TD 
+    background="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_bottom.gif">
+      <P style="MARGIN: 5px; LINE-HEIGHT: 150%"></P></TD>
+    <TD width=18 height=28><IMG alt="" 
+      src="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/bg_art_right_bottom.gif" 
+      border=0></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>网友评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7>
+      <TABLE 
+      style="COLOR: #295200; BORDER-COLLAPSE: collapse; WORD-WRAP: break-word" 
+      cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+        <TBODY></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
+<TABLE style="BORDER-COLLAPSE: collapse" borderColor=#a5bd6b cellSpacing=1 
+cellPadding=0 width="90%" align=center border=1>
+  <TBODY>
+  <TR>
+    <TD style="COLOR: #295200" bgColor=#eff7de height=25><B>发表评论</B></TD></TR>
+  <TR>
+    <TD bgColor=#ffffff height=1></TD></TR>
+  <TR>
+    <TD align=middle bgColor=#f9f5e7><IFRAME name=comment 
+      src="Linux Device Driver书籍（16）块驱动 - LDD3 - 嵌入式驱动进行时.files/comment.htm" 
+      frameBorder=0 width="100%" 
+height=160></IFRAME></TD></TR></TBODY></TABLE></BODY></HTML>
