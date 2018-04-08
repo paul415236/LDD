@@ -1,7 +1,6 @@
-#include <linux/module.h>
-#include <linux/init.h>
-#include <asm/current.h>
-#include <linux/sched.h>
+#ifndef _HELLO_H_
+#include "hello.h"
+#endif
 
 static char *name = "Paul";
 static int old = 18;
@@ -15,14 +14,14 @@ MODULE_PARM_DESC(old, "your age");
 
 static int __init hello_int(void)
 {
-	printk("KERN_INFO %s: pid=%d \n", current->comm, current->pid);
-	printk("Hello %s(%d) \n", name, old);
+	dbg("%s: pid=%d \n", current->comm, current->pid);
+	dbg("Hello %s(%d) \n", name, old);
 	return 0;
 }
 
 static void __exit hello_exit(void)
 {
-	printk("KERN_INFO bye %s \n", name);
+	dbg("bye %s \n", name);
 }
 
 module_init(hello_int);
