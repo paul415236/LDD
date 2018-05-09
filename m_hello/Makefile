@@ -3,7 +3,8 @@ MODULE = hello
 
 # kernel
 KERNELVERSION = $(shell uname -r)
-KERNELDIR := /usr/src/linux-headers-$(KERNELVERSION)
+#KERNELDIR := /usr/src/linux-headers-$(KERNELVERSION)
+KERNELDIR := /lib/modules/$(KERNELVERSION)/build
 
 # other
 PWD = $(shell pwd)
@@ -12,7 +13,7 @@ PWD = $(shell pwd)
 DEBUG = y
 
 ifeq ($(DEBUG), y)
-	DEBFLAGS = -O -g -DHELLO_DEBUG
+	DEBFLAGS = -g -DHELLO_DEBUG
 else
 	DEBFLAGS = -O2
 endif
@@ -22,7 +23,7 @@ EXTRA_CFLAGS += $(DEBFLAGS)
 
 ifneq ($(KERNELRELEASE),)
 	obj-m := $(MODULE).o
-	#module-objs := 
+	module-objs := hello.o
 else
 
 default:
