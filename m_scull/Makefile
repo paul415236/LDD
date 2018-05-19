@@ -10,7 +10,7 @@ PWD = $(shell pwd)
 
 ifneq ($(KERNELRELEASE),)
 	obj-m := $(MODULE).o
-	#module-objs := 
+	#scull-objs := scull.o
 else
 
 default:
