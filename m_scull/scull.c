@@ -38,7 +38,7 @@ MODULE_PARM_DESC(dev_qset, "device qset");
 struct scull_devices *scull_dev = NULL;
 struct file_operations scull_fops = {
 	.owner          = THIS_MODULE,
-	.llseek         = NULL,
+	.llseek         = scull_llseek,
 	.read           = scull_read,
 	.write          = scull_write,
 	.unlocked_ioctl = NULL,
@@ -58,9 +58,9 @@ int scull_trim(struct scull_devices *s)
 	struct q_set *next, *dptr;
 
 	// go through qset and free memory
-	for(dptr = s->q; dptr != NULL; dptr = next)
+	for(dptr = s->q; dptr; dptr = next)
 	{
-		if(dptr->data != NULL)
+		if(dptr->data)
 		{
 			for(i = 0; i < s->qset; i++)
 			{
@@ -97,9 +97,12 @@ int scull_open(struct inode *inode, struct file *filp)
 		if (down_interruptible(&s->sem))
 			return -ERESTARTSYS;
 
+        dbg("open with write only mode. \n");
 		scull_trim(s);
 		up(&s->sem);
 	}
+
+	dbg("open success \n");
 
 	return S_OK;
 }
@@ -111,15 +114,23 @@ struct q_set *scull_follow(struct scull_devices *s, int n)
     if(dptr == NULL)
     {
         // LDD allocates memory for set in this case, but i think we should not do it..
-        return NULL;
+        // no! we should do it if it's writting
+        dptr = s->q = kmalloc(sizeof(struct q_set), GFP_KERNEL);
+		if (dptr == NULL)
+			return NULL;  /* Never mind */
+
+		memset(dptr, 0, sizeof(struct q_set));
     }
 
     while(n--)
     {
         if(!dptr->next)
         {
-            // again..
-            return NULL;
+            dptr->next = kmalloc(sizeof(struct q_set), GFP_KERNEL);
+			if (dptr->next == NULL)
+				return NULL;  /* Never mind */
+
+			memset(dptr->next, 0, sizeof(struct q_set));
         }
 
         dptr = dptr->next;
@@ -143,7 +154,10 @@ ssize_t scull_read(struct file *filp,
 		return -ERESTARTSYS;
 
     if(*f_pos >= s->size)
+    {
+        dbg("err. read size \n");
         goto OUT;
+    }
 
     if((*f_pos + count) > s->size)
         count = s->size - *f_pos;
@@ -157,11 +171,16 @@ ssize_t scull_read(struct file *filp,
     // then we follow up the list according to the offset we just cauculated
     dptr = scull_follow(s, item);
     if(dptr == NULL || dptr->data == NULL || dptr->data[s_pos] == NULL)
+    {
+        dbg("not found \n");
         goto OUT;
+    }
 
     // read quantum by qunatum one time
     if(count > (s->quantum - q_pos))
         count = s->quantum - q_pos;
+
+    dbg("count = %d \n", (int)count);
 
     if(copy_to_user(buf, dptr->data[s_pos] + q_pos, count))
     {
@@ -191,12 +210,6 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,
 	if (down_interruptible(&s->sem))
 		return -ERESTARTSYS;
 
-    if(*f_pos >= s->size)
-        goto OUT;
-
-    if((*f_pos + count) > s->size)
-        count = s->size - *f_pos;
-
     // search read point
     item  = (long)*f_pos / setsize;     // how many sets we should cross
     rest  = (long)*f_pos % setsize;     // how big the size we should cross at the rest set
@@ -205,12 +218,28 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,
 
     // then we follow up the list according to the offset we just cauculated
     dptr = scull_follow(s, item);
-    if(dptr == NULL || dptr->data == NULL || dptr->data[s_pos] == NULL)
-        goto OUT;
+    if (dptr == NULL)
+		goto OUT;
+	if (!dptr->data)
+	{
+		dptr->data = kmalloc(s->qset * sizeof(char *), GFP_KERNEL);
+		if (!dptr->data)
+			goto OUT;
+
+		memset(dptr->data, 0, s->qset * sizeof(char *));
+	}
+	if (!dptr->data[s_pos])
+	{
+		dptr->data[s_pos] = kmalloc(s->quantum, GFP_KERNEL);
+		if (!dptr->data[s_pos])
+			goto OUT;
+	}
 
     // read quantum by qunatum one time
     if(count > (s->quantum - q_pos))
         count = s->quantum - q_pos;
+
+    dbg("count = %d \n", (int)count);
 
     if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
     {
@@ -226,7 +255,35 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,
 
 OUT:
     up(&s->sem);
+
+
     return ret;
+}
+
+loff_t scull_llseek(struct file *filp, loff_t off, int whence)
+{
+	struct scull_devices *dev = filp->private_data;
+	loff_t newpos;
+
+	switch(whence) {
+	  case 0: /* SEEK_SET */
+		newpos = off;
+		break;
+
+	  case 1: /* SEEK_CUR */
+		newpos = filp->f_pos + off;
+		break;
+
+	  case 2: /* SEEK_END */
+		newpos = dev->size + off;
+		break;
+
+	  default: /* can't happen */
+		return -EINVAL;
+	}
+	if (newpos < 0) return -EINVAL;
+	filp->f_pos = newpos;
+	return newpos;
 }
 
 static int scull_setup_cdev(struct scull_devices *s, int index)
@@ -246,6 +303,8 @@ static int scull_setup_cdev(struct scull_devices *s, int index)
 		printk(KERN_NOTICE "add scull%d failed. %d \n", index, ret);
 		return ret;
 	}
+
+	dbg("add cdev %d \n", index);
 
 	return S_OK;
 }
@@ -292,13 +351,14 @@ static int __init scull_init(void)
 			goto SETUP_CDEV_FAIL;
 	}
 
-
 	return S_OK;
 
 SETUP_CDEV_FAIL:
 	kfree(scull_dev);
+
 NO_MEMORY:
 	scull_exit();
+
 	return ret;
 }
 

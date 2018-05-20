@@ -4,6 +4,14 @@ MODULE=scull
 MODE=644
 
 
-
+# retrieve device major
 major=$(cat /proc/devices | grep $MODULE | awk '{print $1}')
-echo $major
+echo "scull major: $major"
+
+rm -f /dev/${MODULE}[0-3]
+for i in {0..3};
+do
+	mknod /dev/${MODULE}$i c $major $i
+	chown paul:paul /dev/${MODULE}$i
+	chmod 777 /dev/${MODULE}$i
+done
