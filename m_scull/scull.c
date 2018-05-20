@@ -35,12 +35,7 @@ MODULE_PARM_DESC(dev_num, "device numbers");
 MODULE_PARM_DESC(dev_quantum, "device quantum");
 MODULE_PARM_DESC(dev_qset, "device qset");
 
-static int  scull_init(void);
-static void scull_exit(void);
-static int  scull_setup_cdev(struct scull_devices *, int);
-
 struct scull_devices *scull_dev = NULL;
-
 struct file_operations scull_fops = {
 	.owner          = THIS_MODULE,
 	.llseek         = NULL,
@@ -48,10 +43,14 @@ struct file_operations scull_fops = {
 	.write          = scull_write,
 	.unlocked_ioctl = NULL,
 	.open           = scull_open,
-	.release        = NULL,//scull_release,
+	.release        = scull_release,
 
 };
 
+static void __exit scull_exit(void);
+static int  __init scull_init(void);
+struct q_set      *scull_follow(struct scull_devices *s, int n);
+static int         scull_setup_cdev(struct scull_devices *, int);
 
 int scull_trim(struct scull_devices *s)
 {
@@ -105,21 +104,129 @@ int scull_open(struct inode *inode, struct file *filp)
 	return S_OK;
 }
 
-ssize_t scull_read(struct file *filp, char __user *buf, size_t count,
+struct q_set *scull_follow(struct scull_devices *s, int n)
+{
+    struct q_set *dptr = s->q;
+
+    if(dptr == NULL)
+    {
+        // LDD allocates memory for set in this case, but i think we should not do it..
+        return NULL;
+    }
+
+    while(n--)
+    {
+        if(!dptr->next)
+        {
+            // again..
+            return NULL;
+        }
+
+        dptr = dptr->next;
+    }
+
+    return dptr;
+}
+
+ssize_t scull_read(struct file *filp,
+                char __user *buf,
+                size_t count,
                 loff_t *f_pos)
 {
-	ssize_t retval = 0;
+    struct scull_devices *s = filp->private_data;
+    struct q_set *dptr;
+    int setsize = s->qset*s->quantum;
+    int item, s_pos, q_pos, rest;
+	ssize_t ret = 0;
 
-	return retval;
+	if (down_interruptible(&s->sem))
+		return -ERESTARTSYS;
+
+    if(*f_pos >= s->size)
+        goto OUT;
+
+    if((*f_pos + count) > s->size)
+        count = s->size - *f_pos;
+
+    // search read point
+    item  = (long)*f_pos / setsize;     // how many sets we should cross
+    rest  = (long)*f_pos % setsize;     // how big the size we should cross at the rest set
+    s_pos = rest / s->quantum;          // how many quantum we should cross at the rest set
+    q_pos = rest % s->quantum;          // how many size w should cross at the rest quantum
+
+    // then we follow up the list according to the offset we just cauculated
+    dptr = scull_follow(s, item);
+    if(dptr == NULL || dptr->data == NULL || dptr->data[s_pos] == NULL)
+        goto OUT;
+
+    // read quantum by qunatum one time
+    if(count > (s->quantum - q_pos))
+        count = s->quantum - q_pos;
+
+    if(copy_to_user(buf, dptr->data[s_pos] + q_pos, count))
+    {
+        ret = -EFAULT;
+        goto OUT;
+    }
+
+    *f_pos += count;
+    ret = count;
+
+OUT:
+    up(&s->sem);
+
+
+	return ret;
 }
 
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,
                 loff_t *f_pos)
 {
-	ssize_t retval = 0;
+    struct scull_devices *s = filp->private_data;
+    struct q_set *dptr;
+    int setsize = s->qset*s->quantum;
+    int item, s_pos, q_pos, rest;
+	ssize_t ret = 0;
 
-	return retval;
+	if (down_interruptible(&s->sem))
+		return -ERESTARTSYS;
 
+    if(*f_pos >= s->size)
+        goto OUT;
+
+    if((*f_pos + count) > s->size)
+        count = s->size - *f_pos;
+
+    // search read point
+    item  = (long)*f_pos / setsize;     // how many sets we should cross
+    rest  = (long)*f_pos % setsize;     // how big the size we should cross at the rest set
+    s_pos = rest / s->quantum;          // how many quantum we should cross at the rest set
+    q_pos = rest % s->quantum;          // how many size w should cross at the rest quantum
+
+    // then we follow up the list according to the offset we just cauculated
+    dptr = scull_follow(s, item);
+    if(dptr == NULL || dptr->data == NULL || dptr->data[s_pos] == NULL)
+        goto OUT;
+
+    // read quantum by qunatum one time
+    if(count > (s->quantum - q_pos))
+        count = s->quantum - q_pos;
+
+    if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
+    {
+        ret = -EFAULT;
+        goto OUT;
+    }
+
+    *f_pos += count;
+    ret = count;
+
+    if(s->size < *f_pos)
+        s->size = *f_pos;
+
+OUT:
+    up(&s->sem);
+    return ret;
 }
 
 static int scull_setup_cdev(struct scull_devices *s, int index)
@@ -143,7 +250,7 @@ static int scull_setup_cdev(struct scull_devices *s, int index)
 	return S_OK;
 }
 
-static int scull_init(void)
+static int __init scull_init(void)
 {
 	int i, ret;
 	dev_t dev;
@@ -195,9 +302,29 @@ NO_MEMORY:
 	return ret;
 }
 
-static void scull_exit(void)
+static void __exit scull_exit(void)
 {
+    int i;
+    dev_t devno = MKDEV(dev_major, dev_minor);
 
+    // free memory
+    if(scull_dev)
+    {
+        for(i = 0; i < dev_num; i++)
+        {
+            scull_trim(&scull_dev[i]);
+            cdev_del(&scull_dev[i].cdev);
+        }
+        kfree(scull_dev);
+    }
+
+    // unreginster character device
+    unregister_chrdev_region(devno, dev_num);
+}
+
+int scull_release(struct inode *inode, struct file *filp)
+{
+	return 0;
 }
 
 module_init(scull_init);
