@@ -97,12 +97,9 @@ int scull_open(struct inode *inode, struct file *filp)
 		if (down_interruptible(&s->sem))
 			return -ERESTARTSYS;
 
-        dbg("open with write only mode. \n");
 		scull_trim(s);
 		up(&s->sem);
 	}
-
-	dbg("open success \n");
 
 	return S_OK;
 }
@@ -155,7 +152,6 @@ ssize_t scull_read(struct file *filp,
 
     if(*f_pos >= s->size)
     {
-        dbg("err. read size \n");
         goto OUT;
     }
 
@@ -179,8 +175,6 @@ ssize_t scull_read(struct file *filp,
     // read quantum by qunatum one time
     if(count > (s->quantum - q_pos))
         count = s->quantum - q_pos;
-
-    dbg("count = %d \n", (int)count);
 
     if(copy_to_user(buf, dptr->data[s_pos] + q_pos, count))
     {
@@ -238,8 +232,6 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,
     // read quantum by qunatum one time
     if(count > (s->quantum - q_pos))
         count = s->quantum - q_pos;
-
-    dbg("count = %d \n", (int)count);
 
     if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
     {
@@ -303,8 +295,6 @@ static int scull_setup_cdev(struct scull_devices *s, int index)
 		printk(KERN_NOTICE "add scull%d failed. %d \n", index, ret);
 		return ret;
 	}
-
-	dbg("add cdev %d \n", index);
 
 	return S_OK;
 }

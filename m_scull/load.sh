@@ -3,6 +3,7 @@
 MODULE=scull
 MODE=644
 
+sudo insmod ${MODULE}.ko
 
 # retrieve device major
 major=$(cat /proc/devices | grep $MODULE | awk '{print $1}')
