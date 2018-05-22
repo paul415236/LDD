@@ -304,6 +304,8 @@ static int __init scull_init(void)
 	int i, ret;
 	dev_t dev;
 
+	dbg("scull device init .. \n");
+
 	// register character devices
 	if(dev_major)
 	{

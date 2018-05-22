@@ -12,7 +12,6 @@
 #define DEFAULT_DEV_QUANTUM	(4096) // 4k bytes
 #define DEFAULT_DEV_QSET	(1000)
 
-#define SCULL_DEBUG
 #ifdef SCULL_DEBUG
     #define dbg(fmt, args...) \
         printk(KERN_DEBUG "%s(%d): " fmt, __func__, __LINE__, ## args)
