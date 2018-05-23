@@ -42,4 +42,7 @@ loff_t  scull_llseek(struct file *filp, loff_t off, int whence);
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count,loff_t *f_pos);
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,loff_t *f_pos);
 
+int     scull_read_procmem(struct seq_file *s, void *v);
+int     scullmem_proc_open(struct inode *inode, struct file *file);
+
 #endif // _SCULL_H_

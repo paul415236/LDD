@@ -7,11 +7,11 @@
 #include <linux/slab.h>
 #include <linux/errno.h>
 #include <linux/types.h>
-#include <linux/proc_fs.h>
 #include <linux/fcntl.h>	/* O_ACCMODE */
 #include <linux/seq_file.h>
 #include <linux/cdev.h>
 #include <linux/uaccess.h>	/* copy_*_user */
+#include <linux/proc_fs.h>
 
 #include <asm/current.h>
 
@@ -19,11 +19,11 @@
 #include "scull.h"
 #endif
 
-static int dev_major = DEFAULT_DEV_MAJOR;
-static int dev_minor = DEFAULT_DEV_MINOR;
-static int dev_num   = DEFAULT_DEV_NUM;
-static int dev_quantum = DEFAULT_DEV_QUANTUM;
-static int dev_qset    = DEFAULT_DEV_QSET;
+int dev_major = DEFAULT_DEV_MAJOR;
+int dev_minor = DEFAULT_DEV_MINOR;
+int dev_num   = DEFAULT_DEV_NUM;
+int dev_quantum = DEFAULT_DEV_QUANTUM;
+int dev_qset    = DEFAULT_DEV_QSET;
 module_param(dev_major, int, S_IRUGO);
 module_param(dev_minor, int, S_IRUGO);
 module_param(dev_num  , int, S_IRUGO);
@@ -47,10 +47,21 @@ struct file_operations scull_fops = {
 
 };
 
+static struct file_operations scullmem_proc_ops = {
+    .owner   = THIS_MODULE,
+    .open    = scullmem_proc_open,
+    .read    = seq_read,
+    .llseek  = seq_lseek,
+    .release = single_release
+};
+
 static void __exit scull_exit(void);
 static int  __init scull_init(void);
 struct q_set      *scull_follow(struct scull_devices *s, int n);
 static int         scull_setup_cdev(struct scull_devices *, int);
+
+static int scull_create_proc(void);
+static int scull_remove_proc(void);
 
 int scull_trim(struct scull_devices *s)
 {
@@ -343,6 +354,10 @@ static int __init scull_init(void)
 			goto SETUP_CDEV_FAIL;
 	}
 
+#ifdef SCULL_DEBUG
+    scull_create_proc();
+#endif
+
 	return S_OK;
 
 SETUP_CDEV_FAIL:
@@ -370,6 +385,10 @@ static void __exit scull_exit(void)
         kfree(scull_dev);
     }
 
+#ifdef SCULL_DEBUG
+	scull_remove_proc();
+#endif
+
     // unreginster character device
     unregister_chrdev_region(devno, dev_num);
 }
@@ -377,6 +396,66 @@ static void __exit scull_exit(void)
 int scull_release(struct inode *inode, struct file *filp)
 {
 	return 0;
+}
+
+/* proc */
+
+int scull_read_procmem(struct seq_file *s, void *v)
+{
+    int i, j;
+    int limit = s->size - 80; /* Don't print more than this */
+
+    for (i = 0; i < dev_num && s->count <= limit; i++)
+    {
+        struct scull_devices *d = &scull_dev[i];
+        struct q_set *qs = d->q;
+
+        if (down_interruptible(&d->sem))
+                return -ERESTARTSYS;
+
+        seq_printf(s,"\nDevice %i: qset %i, q %i, sz %li\n", i, d->qset, d->quantum, d->size);
+
+        for (; qs && s->count <= limit; qs = qs->next)
+        {   /* scan the list */
+            seq_printf(s, "  item at %p, qset at %p\n", qs, qs->data);
+
+            if (qs->data && !qs->next)
+            { /* dump only the last item */
+                for (j = 0; j < d->qset; j++)
+                {
+                    if (qs->data[j])
+                        seq_printf(s, "    % 4i: %8p\n", j, qs->data[j]);
+                }
+            }
+        }
+
+        up(&d->sem);
+    }
+    return 0;
+}
+
+int scullmem_proc_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, scull_read_procmem, NULL);
+}
+
+static int scull_create_proc(void)
+{
+    proc_create_data("scullmem",
+            0 /* default mode */,
+			NULL /* parent dir */,
+			&scullmem_proc_ops,
+			NULL /* client data */);
+
+    return S_OK;
+}
+
+static int scull_remove_proc(void)
+{
+	/* no problem if it was not registered */
+    remove_proc_entry("scullmem", NULL /* parent dir */);
+
+    return S_OK;
 }
 
 module_init(scull_init);

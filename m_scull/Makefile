@@ -23,7 +23,7 @@ EXTRA_CFLAGS += $(CCFLAGS)
 
 ifneq ($(KERNELRELEASE),)
 	obj-m := $(MODULE).o
-	#scull-objs := scull.o
+	#scull-objs := proc.o
 else
 
 default:
