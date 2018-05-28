@@ -45,4 +45,11 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,loff
 int     scull_read_procmem(struct seq_file *s, void *v);
 int     scullmem_proc_open(struct inode *inode, struct file *file);
 
+int     scullseq_proc_open(struct inode *inode, struct file *file);
+void*   scull_seq_start(struct seq_file *s, loff_t *pos);
+void*   scull_seq_next(struct seq_file *s, void *v, loff_t *pos);
+void    scull_seq_stop(struct seq_file *s, void *v);
+int     scull_seq_show(struct seq_file *s, void *v);
+
+
 #endif // _SCULL_H_

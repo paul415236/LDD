@@ -1,6 +1,7 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/init.h>
+
 #include <linux/sched.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
@@ -11,8 +12,8 @@
 #include <linux/seq_file.h>
 #include <linux/cdev.h>
 #include <linux/uaccess.h>	/* copy_*_user */
-#include <linux/proc_fs.h>
-
+#include <linux/proc_fs.h>  /* proc fs */
+#include <linux/seq_file.h> /* sequence file */
 #include <asm/current.h>
 
 #ifndef _SCULL_H_
@@ -47,7 +48,7 @@ struct file_operations scull_fops = {
 
 };
 
-static struct file_operations scullmem_proc_ops = {
+struct file_operations scullmem_proc_ops = {
     .owner   = THIS_MODULE,
     .open    = scullmem_proc_open,
     .read    = seq_read,
@@ -55,10 +56,25 @@ static struct file_operations scullmem_proc_ops = {
     .release = single_release
 };
 
-static void __exit scull_exit(void);
-static int  __init scull_init(void);
-struct q_set      *scull_follow(struct scull_devices *s, int n);
-static int         scull_setup_cdev(struct scull_devices *, int);
+struct file_operations scullseq_proc_ops = {
+    .owner   = THIS_MODULE,
+    .open    = scullseq_proc_open,
+    .read    = seq_read,
+    .llseek  = seq_lseek,
+    .release = single_release    
+};
+
+struct seq_operations scull_seq_ops = {
+    .start = scull_seq_start,
+    .next  = scull_seq_next,
+    .stop  = scull_seq_stop,
+    .show  = scull_seq_show
+};
+
+static void   scull_exit(void);
+static int    scull_init(void);
+struct q_set* scull_follow(struct scull_devices *s, int n);
+static int    scull_setup_cdev(struct scull_devices *, int);
 
 static int scull_create_proc(void);
 static int scull_remove_proc(void);
@@ -310,7 +326,7 @@ static int scull_setup_cdev(struct scull_devices *s, int index)
 	return S_OK;
 }
 
-static int __init scull_init(void)
+static int scull_init(void)
 {
 	int i, ret;
 	dev_t dev;
@@ -369,7 +385,7 @@ NO_MEMORY:
 	return ret;
 }
 
-static void __exit scull_exit(void)
+static void scull_exit(void)
 {
     int i;
     dev_t devno = MKDEV(dev_major, dev_minor);
@@ -439,14 +455,75 @@ int scullmem_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, scull_read_procmem, NULL);
 }
 
+void* scull_seq_start(struct seq_file *s, loff_t *pos)
+{
+    if(*pos >= dev_num)
+        return NULL;
+    else
+        return (void *)(scull_dev + *pos);
+}
+
+void* scull_seq_next(struct seq_file *s, void *v, loff_t *pos)
+{
+    (*pos)++;
+        
+    if(*pos >= dev_num)
+        return NULL;
+    else
+        return (void *)(scull_dev + *pos);
+}
+
+void scull_seq_stop(struct seq_file *s, void *v)
+{
+    
+}
+
+int scull_seq_show(struct seq_file *s, void *v)
+{
+    int i;
+    struct scull_devices *d = (struct scull_devices *)v;
+    struct q_set *dptr;
+    
+    if (down_interruptible(&d->sem))
+		return -ERESTARTSYS;
+    
+    seq_printf(s, "\nDevice %i qset %i quantum %i size %li \n",
+        (int)(d - scull_dev), d->qset, d->quantum, d->size);
+
+    for(dptr = d->q; dptr; dptr = dptr->next)
+    {
+        seq_printf(s, "item %p set %p \n", dptr, dptr->data);
+        if(dptr->data && !dptr->next)
+        {
+            for(i = 0; i < d->qset; i++)
+            {
+                if(dptr->data[i])
+                    seq_printf(s, "%4i: %8p \n", i, dptr->data[i]);
+            }
+        }
+    }
+
+    up(&d->sem);  
+    return S_OK;
+}
+   
+int scullseq_proc_open(struct inode *inode, struct file *file)
+{
+    return seq_open(file, &scull_seq_ops);
+}
+
 static int scull_create_proc(void)
 {
     proc_create_data("scullmem",
-            0 /* default mode */,
-			NULL /* parent dir */,
+            0,  // default mode 
+			NULL, // parent dir
 			&scullmem_proc_ops,
-			NULL /* client data */);
+			NULL); // client data
 
+    proc_create("scullseq",
+            0,
+            NULL,
+            &scullseq_proc_ops);
     return S_OK;
 }
 
@@ -454,6 +531,7 @@ static int scull_remove_proc(void)
 {
 	/* no problem if it was not registered */
     remove_proc_entry("scullmem", NULL /* parent dir */);
+    remove_proc_entry("scullseq", NULL);
 
     return S_OK;
 }
